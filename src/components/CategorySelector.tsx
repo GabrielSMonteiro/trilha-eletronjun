@@ -11,18 +11,27 @@ import { ChevronDown, Code, Zap, Users, Target, Briefcase, Building2 } from "luc
 interface Category {
   id: string;
   name: string;
-  icon: React.ReactNode;
-  color: string;
+  display_name: string;
+  description: string;
 }
 
-const categories: Category[] = [
-  { id: "software", name: "Software", icon: <Code className="h-4 w-4" />, color: "text-blue-500" },
-  { id: "eletronica", name: "Eletrônica", icon: <Zap className="h-4 w-4" />, color: "text-yellow-500" },
-  { id: "lideranca", name: "Liderança", icon: <Users className="h-4 w-4" />, color: "text-purple-500" },
-  { id: "gestao-pessoas", name: "Gestão de Pessoas", icon: <Users className="h-4 w-4" />, color: "text-green-500" },
-  { id: "gestao-projetos", name: "Gestão de Projetos", icon: <Target className="h-4 w-4" />, color: "text-red-500" },
-  { id: "mej", name: "MEJ", icon: <Building2 className="h-4 w-4" />, color: "text-indigo-500" },
-];
+const categoryIcons: Record<string, React.ReactNode> = {
+  software: <Code className="h-4 w-4" />,
+  eletronica: <Zap className="h-4 w-4" />,
+  lideranca: <Users className="h-4 w-4" />,
+  "gestao-pessoas": <Users className="h-4 w-4" />,
+  "gestao-projetos": <Target className="h-4 w-4" />,
+  mej: <Building2 className="h-4 w-4" />,
+};
+
+const categoryColors: Record<string, string> = {
+  software: "text-blue-500",
+  eletronica: "text-yellow-500",
+  lideranca: "text-purple-500",
+  "gestao-pessoas": "text-green-500",
+  "gestao-projetos": "text-red-500",
+  mej: "text-indigo-500",
+};
 
 interface CategorySelectorProps {
   selectedCategory: string;
@@ -30,7 +39,17 @@ interface CategorySelectorProps {
 }
 
 export const CategorySelector = ({ selectedCategory, onCategoryChange }: CategorySelectorProps) => {
-  const selected = categories.find(cat => cat.id === selectedCategory) || categories[0];
+  // Mock categories for now - will be replaced with props later
+  const categories: Category[] = [
+    { id: "1", name: "software", display_name: "Software", description: "Desenvolvimento" },
+    { id: "2", name: "eletronica", display_name: "Eletrônica", description: "Circuitos" },
+    { id: "3", name: "lideranca", display_name: "Liderança", description: "Gestão de equipes" },
+    { id: "4", name: "gestao-pessoas", display_name: "Gestão de Pessoas", description: "RH" },
+    { id: "5", name: "gestao-projetos", display_name: "Gestão de Projetos", description: "PMO" },
+    { id: "6", name: "mej", display_name: "MEJ", description: "Movimento EJ" },
+  ];
+
+  const selected = categories.find(cat => cat.name === selectedCategory) || categories[0];
 
   return (
     <DropdownMenu>
@@ -40,8 +59,10 @@ export const CategorySelector = ({ selectedCategory, onCategoryChange }: Categor
           className="bg-card border-2 border-border hover:border-primary/20 shadow-soft h-12 px-4 min-w-[180px]"
         >
           <div className="flex items-center gap-2">
-            <span className={selected.color}>{selected.icon}</span>
-            <span className="font-medium">{selected.name}</span>
+            <span className={categoryColors[selected.name] || "text-foreground"}>
+              {categoryIcons[selected.name] || <Code className="h-4 w-4" />}
+            </span>
+            <span className="font-medium">{selected.display_name}</span>
             <ChevronDown className="h-4 w-4 ml-auto opacity-50" />
           </div>
         </Button>
@@ -53,11 +74,13 @@ export const CategorySelector = ({ selectedCategory, onCategoryChange }: Categor
         {categories.map((category) => (
           <DropdownMenuItem
             key={category.id}
-            onClick={() => onCategoryChange(category.id)}
+            onClick={() => onCategoryChange(category.name)}
             className="flex items-center gap-3 p-3 rounded-lg hover:bg-accent transition-colors cursor-pointer"
           >
-            <span className={category.color}>{category.icon}</span>
-            <span className="font-medium">{category.name}</span>
+            <span className={categoryColors[category.name] || "text-foreground"}>
+              {categoryIcons[category.name] || <Code className="h-4 w-4" />}
+            </span>
+            <span className="font-medium">{category.display_name}</span>
           </DropdownMenuItem>
         ))}
       </DropdownMenuContent>

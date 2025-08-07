@@ -22,8 +22,10 @@ interface Lesson {
   id: string;
   title: string;
   videoUrl?: string;
+  video_url?: string;
+  external_link?: string;
   contentUrl?: string;
-  questions: Question[];
+  questions?: Question[];
 }
 
 interface LessonModalProps {
@@ -55,7 +57,8 @@ export const LessonModal = ({ lesson, isOpen, onClose, onComplete }: LessonModal
   };
 
   const handleNextQuestion = () => {
-    if (currentQuestionIndex < lesson.questions.length - 1) {
+    const questions = lesson.questions || [];
+    if (currentQuestionIndex < questions.length - 1) {
       setCurrentQuestionIndex(currentQuestionIndex + 1);
     } else {
       handleFinishQuiz();
@@ -63,11 +66,12 @@ export const LessonModal = ({ lesson, isOpen, onClose, onComplete }: LessonModal
   };
 
   const handleFinishQuiz = () => {
+    const questions = lesson.questions || [];
     const correctAnswers = selectedAnswers.filter((answer, index) => {
-      return answer === lesson.questions[index].correctAnswer;
+      return answer === questions[index].correctAnswer;
     });
     
-    const score = (correctAnswers.length / lesson.questions.length) * 100;
+    const score = questions.length > 0 ? (correctAnswers.length / questions.length) * 100 : 0;
     const passed = score >= 80;
     
     setShowResults(true);
@@ -75,13 +79,13 @@ export const LessonModal = ({ lesson, isOpen, onClose, onComplete }: LessonModal
     if (passed) {
       toast({
         title: "Parabéns! 🎉",
-        description: `Você acertou ${correctAnswers.length}/${lesson.questions.length} questões (${score.toFixed(0)}%)`,
+        description: `Você acertou ${correctAnswers.length}/${questions.length} questões (${score.toFixed(0)}%)`,
       });
       onComplete(lesson.id, true);
     } else {
       toast({
         title: "Continue tentando! 💪",
-        description: `Você acertou ${correctAnswers.length}/${lesson.questions.length} questões (${score.toFixed(0)}%). Tente novamente!`,
+        description: `Você acertou ${correctAnswers.length}/${questions.length} questões (${score.toFixed(0)}%). Tente novamente!`,
         variant: "destructive",
       });
     }
@@ -95,12 +99,13 @@ export const LessonModal = ({ lesson, isOpen, onClose, onComplete }: LessonModal
     onClose();
   };
 
-  const currentQuestion = lesson.questions[currentQuestionIndex];
+  const questions = lesson.questions || [];
+  const currentQuestion = questions[currentQuestionIndex];
   const correctAnswers = selectedAnswers.filter((answer, index) => {
-    return answer === lesson.questions[index].correctAnswer;
+    return answer === questions[index]?.correctAnswer;
   });
-  const score = selectedAnswers.length === lesson.questions.length 
-    ? (correctAnswers.length / lesson.questions.length) * 100 
+  const score = selectedAnswers.length === questions.length 
+    ? (correctAnswers.length / questions.length) * 100 
     : 0;
 
   return (
@@ -145,7 +150,7 @@ export const LessonModal = ({ lesson, isOpen, onClose, onComplete }: LessonModal
             
             <div className="text-center">
               <p className="text-sm text-muted-foreground mb-4">
-                Após assistir o conteúdo, responda as {lesson.questions.length} questões para continuar
+                Após assistir o conteúdo, responda as {questions.length} questões para continuar
               </p>
               <Button onClick={handleStartQuiz} className="bg-gradient-primary">
                 <CheckCircle className="h-4 w-4 mr-2" />
@@ -159,12 +164,12 @@ export const LessonModal = ({ lesson, isOpen, onClose, onComplete }: LessonModal
           <div className="space-y-6">
             <div className="flex items-center justify-between">
               <Badge variant="outline" className="border-primary/20">
-                Questão {currentQuestionIndex + 1} de {lesson.questions.length}
+                Questão {currentQuestionIndex + 1} de {questions.length}
               </Badge>
               <div className="w-32 bg-muted rounded-full h-2">
                 <div 
                   className="bg-gradient-primary h-2 rounded-full transition-all duration-300"
-                  style={{ width: `${((currentQuestionIndex + 1) / lesson.questions.length) * 100}%` }}
+                  style={{ width: `${((currentQuestionIndex + 1) / questions.length) * 100}%` }}
                 />
               </div>
             </div>
@@ -208,7 +213,7 @@ export const LessonModal = ({ lesson, isOpen, onClose, onComplete }: LessonModal
                 disabled={selectedAnswers[currentQuestionIndex] === undefined}
                 className="bg-gradient-primary"
               >
-                {currentQuestionIndex === lesson.questions.length - 1 ? "Finalizar" : "Próxima"}
+                {currentQuestionIndex === questions.length - 1 ? "Finalizar" : "Próxima"}
               </Button>
             </div>
           </div>
@@ -228,7 +233,7 @@ export const LessonModal = ({ lesson, isOpen, onClose, onComplete }: LessonModal
               </h3>
               
               <p className="text-lg mb-2">
-                Você acertou {correctAnswers.length} de {lesson.questions.length} questões
+                Você acertou {correctAnswers.length} de {questions.length} questões
               </p>
               
               <Badge variant={score >= 80 ? "default" : "destructive"} className="text-lg px-4 py-2">

@@ -1,110 +1,298 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { LearningPath } from "@/components/LearningPath";
 import { CategorySelector } from "@/components/CategorySelector";
 import { UserProfile } from "@/components/UserProfile";
 import { RankingModal } from "@/components/RankingModal";
 import { LessonModal } from "@/components/LessonModal";
-import { Trophy, Menu, User } from "lucide-react";
+import { Trophy, User, ArrowLeft, LogOut } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/hooks/use-toast";
+import type { User as SupabaseUser, Session } from "@supabase/supabase-js";
 
-// Mock data - Em produção, estes dados viriam do Supabase
-const mockUser = {
-  name: "João Silva",
-  email: "joao.silva@eletronjun.com.br",
-  avatar: "",
-  position: "Desenvolvedor",
-  completedLessons: 12,
-  level: 3,
-  currentStreak: 7,
-};
+interface Profile {
+  id: string;
+  user_id: string;
+  display_name: string;
+  avatar_url?: string;
+  position?: string;
+}
 
-const mockLessons = {
-  software: [
-    {
-      id: "1",
-      title: "Intro ao React",
-      status: "completed" as const,
-      videoUrl: "https://www.youtube.com/embed/dGcsHMXbSOA",
-      questions: [
-        {
-          id: "1",
-          question: "O que é React?",
-          options: ["Uma biblioteca JavaScript", "Uma linguagem de programação", "Um banco de dados", "Um servidor web"],
-          correctAnswer: 0
-        },
-        {
-          id: "2", 
-          question: "Qual hook é usado para gerenciar estado?",
-          options: ["useEffect", "useState", "useContext", "useCallback"],
-          correctAnswer: 1
-        }
-      ]
-    },
-    {
-      id: "2", 
-      title: "Components",
-      status: "available" as const,
-      questions: []
-    },
-    {
-      id: "3",
-      title: "Hooks",
-      status: "locked" as const,
-      questions: []
-    },
-  ],
-  eletronica: [
-    {
-      id: "e1",
-      title: "Circuitos Básicos",
-      status: "available" as const,
-      questions: []
-    }
-  ]
-};
+interface Category {
+  id: string;
+  name: string;
+  display_name: string;
+  description: string;
+}
 
-const mockRankings = [
-  { id: "1", name: "Maria Santos", completedLessons: 25, position: "Líder Técnica" },
-  { id: "2", name: "Pedro Costa", completedLessons: 23, position: "Desenvolvedor Senior" },
-  { id: "3", name: "Ana Oliveira", completedLessons: 20, position: "Product Manager" },
-];
+interface Lesson {
+  id: string;
+  title: string;
+  description?: string;
+  video_url?: string;
+  external_link?: string;
+  order_index: number;
+  status: "locked" | "available" | "completed";
+  questions?: any[];
+}
+
+interface UserProgress {
+  lesson_id: string;
+  completed_at?: string;
+  score?: number;
+}
 
 const Index = () => {
+  const [user, setUser] = useState<SupabaseUser | null>(null);
+  const [session, setSession] = useState<Session | null>(null);
+  const [profile, setProfile] = useState<Profile | null>(null);
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [lessons, setLessons] = useState<Lesson[]>([]);
+  const [userProgress, setUserProgress] = useState<UserProgress[]>([]);
   const [selectedCategory, setSelectedCategory] = useState("software");
-  const [selectedLesson, setSelectedLesson] = useState<any>(null);
+  const [selectedLesson, setSelectedLesson] = useState<Lesson | null>(null);
   const [showRanking, setShowRanking] = useState(false);
   const [showProfile, setShowProfile] = useState(false);
-  const [lessons, setLessons] = useState(mockLessons);
+  const [isLoading, setIsLoading] = useState(true);
+  
+  const navigate = useNavigate();
+  const { toast } = useToast();
 
-  const currentLessons = lessons[selectedCategory as keyof typeof lessons] || [];
-  const currentLevel = mockUser.level;
+  // Authentication setup
+  useEffect(() => {
+    // Set up auth state listener
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      (event, session) => {
+        setSession(session);
+        setUser(session?.user ?? null);
+        
+        if (!session?.user) {
+          navigate("/auth");
+        }
+      }
+    );
 
-  const handleLessonClick = (lesson: any) => {
+    // Check for existing session
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setSession(session);
+      setUser(session?.user ?? null);
+      
+      if (!session?.user) {
+        navigate("/auth");
+      }
+    });
+
+    return () => subscription.unsubscribe();
+  }, [navigate]);
+
+  // Load user profile
+  useEffect(() => {
+    if (user) {
+      loadProfile();
+    }
+  }, [user]);
+
+  // Load categories
+  useEffect(() => {
+    loadCategories();
+  }, []);
+
+  // Load lessons and progress when category changes
+  useEffect(() => {
+    if (selectedCategory && user) {
+      loadLessonsAndProgress();
+    }
+  }, [selectedCategory, user]);
+
+  const loadProfile = async () => {
+    if (!user) return;
+
+    try {
+      const { data, error } = await supabase
+        .from("profiles")
+        .select("*")
+        .eq("user_id", user.id)
+        .single();
+
+      if (error && error.code !== "PGRST116") {
+        console.error("Error loading profile:", error);
+      } else if (data) {
+        setProfile(data);
+      }
+    } catch (error) {
+      console.error("Error loading profile:", error);
+    }
+  };
+
+  const loadCategories = async () => {
+    try {
+      const { data, error } = await supabase
+        .from("categories")
+        .select("*")
+        .order("name");
+
+      if (error) {
+        console.error("Error loading categories:", error);
+      } else {
+        setCategories(data || []);
+      }
+    } catch (error) {
+      console.error("Error loading categories:", error);
+    }
+  };
+
+  const loadLessonsAndProgress = async () => {
+    if (!user) return;
+
+    setIsLoading(true);
+    try {
+      // Load lessons for selected category
+      const { data: lessonsData, error: lessonsError } = await supabase
+        .from("lessons")
+        .select(`
+          id,
+          title,
+          description,
+          video_url,
+          external_link,
+          order_index,
+          categories!inner(name)
+        `)
+        .eq("categories.name", selectedCategory)
+        .order("order_index");
+
+      if (lessonsError) {
+        console.error("Error loading lessons:", lessonsError);
+        setLessons([]);
+        return;
+      }
+
+      // Load user progress
+      const { data: progressData, error: progressError } = await supabase
+        .from("user_progress")
+        .select("lesson_id, completed_at, score")
+        .eq("user_id", user.id);
+
+      if (progressError) {
+        console.error("Error loading progress:", progressError);
+        setUserProgress([]);
+      } else {
+        setUserProgress(progressData || []);
+      }
+
+      // Process lessons with status based on progress
+      const processedLessons = (lessonsData || []).map((lesson, index) => {
+        const progress = progressData?.find(p => p.lesson_id === lesson.id);
+        
+        let status: "locked" | "available" | "completed" = "locked";
+        
+        if (progress?.completed_at) {
+          status = "completed";
+        } else if (index === 0) {
+          // First lesson is always available
+          status = "available";
+        } else {
+          // Check if previous lesson is completed
+          const prevLesson = lessonsData[index - 1];
+          const prevProgress = progressData?.find(p => p.lesson_id === prevLesson.id);
+          if (prevProgress?.completed_at) {
+            status = "available";
+          }
+        }
+
+        return {
+          ...lesson,
+          status,
+          questions: [] // Mock questions array for compatibility
+        };
+      });
+
+      setLessons(processedLessons);
+    } catch (error) {
+      console.error("Error loading lessons and progress:", error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleLessonClick = (lesson: Lesson) => {
     if (lesson.status !== "locked") {
       setSelectedLesson(lesson);
     }
   };
 
-  const handleLessonComplete = (lessonId: string, passed: boolean) => {
-    if (passed) {
-      // Atualizar status da lição e desbloquear próxima
-      setLessons(prev => {
-        const updated = { ...prev };
-        const categoryLessons = updated[selectedCategory as keyof typeof updated];
-        if (categoryLessons) {
-          const lessonIndex = categoryLessons.findIndex(l => l.id === lessonId);
-          if (lessonIndex !== -1) {
-            categoryLessons[lessonIndex].status = "completed";
-            if (lessonIndex + 1 < categoryLessons.length) {
-              categoryLessons[lessonIndex + 1].status = "available";
-            }
-          }
-        }
-        return updated;
-      });
+  const handleLessonComplete = async (lessonId: string, passed: boolean) => {
+    if (!user || !passed) {
+      setSelectedLesson(null);
+      return;
     }
+
+    try {
+      // Update or insert progress
+      const { error } = await supabase
+        .from("user_progress")
+        .upsert({
+          user_id: user.id,
+          lesson_id: lessonId,
+          completed_at: new Date().toISOString(),
+          score: 80, // Assuming 80% as passing score
+          attempts: 1
+        }, {
+          onConflict: "user_id,lesson_id"
+        });
+
+      if (error) {
+        console.error("Error updating progress:", error);
+        toast({
+          title: "Erro",
+          description: "Erro ao salvar progresso. Tente novamente.",
+          variant: "destructive",
+        });
+      } else {
+        toast({
+          title: "Parabéns! 🎉",
+          description: "Lição concluída com sucesso!",
+        });
+        
+        // Reload lessons and progress
+        loadLessonsAndProgress();
+      }
+    } catch (error) {
+      console.error("Error updating progress:", error);
+    }
+
     setSelectedLesson(null);
   };
+
+  const handleSignOut = async () => {
+    const { error } = await supabase.auth.signOut();
+    if (error) {
+      toast({
+        title: "Erro",
+        description: "Erro ao fazer logout. Tente novamente.",
+        variant: "destructive",
+      });
+    } else {
+      navigate("/");
+    }
+  };
+
+  const completedLessons = userProgress.filter(p => p.completed_at).length;
+  const currentLevel = Math.floor(completedLessons / 3) + 1;
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="text-center">
+          <div className="bg-gradient-primary rounded-xl p-4 w-16 h-16 mx-auto mb-4 flex items-center justify-center">
+            <span className="text-primary-foreground font-bold text-2xl">📚</span>
+          </div>
+          <p className="text-muted-foreground">Carregando trilhas...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-background">
@@ -113,12 +301,24 @@ const Index = () => {
         <div className="max-w-4xl mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
-              <div className="bg-gradient-primary rounded-xl p-2">
-                <span className="text-primary-foreground font-bold text-xl">📚</span>
-              </div>
-              <div>
-                <h1 className="text-xl font-bold text-foreground">CapacitaJUN</h1>
-                <p className="text-xs text-muted-foreground">Sistema de Capacitações</p>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => navigate("/")}
+                className="md:flex items-center gap-2 hidden"
+              >
+                <ArrowLeft className="h-4 w-4" />
+                Início
+              </Button>
+              
+              <div className="flex items-center gap-3">
+                <div className="bg-gradient-primary rounded-xl p-2">
+                  <span className="text-primary-foreground font-bold text-xl">📚</span>
+                </div>
+                <div>
+                  <h1 className="text-xl font-bold text-foreground">CapacitaJUN</h1>
+                  <p className="text-xs text-muted-foreground">Sistema de Capacitações</p>
+                </div>
               </div>
             </div>
 
@@ -140,6 +340,15 @@ const Index = () => {
               >
                 <User className="h-4 w-4" />
               </Button>
+
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handleSignOut}
+                className="border-border hover:border-destructive/20 hover:text-destructive"
+              >
+                <LogOut className="h-4 w-4" />
+              </Button>
             </div>
           </div>
         </div>
@@ -156,7 +365,7 @@ const Index = () => {
 
         {/* Learning Path */}
         <LearningPath
-          lessons={currentLessons}
+          lessons={lessons}
           currentLevel={currentLevel}
           onLessonClick={handleLessonClick}
         />
@@ -183,7 +392,7 @@ const Index = () => {
       <RankingModal
         isOpen={showRanking}
         onClose={() => setShowRanking(false)}
-        rankings={mockRankings}
+        rankings={[]} // Will be implemented with real data
         month="Janeiro 2024"
       />
 
@@ -192,10 +401,18 @@ const Index = () => {
         <div className="fixed inset-0 bg-black/50 z-50 flex items-end md:items-center justify-center p-4">
           <div className="w-full max-w-md">
             <UserProfile
-              user={mockUser}
+              user={{
+                name: profile?.display_name || user?.email || "Usuário",
+                email: user?.email || "",
+                avatar: profile?.avatar_url || "",
+                position: profile?.position || "Membro",
+                completedLessons,
+                level: currentLevel,
+                currentStreak: 0, // Will be calculated based on progress
+              }}
               onEditProfile={() => {
-                // Implementar edição de perfil
                 setShowProfile(false);
+                // TODO: Implement profile editing
               }}
             />
             <Button
