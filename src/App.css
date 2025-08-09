@@ -1,42 +1,139 @@
-#root {
-  max-width: 1280px;
-  margin: 0 auto;
-  padding: 2rem;
-  text-align: center;
-}
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
-.logo {
-  height: 6em;
-  padding: 1.5em;
-  will-change: filter;
-  transition: filter 300ms;
-}
-.logo:hover {
-  filter: drop-shadow(0 0 2em #5dd319aa);
-}
-.logo.react:hover {
-  filter: drop-shadow(0 0 2em #55d30daa);
-}
+/* Definition of the design system. All colors, gradients, fonts, etc should be defined here. 
+All colors MUST be HSL.
+*/
 
-@keyframes logo-spin {
-  from {
-    transform: rotate(0deg);
+@layer base {
+  :root {
+    --background: 240 10% 98%;
+    --foreground: 0 0% 100%; /* Mudado para branco */
+
+    --card: 0 0% 0% / 0.1; /* Mudado para transparente */
+    --card-foreground: 0 0% 100%; /* Mudado para branco */
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 0 0% 100%; /* Mudado para branco */
+
+    --primary: 120 60% 50%;
+    --primary-foreground: 0 0% 100%;
+    --primary-hover: 120 60% 45%;
+
+    --secondary: 35 90% 60%;
+    --secondary-foreground: 0 0% 100%;
+
+    --tertiary: 200 90% 55%;
+    --tertiary-foreground: 0 0% 100%;
+
+    --muted: 240 10% 96%;
+    --muted-foreground: 0 0% 80%; /* Mudado para um cinza mais claro para contraste */
+
+    --accent: 220 15% 95%;
+    --accent-foreground: 0 0% 100%; /* Mudado para branco */
+
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 220 13% 91%;
+    --input: 220 13% 91%;
+    --ring: 120 60% 50%;
+
+    --success: 142 70% 45%;
+    --warning: 38 90% 55%;
+    --info: 200 90% 55%;
+
+    --gradient-primary: linear-gradient(
+      135deg,
+      hsl(98, 90%, 16%) 0%,
+      hsl(123, 90%, 35%) 100%
+    );
+    --gradient-secondary: linear-gradient(
+      135deg,
+      hsl(0, 0%, 0%) 0%,
+      hsl(270, 16%, 15%) 100%
+    );
+    --gradient-hero: linear-gradient(
+      135deg,
+      hsl(288, 85%, 32%) 0%,
+      hsl(318, 65%, 26%) 50%,
+      hsl(325, 82%, 51%) 100%
+    );
+
+    --shadow-soft: 0 2px 8px rgba(0, 0, 0, 0.04);
+    --shadow-medium: 0 4px 16px rgba(0, 0, 0, 0.08);
+    --shadow-strong: 0 8px 32px rgba(0, 0, 0, 0.12);
+
+    --radius: 1rem;
+
+    --sidebar-background: 0 0% 98%;
+
+    --sidebar-foreground: 0 0% 100%; /* Mudado para branco */
+
+    --sidebar-primary: 240 5.9% 10%;
+
+    --sidebar-primary-foreground: 0 0% 98%;
+
+    --sidebar-accent: 240 4.8% 95.9%;
+
+    --sidebar-accent-foreground: 0 0% 100%; /* Mudado para branco */
+
+    --sidebar-border: 220 13% 91%;
+
+    --sidebar-ring: 217.2 91.2% 59.8%;
+
+    /* Nova variável para header preto */
+    --header-background: 0 0% 0%; /* Preto para o header */
   }
-  to {
-    transform: rotate(360deg);
+
+  .dark {
+    --background: 222.2 84% 4.9%;
+    --foreground: 210 40% 98%;
+
+    --card: 222.2 84% 4.9%;
+    --card-foreground: 210 40% 98%;
+
+    --popover: 222.2 84% 4.9%;
+    --popover-foreground: 210 40% 98%;
+
+    --primary: 210 40% 98%;
+    --primary-foreground: 222.2 47.4% 11.2%;
+
+    --secondary: 217.2 32.6% 17.5%;
+    --secondary-foreground: 210 40% 98%;
+
+    --muted: 217.2 32.6% 17.5%;
+    --muted-foreground: 215 20.2% 65.1%;
+
+    --accent: 217.2 32.6% 17.5%;
+    --accent-foreground: 210 40% 98%;
+
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 210 40% 98%;
+
+    --border: 217.2 32.6% 17.5%;
+    --input: 217.2 32.6% 17.5%;
+    --ring: 212.7 26.8% 83.9%;
+    --sidebar-background: 240 5.9% 10%;
+    --sidebar-foreground: 240 4.8% 95.9%;
+    --sidebar-primary: 224.3 76.3% 48%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 240 3.7% 15.9%;
+    --sidebar-accent-foreground: 240 4.8% 95.9%;
+    --sidebar-border: 240 3.7% 15.9%;
+    --sidebar-ring: 217.2 91.2% 59.8%;
+
+    --header-background: 0 0% 0%; /* Preto para o header no modo escuro também */
   }
 }
 
-@media (prefers-reduced-motion: no-preference) {
-  a:nth-of-type(2) .logo {
-    animation: logo-spin infinite 20s linear;
+@layer base {
+  * {
+    @apply border-border;
   }
-}
 
-.card {
-  padding: 2em;
-}
-
-.read-the-docs {
-  color: #888;
+  body {
+    @apply bg-background text-foreground;
+  }
 }

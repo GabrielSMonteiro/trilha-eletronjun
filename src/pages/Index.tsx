@@ -55,29 +55,29 @@ const Index = () => {
   const [showRanking, setShowRanking] = useState(false);
   const [showProfile, setShowProfile] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
-  
+
   const navigate = useNavigate();
   const { toast } = useToast();
 
   // Authentication setup
   useEffect(() => {
     // Set up auth state listener
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      (event, session) => {
-        setSession(session);
-        setUser(session?.user ?? null);
-        
-        if (!session?.user) {
-          navigate("/auth");
-        }
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((event, session) => {
+      setSession(session);
+      setUser(session?.user ?? null);
+
+      if (!session?.user) {
+        navigate("/auth");
       }
-    );
+    });
 
     // Check for existing session
     supabase.auth.getSession().then(({ data: { session } }) => {
       setSession(session);
       setUser(session?.user ?? null);
-      
+
       if (!session?.user) {
         navigate("/auth");
       }
@@ -150,7 +150,8 @@ const Index = () => {
       // Load lessons for selected category
       const { data: lessonsData, error: lessonsError } = await supabase
         .from("lessons")
-        .select(`
+        .select(
+          `
           id,
           title,
           description,
@@ -158,7 +159,8 @@ const Index = () => {
           external_link,
           order_index,
           categories!inner(name)
-        `)
+        `
+        )
         .eq("categories.name", selectedCategory)
         .order("order_index");
 
@@ -183,10 +185,10 @@ const Index = () => {
 
       // Process lessons with status based on progress
       const processedLessons = (lessonsData || []).map((lesson, index) => {
-        const progress = progressData?.find(p => p.lesson_id === lesson.id);
-        
+        const progress = progressData?.find((p) => p.lesson_id === lesson.id);
+
         let status: "locked" | "available" | "completed" = "locked";
-        
+
         if (progress?.completed_at) {
           status = "completed";
         } else if (index === 0) {
@@ -195,7 +197,9 @@ const Index = () => {
         } else {
           // Check if previous lesson is completed
           const prevLesson = lessonsData[index - 1];
-          const prevProgress = progressData?.find(p => p.lesson_id === prevLesson.id);
+          const prevProgress = progressData?.find(
+            (p) => p.lesson_id === prevLesson.id
+          );
           if (prevProgress?.completed_at) {
             status = "available";
           }
@@ -204,7 +208,7 @@ const Index = () => {
         return {
           ...lesson,
           status,
-          questions: [] // Mock questions array for compatibility
+          questions: [], // Mock questions array for compatibility
         };
       });
 
@@ -230,17 +234,18 @@ const Index = () => {
 
     try {
       // Update or insert progress
-      const { error } = await supabase
-        .from("user_progress")
-        .upsert({
+      const { error } = await supabase.from("user_progress").upsert(
+        {
           user_id: user.id,
           lesson_id: lessonId,
           completed_at: new Date().toISOString(),
           score: 80, // Assuming 80% as passing score
-          attempts: 1
-        }, {
-          onConflict: "user_id,lesson_id"
-        });
+          attempts: 1,
+        },
+        {
+          onConflict: "user_id,lesson_id",
+        }
+      );
 
       if (error) {
         console.error("Error updating progress:", error);
@@ -254,7 +259,7 @@ const Index = () => {
           title: "Parabéns! 🎉",
           description: "Lição concluída com sucesso!",
         });
-        
+
         // Reload lessons and progress
         loadLessonsAndProgress();
       }
@@ -278,7 +283,7 @@ const Index = () => {
     }
   };
 
-  const completedLessons = userProgress.filter(p => p.completed_at).length;
+  const completedLessons = userProgress.filter((p) => p.completed_at).length;
   const currentLevel = Math.floor(completedLessons / 3) + 1;
 
   if (isLoading) {
@@ -286,7 +291,9 @@ const Index = () => {
       <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="text-center">
           <div className="bg-gradient-primary rounded-xl p-4 w-16 h-16 mx-auto mb-4 flex items-center justify-center">
-            <span className="text-primary-foreground font-bold text-2xl">📚</span>
+            <span className="text-primary-foreground font-bold text-2xl">
+              📚
+            </span>
           </div>
           <p className="text-muted-foreground">Carregando trilhas...</p>
         </div>
@@ -310,14 +317,20 @@ const Index = () => {
                 <ArrowLeft className="h-4 w-4" />
                 Início
               </Button>
-              
+
               <div className="flex items-center gap-3">
                 <div className="bg-gradient-primary rounded-xl p-2">
-                  <span className="text-primary-foreground font-bold text-xl">📚</span>
+                  <span className="text-primary-foreground font-bold text-xl">
+                    📚
+                  </span>
                 </div>
                 <div>
-                  <h1 className="text-xl font-bold text-foreground">CapacitaJUN</h1>
-                  <p className="text-xs text-muted-foreground">Sistema de Capacitações</p>
+                  <h1 className="text-xl font-bold text-foreground">
+                    CapacitaJUN
+                  </h1>
+                  <p className="text-xs text-muted-foreground">
+                    Sistema de Capacitações
+                  </p>
                 </div>
               </div>
             </div>
@@ -331,7 +344,7 @@ const Index = () => {
               >
                 <Trophy className="h-4 w-4" />
               </Button>
-              
+
               <Button
                 variant="outline"
                 size="sm"
@@ -393,7 +406,7 @@ const Index = () => {
         isOpen={showRanking}
         onClose={() => setShowRanking(false)}
         rankings={[]} // Will be implemented with real data
-        month="Janeiro 2024"
+        month="Agosto 2025"
       />
 
       {/* Profile Modal/Sidebar */}
