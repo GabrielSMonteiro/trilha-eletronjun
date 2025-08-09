@@ -873,7 +873,7 @@ body {
 
 /* Utility classes for original design intent */
 .bg-background {
-  background-color: transparent;
+  background-color: black;
 }
 
 .text-foreground {

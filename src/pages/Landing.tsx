@@ -116,10 +116,6 @@ const Landing = () => {
               <BookOpen className="h-5 w-5 mr-2" />
               Começar Agora
             </Button>
-
-            <p className="text-sm text-muted-foreground">
-              Apenas para emails @eletronjun.com.br
-            </p>
           </div>
         </div>
 
