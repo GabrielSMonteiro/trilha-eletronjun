@@ -77,6 +77,13 @@ export type Database = {
             referencedRelation: "categories"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "lessons_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "category_progress"
+            referencedColumns: ["category_id"]
+          },
         ]
       }
       profiles: {
@@ -85,6 +92,7 @@ export type Database = {
           created_at: string
           display_name: string | null
           id: string
+          is_admin: boolean | null
           position: string | null
           updated_at: string
           user_id: string
@@ -94,6 +102,7 @@ export type Database = {
           created_at?: string
           display_name?: string | null
           id?: string
+          is_admin?: boolean | null
           position?: string | null
           updated_at?: string
           user_id: string
@@ -103,6 +112,7 @@ export type Database = {
           created_at?: string
           display_name?: string | null
           id?: string
+          is_admin?: boolean | null
           position?: string | null
           updated_at?: string
           user_id?: string
@@ -193,10 +203,51 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      admin_stats: {
+        Row: {
+          active_users: number | null
+          total_categories: number | null
+          total_completed_lessons: number | null
+          total_lessons: number | null
+          total_users: number | null
+        }
+        Relationships: []
+      }
+      category_progress: {
+        Row: {
+          category_id: string | null
+          category_name: string | null
+          total_completions: number | null
+          total_lessons: number | null
+          unique_users_completed: number | null
+        }
+        Relationships: []
+      }
+      user_progress_summary: {
+        Row: {
+          average_score: number | null
+          completion_percentage: number | null
+          display_name: string | null
+          position: string | null
+          total_lessons_completed: number | null
+          total_lessons_started: number | null
+          user_created_at: string | null
+          user_id: string | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
-      [_ in never]: never
+      admin_create_user: {
+        Args: {
+          admin_user_id: string
+          new_email: string
+          new_password: string
+          new_display_name: string
+          new_position?: string
+        }
+        Returns: Json
+      }
     }
     Enums: {
       [_ in never]: never
