@@ -2,9 +2,22 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -14,10 +27,13 @@ import { ArrowLeft, Eye, EyeOff } from "lucide-react";
 
 const signUpSchema = z.object({
   displayName: z.string().min(2, "Nome deve ter pelo menos 2 caracteres"),
-  email: z.string().email("Email inválido").refine(
-    (email) => email.endsWith("@eletronjun.com.br"),
-    "Email deve ser do domínio @eletronjun.com.br"
-  ),
+  email: z
+    .string()
+    .email("Email inválido")
+    .refine(
+      (email) => email.endsWith("@eletronjun.com.br"),
+      "Email deve ser do domínio @eletronjun.com.br"
+    ),
   password: z.string().min(6, "Senha deve ter pelo menos 6 caracteres"),
   position: z.string().min(2, "Cargo deve ser informado"),
 });
@@ -55,7 +71,9 @@ const Auth = () => {
 
   useEffect(() => {
     const checkUser = async () => {
-      const { data: { user } } = await supabase.auth.getUser();
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
       if (user) {
         navigate("/app");
       }
@@ -67,7 +85,7 @@ const Auth = () => {
     setIsLoading(true);
     try {
       const redirectUrl = `${window.location.origin}/app`;
-      
+
       const { error } = await supabase.auth.signUp({
         email: data.email,
         password: data.password,
@@ -76,8 +94,8 @@ const Auth = () => {
           data: {
             display_name: data.displayName,
             position: data.position,
-          }
-        }
+          },
+        },
       });
 
       if (error) {
@@ -181,14 +199,15 @@ const Auth = () => {
               <ArrowLeft className="h-4 w-4" />
               Voltar
             </Button>
-            
+
             <div className="flex items-center gap-4">
-              <div className="bg-gradient-primary rounded-xl p-2">
-                <span className="text-primary-foreground font-bold text-xl">📚</span>
-              </div>
               <div>
-                <h1 className="text-xl font-bold text-foreground">CapacitaJUN</h1>
-                <p className="text-xs text-muted-foreground">Sistema de Capacitações</p>
+                <h1 className="text-xl font-bold text-foreground">
+                  CapacitaJUN
+                </h1>
+                <p className="text-xs text-muted-foreground">
+                  Sistema de Capacitações
+                </p>
               </div>
             </div>
           </div>
@@ -200,9 +219,15 @@ const Auth = () => {
         <Card className="w-full max-w-md">
           <CardHeader className="text-center">
             <div className="mx-auto mb-4 bg-gradient-primary rounded-xl p-4 w-fit">
-              <span className="text-primary-foreground font-bold text-2xl">⚡</span>
+              <span className="text-primary-foreground font-bold text-2xl">
+                <img
+                  src="public/Logo-EletronJun.png"
+                  alt="EletronJun Logo"
+                  className="w-20 h-20 mb-8 mx-auto object-contain"
+                />
+              </span>
             </div>
-            <CardTitle className="text-2xl">EletronJun</CardTitle>
+            <CardTitle className="text-2xl">CapacitaJun</CardTitle>
             <CardDescription>
               Acesse sua conta para continuar aprendendo
             </CardDescription>
@@ -216,7 +241,10 @@ const Auth = () => {
 
               <TabsContent value="signin" className="space-y-4">
                 <Form {...signInForm}>
-                  <form onSubmit={signInForm.handleSubmit(onSignIn)} className="space-y-4">
+                  <form
+                    onSubmit={signInForm.handleSubmit(onSignIn)}
+                    className="space-y-4"
+                  >
                     <FormField
                       control={signInForm.control}
                       name="email"
@@ -224,7 +252,10 @@ const Auth = () => {
                         <FormItem>
                           <FormLabel>Email</FormLabel>
                           <FormControl>
-                            <Input placeholder="seu.email@eletronjun.com.br" {...field} />
+                            <Input
+                              placeholder="seu.email@eletronjun.com.br"
+                              {...field}
+                            />
                           </FormControl>
                           <FormMessage />
                         </FormItem>
@@ -262,7 +293,11 @@ const Auth = () => {
                         </FormItem>
                       )}
                     />
-                    <Button type="submit" className="w-full" disabled={isLoading}>
+                    <Button
+                      type="submit"
+                      className="w-full"
+                      disabled={isLoading}
+                    >
                       {isLoading ? "Entrando..." : "Entrar"}
                     </Button>
                   </form>
@@ -276,7 +311,12 @@ const Auth = () => {
                   </TabsList>
                   <TabsContent value="forgot" className="space-y-4">
                     <Form {...forgotPasswordForm}>
-                      <form onSubmit={forgotPasswordForm.handleSubmit(onForgotPassword)} className="space-y-4">
+                      <form
+                        onSubmit={forgotPasswordForm.handleSubmit(
+                          onForgotPassword
+                        )}
+                        className="space-y-4"
+                      >
                         <FormField
                           control={forgotPasswordForm.control}
                           name="email"
@@ -284,14 +324,24 @@ const Auth = () => {
                             <FormItem>
                               <FormLabel>Email para recuperação</FormLabel>
                               <FormControl>
-                                <Input placeholder="seu.email@eletronjun.com.br" {...field} />
+                                <Input
+                                  placeholder="seu.email@eletronjun.com.br"
+                                  {...field}
+                                />
                               </FormControl>
                               <FormMessage />
                             </FormItem>
                           )}
                         />
-                        <Button type="submit" variant="outline" className="w-full" disabled={isLoading}>
-                          {isLoading ? "Enviando..." : "Enviar link de recuperação"}
+                        <Button
+                          type="submit"
+                          variant="outline"
+                          className="w-full"
+                          disabled={isLoading}
+                        >
+                          {isLoading
+                            ? "Enviando..."
+                            : "Enviar link de recuperação"}
                         </Button>
                       </form>
                     </Form>
@@ -301,7 +351,10 @@ const Auth = () => {
 
               <TabsContent value="signup" className="space-y-4">
                 <Form {...signUpForm}>
-                  <form onSubmit={signUpForm.handleSubmit(onSignUp)} className="space-y-4">
+                  <form
+                    onSubmit={signUpForm.handleSubmit(onSignUp)}
+                    className="space-y-4"
+                  >
                     <FormField
                       control={signUpForm.control}
                       name="displayName"
@@ -322,7 +375,10 @@ const Auth = () => {
                         <FormItem>
                           <FormLabel>Email</FormLabel>
                           <FormControl>
-                            <Input placeholder="seu.email@eletronjun.com.br" {...field} />
+                            <Input
+                              placeholder="seu.email@eletronjun.com.br"
+                              {...field}
+                            />
                           </FormControl>
                           <FormMessage />
                         </FormItem>
@@ -335,7 +391,10 @@ const Auth = () => {
                         <FormItem>
                           <FormLabel>Cargo</FormLabel>
                           <FormControl>
-                            <Input placeholder="Desenvolvedor, Designer, etc." {...field} />
+                            <Input
+                              placeholder="Desenvolvedor, Designer, etc."
+                              {...field}
+                            />
                           </FormControl>
                           <FormMessage />
                         </FormItem>
@@ -373,7 +432,11 @@ const Auth = () => {
                         </FormItem>
                       )}
                     />
-                    <Button type="submit" className="w-full" disabled={isLoading}>
+                    <Button
+                      type="submit"
+                      className="w-full"
+                      disabled={isLoading}
+                    >
                       {isLoading ? "Cadastrando..." : "Criar conta"}
                     </Button>
                   </form>

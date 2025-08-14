@@ -68,7 +68,11 @@ const Landing = () => {
           <div className="flex items-center gap-3">
             <div className="bg-gradient-primary rounded-xl p-2">
               <span className="text-primary-foreground font-bold text-xl">
-                📚
+                <img
+                  src="public/Logo-EletronJun.png"
+                  alt="EletronJun Logo"
+                  className="w-20 h-20 mb-8 mx-auto object-contain"
+                />
               </span>
             </div>
             <div>

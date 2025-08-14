@@ -292,7 +292,11 @@ const Index = () => {
         <div className="text-center">
           <div className="bg-gradient-primary rounded-xl p-4 w-16 h-16 mx-auto mb-4 flex items-center justify-center">
             <span className="text-primary-foreground font-bold text-2xl">
-              📚
+              <img
+                src="public/Logo-EletronJun.png"
+                alt="EletronJun Logo"
+                className="w-20 h-20 mb-8 mx-auto object-contain"
+              />
             </span>
           </div>
           <p className="text-muted-foreground">Carregando trilhas...</p>
@@ -321,7 +325,11 @@ const Index = () => {
               <div className="flex items-center gap-3">
                 <div className="bg-gradient-primary rounded-xl p-2">
                   <span className="text-primary-foreground font-bold text-xl">
-                    📚
+                    <img
+                      src="public/Logo-EletronJun.png"
+                      alt="EletronJun Logo"
+                      className="w-20 h-20 mb-8 mx-auto object-contain"
+                    />
                   </span>
                 </div>
                 <div>
