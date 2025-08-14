@@ -75,7 +75,12 @@ const Auth = () => {
         data: { user },
       } = await supabase.auth.getUser();
       if (user) {
-        navigate("/app");
+        // Redirecionar admin para /admin
+        if (user.email === "admin@eletronjun.com.br") {
+          navigate("/admin");
+        } else {
+          navigate("/app");
+        }
       }
     };
     checkUser();
@@ -131,7 +136,7 @@ const Auth = () => {
   const onSignIn = async (data: SignInForm) => {
     setIsLoading(true);
     try {
-      const { error } = await supabase.auth.signInWithPassword({
+      const { data: authData, error } = await supabase.auth.signInWithPassword({
         email: data.email,
         password: data.password,
       });
@@ -143,7 +148,12 @@ const Auth = () => {
           variant: "destructive",
         });
       } else {
-        navigate("/app");
+        // Redirecionar admin para /admin
+        if (authData.user?.email === "admin@eletronjun.com.br") {
+          navigate("/admin");
+        } else {
+          navigate("/app");
+        }
       }
     } catch (error) {
       toast({
