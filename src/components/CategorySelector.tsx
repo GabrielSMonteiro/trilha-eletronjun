@@ -34,22 +34,28 @@ const categoryColors: Record<string, string> = {
 };
 
 interface CategorySelectorProps {
+  categories: Category[];
   selectedCategory: string;
   onCategoryChange: (categoryId: string) => void;
 }
 
-export const CategorySelector = ({ selectedCategory, onCategoryChange }: CategorySelectorProps) => {
-  // Mock categories for now - will be replaced with props later
-  const categories: Category[] = [
-    { id: "1", name: "software", display_name: "Software", description: "Desenvolvimento" },
-    { id: "2", name: "eletronica", display_name: "Eletrônica", description: "Circuitos" },
-    { id: "3", name: "lideranca", display_name: "Liderança", description: "Gestão de equipes" },
-    { id: "4", name: "gestao-pessoas", display_name: "Gestão de Pessoas", description: "RH" },
-    { id: "5", name: "gestao-projetos", display_name: "Gestão de Projetos", description: "PMO" },
-    { id: "6", name: "mej", display_name: "MEJ", description: "Movimento EJ" },
-  ];
-
+export const CategorySelector = ({ categories, selectedCategory, onCategoryChange }: CategorySelectorProps) => {
   const selected = categories.find(cat => cat.name === selectedCategory) || categories[0];
+
+  if (categories.length === 0) {
+    return (
+      <Button 
+        variant="outline" 
+        className="bg-card border-2 border-border h-12 px-4 min-w-[180px]"
+        disabled
+      >
+        <div className="flex items-center gap-2">
+          <Code className="h-4 w-4" />
+          <span className="font-medium">Carregando...</span>
+        </div>
+      </Button>
+    );
+  }
 
   return (
     <DropdownMenu>

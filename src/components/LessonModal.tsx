@@ -10,6 +10,8 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Play, CheckCircle, X, ExternalLink } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
+import { supabase } from "@/integrations/supabase/client";
+import { useEffect } from "react";
 
 interface Question {
   id: string;
@@ -21,6 +23,7 @@ interface Question {
 interface Lesson {
   id: string;
   title: string;
+  description?: string;
   videoUrl?: string;
   video_url?: string;
   external_link?: string;
@@ -40,6 +43,46 @@ export const LessonModal = ({ lesson, isOpen, onClose, onComplete }: LessonModal
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [selectedAnswers, setSelectedAnswers] = useState<number[]>([]);
   const [showResults, setShowResults] = useState(false);
+  const [questions, setQuestions] = useState<Question[]>([]);
+  const [isLoadingQuestions, setIsLoadingQuestions] = useState(false);
+
+  // Load questions when lesson changes
+  useEffect(() => {
+    if (lesson?.id) {
+      loadQuestions();
+    }
+  }, [lesson?.id]);
+
+  const loadQuestions = async () => {
+    if (!lesson) return;
+    
+    setIsLoadingQuestions(true);
+    try {
+      const { data, error } = await supabase
+        .from("questions")
+        .select("*")
+        .eq("lesson_id", lesson.id)
+        .order("created_at");
+
+      if (error) {
+        console.error("Error loading questions:", error);
+        setQuestions([]);
+      } else {
+        const formattedQuestions = (data || []).map(q => ({
+          id: q.id,
+          question: q.question_text,
+          options: [q.option_a, q.option_b, q.option_c, q.option_d],
+          correctAnswer: q.correct_answer,
+        }));
+        setQuestions(formattedQuestions);
+      }
+    } catch (error) {
+      console.error("Error loading questions:", error);
+      setQuestions([]);
+    } finally {
+      setIsLoadingQuestions(false);
+    }
+  };
 
   if (!lesson) return null;
 
@@ -57,7 +100,6 @@ export const LessonModal = ({ lesson, isOpen, onClose, onComplete }: LessonModal
   };
 
   const handleNextQuestion = () => {
-    const questions = lesson.questions || [];
     if (currentQuestionIndex < questions.length - 1) {
       setCurrentQuestionIndex(currentQuestionIndex + 1);
     } else {
@@ -66,7 +108,6 @@ export const LessonModal = ({ lesson, isOpen, onClose, onComplete }: LessonModal
   };
 
   const handleFinishQuiz = () => {
-    const questions = lesson.questions || [];
     const correctAnswers = selectedAnswers.filter((answer, index) => {
       return answer === questions[index].correctAnswer;
     });
@@ -99,7 +140,6 @@ export const LessonModal = ({ lesson, isOpen, onClose, onComplete }: LessonModal
     onClose();
   };
 
-  const questions = lesson.questions || [];
   const currentQuestion = questions[currentQuestionIndex];
   const correctAnswers = selectedAnswers.filter((answer, index) => {
     return answer === questions[index]?.correctAnswer;
@@ -107,6 +147,10 @@ export const LessonModal = ({ lesson, isOpen, onClose, onComplete }: LessonModal
   const score = selectedAnswers.length === questions.length 
     ? (correctAnswers.length / questions.length) * 100 
     : 0;
+
+  // Use video_url from lesson data
+  const videoUrl = lesson.video_url || lesson.videoUrl;
+  const externalLink = lesson.external_link || lesson.contentUrl;
 
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>
@@ -123,19 +167,19 @@ export const LessonModal = ({ lesson, isOpen, onClose, onComplete }: LessonModal
         {currentPhase === "content" && (
           <div className="space-y-6">
             <div className="aspect-video bg-muted rounded-xl flex items-center justify-center">
-              {lesson.videoUrl ? (
+              {videoUrl ? (
                 <iframe
-                  src={lesson.videoUrl}
+                  src={videoUrl}
                   className="w-full h-full rounded-xl"
                   allowFullScreen
                   title={lesson.title}
                 />
-              ) : lesson.contentUrl ? (
+              ) : externalLink ? (
                 <div className="text-center">
                   <ExternalLink className="h-12 w-12 mx-auto mb-4 text-primary" />
                   <p className="text-muted-foreground mb-4">Conteúdo externo</p>
                   <Button asChild className="bg-gradient-primary">
-                    <a href={lesson.contentUrl} target="_blank" rel="noopener noreferrer">
+                    <a href={externalLink} target="_blank" rel="noopener noreferrer">
                       Acessar Conteúdo
                     </a>
                   </Button>
@@ -147,15 +191,40 @@ export const LessonModal = ({ lesson, isOpen, onClose, onComplete }: LessonModal
                 </div>
               )}
             </div>
+
+            {lesson.description && (
+              <div className="bg-card border border-border rounded-xl p-4">
+                <p className="text-sm text-muted-foreground">{lesson.description}</p>
+              </div>
+            )}
             
             <div className="text-center">
-              <p className="text-sm text-muted-foreground mb-4">
-                Após assistir o conteúdo, responda as {questions.length} questões para continuar
-              </p>
-              <Button onClick={handleStartQuiz} className="bg-gradient-primary">
-                <CheckCircle className="h-4 w-4 mr-2" />
-                Iniciar Quiz
-              </Button>
+              {isLoadingQuestions ? (
+                <p className="text-sm text-muted-foreground mb-4">Carregando questões...</p>
+              ) : questions.length > 0 ? (
+                <>
+                  <p className="text-sm text-muted-foreground mb-4">
+                    Após assistir o conteúdo, responda as {questions.length} questões para continuar
+                  </p>
+                  <Button onClick={handleStartQuiz} className="bg-gradient-primary">
+                    <CheckCircle className="h-4 w-4 mr-2" />
+                    Iniciar Quiz
+                  </Button>
+                </>
+              ) : (
+                <>
+                  <p className="text-sm text-muted-foreground mb-4">
+                    Esta lição não possui questões. Clique em concluir para prosseguir.
+                  </p>
+                  <Button 
+                    onClick={() => onComplete(lesson.id, true)} 
+                    className="bg-gradient-primary"
+                  >
+                    <CheckCircle className="h-4 w-4 mr-2" />
+                    Concluir Lição
+                  </Button>
+                </>
+              )}
             </div>
           </div>
         )}

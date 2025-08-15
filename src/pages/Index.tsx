@@ -50,7 +50,7 @@ const Index = () => {
   const [categories, setCategories] = useState<Category[]>([]);
   const [lessons, setLessons] = useState<Lesson[]>([]);
   const [userProgress, setUserProgress] = useState<UserProgress[]>([]);
-  const [selectedCategory, setSelectedCategory] = useState("software");
+  const [selectedCategory, setSelectedCategory] = useState("");
   const [selectedLesson, setSelectedLesson] = useState<Lesson | null>(null);
   const [showRanking, setShowRanking] = useState(false);
   const [showProfile, setShowProfile] = useState(false);
@@ -97,6 +97,13 @@ const Index = () => {
   useEffect(() => {
     loadCategories();
   }, []);
+
+  // Set first category as default when categories load
+  useEffect(() => {
+    if (categories.length > 0 && !selectedCategory) {
+      setSelectedCategory(categories[0].name);
+    }
+  }, [categories, selectedCategory]);
 
   // Load lessons and progress when category changes
   useEffect(() => {
@@ -208,7 +215,7 @@ const Index = () => {
         return {
           ...lesson,
           status,
-          questions: [], // Mock questions array for compatibility
+          questions: [], // Will be loaded when lesson is opened
         };
       });
 
@@ -379,6 +386,7 @@ const Index = () => {
         {/* Category Selector */}
         <div className="flex justify-center">
           <CategorySelector
+            categories={categories}
             selectedCategory={selectedCategory}
             onCategoryChange={setSelectedCategory}
           />

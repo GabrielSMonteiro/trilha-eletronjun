@@ -50,8 +50,16 @@ export const LearningPath = ({ lessons, currentLevel, onLessonClick }: LearningP
           </div>
         ))}
 
-        {/* Congratulations section for completed path */}
-        {lessons.every(l => l.status === "completed") && (
+        {/* Empty state or congratulations */}
+        {lessons.length === 0 ? (
+          <div className="text-center py-8">
+            <div className="bg-card border-2 border-border rounded-2xl p-6 shadow-soft">
+              <Target className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
+              <h3 className="text-lg font-semibold mb-2 text-foreground">Nenhuma capacitação disponível</h3>
+              <p className="text-sm text-muted-foreground">Não há lições disponíveis para esta categoria no momento.</p>
+            </div>
+          </div>
+        ) : lessons.every(l => l.status === "completed") ? (
           <div className="text-center py-8">
             <div className="bg-gradient-primary rounded-2xl p-6 text-primary-foreground shadow-strong">
               <Trophy className="h-12 w-12 mx-auto mb-4" />
@@ -59,7 +67,7 @@ export const LearningPath = ({ lessons, currentLevel, onLessonClick }: LearningP
               <p className="text-sm opacity-90">Você completou toda a trilha!</p>
             </div>
           </div>
-        )}
+        ) : null}
       </div>
     </div>
   );
