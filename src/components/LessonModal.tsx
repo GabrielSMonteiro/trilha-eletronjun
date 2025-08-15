@@ -2,6 +2,7 @@ import { useState } from "react";
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
@@ -46,6 +47,26 @@ export const LessonModal = ({ lesson, isOpen, onClose, onComplete }: LessonModal
   const [questions, setQuestions] = useState<Question[]>([]);
   const [isLoadingQuestions, setIsLoadingQuestions] = useState(false);
 
+  // Helper function to convert YouTube URLs to embed format
+  const convertToEmbedUrl = (url: string): string => {
+    if (!url) return '';
+    
+    // Handle different YouTube URL formats
+    const regExp = /^.*((youtu.be\/)|(v\/)|(\/u\/\w\/)|(embed\/)|(watch\?))\??v?=?([^#&?]*).*/;
+    const match = url.match(regExp);
+    
+    if (match && match[7] && match[7].length === 11) {
+      return `https://www.youtube.com/embed/${match[7]}`;
+    }
+    
+    // If already an embed URL, return as is
+    if (url.includes('youtube.com/embed/')) {
+      return url;
+    }
+    
+    return url; // Return original if not a YouTube URL
+  };
+
   // Load questions when lesson changes
   useEffect(() => {
     if (lesson?.id) {
@@ -72,6 +93,7 @@ export const LessonModal = ({ lesson, isOpen, onClose, onComplete }: LessonModal
           id: q.id,
           question: q.question_text,
           options: [q.option_a, q.option_b, q.option_c, q.option_d],
+          // Para usuários não-admin, não incluir a resposta correta até o envio
           correctAnswer: q.correct_answer,
         }));
         setQuestions(formattedQuestions);
@@ -137,6 +159,8 @@ export const LessonModal = ({ lesson, isOpen, onClose, onComplete }: LessonModal
     setCurrentQuestionIndex(0);
     setSelectedAnswers([]);
     setShowResults(false);
+    setQuestions([]);
+    setIsLoadingQuestions(false);
     onClose();
   };
 
@@ -148,8 +172,9 @@ export const LessonModal = ({ lesson, isOpen, onClose, onComplete }: LessonModal
     ? (correctAnswers.length / questions.length) * 100 
     : 0;
 
-  // Use video_url from lesson data
+  // Use video_url from lesson data and convert to embed format
   const videoUrl = lesson.video_url || lesson.videoUrl;
+  const embedUrl = videoUrl ? convertToEmbedUrl(videoUrl) : null;
   const externalLink = lesson.external_link || lesson.contentUrl;
 
   return (
@@ -162,17 +187,21 @@ export const LessonModal = ({ lesson, isOpen, onClose, onComplete }: LessonModal
               <X className="h-4 w-4" />
             </Button>
           </DialogTitle>
+          <DialogDescription>
+            {lesson.description || "Conteúdo da lição interativa"}
+          </DialogDescription>
         </DialogHeader>
 
         {currentPhase === "content" && (
           <div className="space-y-6">
             <div className="aspect-video bg-muted rounded-xl flex items-center justify-center">
-              {videoUrl ? (
+              {embedUrl ? (
                 <iframe
-                  src={videoUrl}
+                  src={embedUrl}
                   className="w-full h-full rounded-xl"
                   allowFullScreen
                   title={lesson.title}
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                 />
               ) : externalLink ? (
                 <div className="text-center">

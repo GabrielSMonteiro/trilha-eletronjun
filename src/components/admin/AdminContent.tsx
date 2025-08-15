@@ -98,6 +98,7 @@ export const AdminContent = () => {
       category_id: "",
       order_index: 1,
     },
+    mode: "onChange",
   });
 
   const questionForm = useForm<QuestionForm>({
@@ -111,6 +112,7 @@ export const AdminContent = () => {
       option_d: "",
       correct_answer: 0,
     },
+    mode: "onChange",
   });
 
   useEffect(() => {
@@ -403,7 +405,14 @@ export const AdminContent = () => {
               <DialogTrigger asChild>
                 <Button onClick={() => {
                   setEditingLesson(null);
-                  lessonForm.reset();
+                  lessonForm.reset({
+                    title: "",
+                    description: "",
+                    video_url: "",
+                    external_link: "",
+                    category_id: "",
+                    order_index: 1,
+                  });
                 }}>
                   <Plus className="h-4 w-4 mr-2" />
                   Nova Lição
