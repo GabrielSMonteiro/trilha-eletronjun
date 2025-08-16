@@ -68,63 +68,110 @@ export const AdminProgress = () => {
     setIsLoading(true);
     try {
       // Load categories
-      const { data: categoriesData } = await supabase
+      const { data: categoriesData, error: categoriesError } = await supabase
         .from("categories")
         .select("*")
         .order("display_name");
 
+      if (categoriesError) {
+        console.error("Error loading categories:", categoriesError);
+        setIsLoading(false);
+        return;
+      }
+
       setCategories(categoriesData || []);
 
-      // Load category progress
-      const { data: categoryProgressData } = await supabase
-        .from("category_progress")
-        .select("*");
+      // Calculate category progress manually from existing tables
+      const categoryProgressPromises = (categoriesData || []).map(async (category) => {
+        // Get lessons count for this category
+        const { data: lessonsData } = await supabase
+          .from("lessons")
+          .select("id")
+          .eq("category_id", category.id);
 
-      const formattedCategoryProgress = categoryProgressData?.map(cp => ({
-        category_id: cp.category_id || "",
-        category_name: cp.category_name || "Categoria",
-        total_lessons: Number(cp.total_lessons) || 0,
-        total_completions: Number(cp.total_completions) || 0,
-        unique_users_completed: Number(cp.unique_users_completed) || 0,
-        completion_rate: cp.total_lessons ? 
-          Math.round((Number(cp.total_completions) / Number(cp.total_lessons)) * 100) : 0,
-      })) || [];
+        // Get progress for this category's lessons
+        const { data: progressData } = await supabase
+          .from("user_progress")
+          .select("user_id, lesson_id, completed_at")
+          .in("lesson_id", (lessonsData || []).map(l => l.id))
+          .not("completed_at", "is", null);
 
-      setCategoryProgress(formattedCategoryProgress);
+        const totalLessons = lessonsData?.length || 0;
+        const totalCompletions = progressData?.length || 0;
+        const uniqueUsersCompleted = new Set(progressData?.map(p => p.user_id) || []).size;
 
-      // Load user progress summary
-      const { data: userProgressData } = await supabase
-        .from("user_progress_summary")
-        .select("*");
+        return {
+          category_id: category.id,
+          category_name: category.name,
+          total_lessons: totalLessons,
+          total_completions: totalCompletions,
+          unique_users_completed: uniqueUsersCompleted,
+          completion_rate: totalLessons > 0 ? Math.round((totalCompletions / totalLessons) * 100) : 0,
+        };
+      });
 
-      const formattedUserProgress = userProgressData?.map(up => ({
-        user_id: up.user_id || "",
-        display_name: up.display_name || "Usuário",
-        position: up.position,
-        total_lessons_started: Number(up.total_lessons_started) || 0,
-        total_lessons_completed: Number(up.total_lessons_completed) || 0,
-        completion_percentage: Number(up.completion_percentage) || 0,
-        average_score: Number(up.average_score) || 0,
-      })) || [];
+      const categoryProgressData = await Promise.all(categoryProgressPromises);
+      setCategoryProgress(categoryProgressData);
 
-      setUserProgress(formattedUserProgress);
+      // Calculate user progress manually
+      const { data: profilesData } = await supabase
+        .from("profiles")
+        .select("user_id, display_name, position, created_at")
+        .eq("is_admin", false);
+
+      const userProgressPromises = (profilesData || []).map(async (profile) => {
+        const { data: progressData } = await supabase
+          .from("user_progress")
+          .select("lesson_id, completed_at, score")
+          .eq("user_id", profile.user_id);
+
+        const totalStarted = progressData?.length || 0;
+        const completedProgress = progressData?.filter(p => p.completed_at) || [];
+        const totalCompleted = completedProgress.length;
+        const avgScore = completedProgress.length > 0 
+          ? completedProgress.reduce((sum, p) => sum + (p.score || 0), 0) / completedProgress.length 
+          : 0;
+
+        // Get total lessons available to calculate completion percentage
+        const { data: totalLessonsData } = await supabase
+          .from("lessons")
+          .select("id");
+
+        const totalAvailable = totalLessonsData?.length || 1;
+        const completionPercentage = (totalCompleted / totalAvailable) * 100;
+
+        return {
+          user_id: profile.user_id,
+          display_name: profile.display_name || "Usuário",
+          position: profile.position,
+          total_lessons_started: totalStarted,
+          total_lessons_completed: totalCompleted,
+          completion_percentage: Number(completionPercentage.toFixed(1)),
+          average_score: Number(avgScore.toFixed(1)),
+        };
+      });
+
+      const userProgressData = await Promise.all(userProgressPromises);
+      setUserProgress(userProgressData);
 
       // Calculate overall stats
-      const totalUsers = formattedUserProgress.length;
-      const averageCompletionRate = totalUsers > 0 ? 
-        formattedUserProgress.reduce((sum, user) => sum + user.completion_percentage, 0) / totalUsers : 0;
-      const averageScore = totalUsers > 0 ?
-        formattedUserProgress.reduce((sum, user) => sum + user.average_score, 0) / totalUsers : 0;
-      const totalLessonsInProgress = formattedUserProgress.reduce((sum, user) => 
-        sum + (user.total_lessons_started - user.total_lessons_completed), 0);
+      const totalUsers = userProgressData.length;
+      const activeUsers = userProgressData.filter(u => u.total_lessons_started > 0).length;
+      const averageCompletionRate = totalUsers > 0 
+        ? userProgressData.reduce((sum, u) => sum + u.completion_percentage, 0) / totalUsers 
+        : 0;
+      const averageScore = totalUsers > 0 
+        ? userProgressData.reduce((sum, u) => sum + u.average_score, 0) / totalUsers 
+        : 0;
+      const totalLessonsInProgress = userProgressData.reduce((sum, u) => 
+        sum + (u.total_lessons_started - u.total_lessons_completed), 0);
 
       setOverallStats({
         averageCompletionRate: Math.round(averageCompletionRate),
         averageScore: Math.round(averageScore),
-        totalActiveUsers: totalUsers,
+        totalActiveUsers: activeUsers,
         totalLessonsInProgress,
       });
-
     } catch (error) {
       console.error("Error loading progress data:", error);
     } finally {

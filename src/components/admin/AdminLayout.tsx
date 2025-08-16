@@ -10,7 +10,8 @@ import {
   LogOut, 
   Menu, 
   X,
-  Zap
+  Zap,
+  Folder
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
@@ -18,6 +19,7 @@ import { AdminDashboard } from "./AdminDashboard";
 import { AdminContent } from "./AdminContent";
 import { AdminUsers } from "./AdminUsers";
 import { AdminProgress } from "./AdminProgress";
+import { AdminCategories } from "./AdminCategories";
 
 interface User {
   name: string;
@@ -30,7 +32,7 @@ interface AdminLayoutProps {
   user: User;
 }
 
-type AdminSection = "dashboard" | "users" | "content" | "progress";
+type AdminSection = "dashboard" | "users" | "categories" | "content" | "progress";
 
 export const AdminLayout = ({ user }: AdminLayoutProps) => {
   const [currentSection, setCurrentSection] = useState<AdminSection>("dashboard");
@@ -54,6 +56,7 @@ export const AdminLayout = ({ user }: AdminLayoutProps) => {
   const navigation = [
     { id: "dashboard", name: "Dashboard", icon: Home },
     { id: "users", name: "Usuários", icon: Users },
+    { id: "categories", name: "Categorias", icon: Folder },
     { id: "content", name: "Conteúdo", icon: BookOpen },
     { id: "progress", name: "Progresso", icon: BarChart },
   ];
@@ -64,6 +67,8 @@ export const AdminLayout = ({ user }: AdminLayoutProps) => {
         return <AdminDashboard />;
       case "users":
         return <AdminUsers />;
+      case "categories":
+        return <AdminCategories />;
       case "content":
         return <AdminContent />;
       case "progress":

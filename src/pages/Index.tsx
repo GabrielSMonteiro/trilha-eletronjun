@@ -421,8 +421,6 @@ const Index = () => {
       <RankingModal
         isOpen={showRanking}
         onClose={() => setShowRanking(false)}
-        rankings={[]} // Will be implemented with real data
-        month="Agosto 2025"
       />
 
       {/* Profile Modal/Sidebar */}

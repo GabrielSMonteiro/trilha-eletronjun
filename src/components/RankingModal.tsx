@@ -1,3 +1,4 @@
+import { useState, useEffect } from "react";
 import {
   Dialog,
   DialogContent,
@@ -6,24 +7,108 @@ import {
 } from "@/components/ui/dialog";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
-import { Trophy, Medal, Award } from "lucide-react";
+import { Skeleton } from "@/components/ui/skeleton";
+import { Trophy, Medal, Award, Calendar } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
 
 interface RankingUser {
-  id: string;
-  name: string;
-  avatar?: string;
-  completedLessons: number;
-  position: string;
+  user_id: string;
+  display_name: string;
+  avatar_url?: string;
+  position?: string;
+  lessons_completed: number;
+  average_score: number;
+  ranking: number;
 }
 
 interface RankingModalProps {
   isOpen: boolean;
   onClose: () => void;
-  rankings: RankingUser[];
-  month: string;
 }
 
-export const RankingModal = ({ isOpen, onClose, rankings, month }: RankingModalProps) => {
+export const RankingModal = ({ isOpen, onClose }: RankingModalProps) => {
+  const [rankings, setRankings] = useState<RankingUser[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [currentMonth, setCurrentMonth] = useState("");
+
+  useEffect(() => {
+    if (isOpen) {
+      loadRankingData();
+    }
+  }, [isOpen]);
+
+  const loadRankingData = async () => {
+    setIsLoading(true);
+    try {
+      const now = new Date();
+      const monthName = now.toLocaleDateString("pt-BR", { 
+        month: "long", 
+        year: "numeric" 
+      });
+      setCurrentMonth(monthName);
+
+      // Get ranking for current month with score >= 80%
+      const { data: profilesData } = await supabase
+        .from("profiles")
+        .select("user_id, display_name, position, avatar_url")
+        .eq("is_admin", false);
+
+      if (!profilesData) {
+        setRankings([]);
+        return;
+      }
+
+      const rankingPromises = profilesData.map(async (profile) => {
+        const { data: progressData } = await supabase
+          .from("user_progress")
+          .select("lesson_id, completed_at, score")
+          .eq("user_id", profile.user_id)
+          .not("completed_at", "is", null)
+          .gte("score", 80) // Only successful completions
+          .gte("completed_at", `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-01`)
+          .lt("completed_at", `${now.getFullYear()}-${String(now.getMonth() + 2).padStart(2, '0')}-01`);
+
+        const lessonsCompleted = progressData?.length || 0;
+        const averageScore = progressData && progressData.length > 0
+          ? progressData.reduce((sum, p) => sum + (p.score || 0), 0) / progressData.length
+          : 0;
+
+        return {
+          user_id: profile.user_id,
+          display_name: profile.display_name || "Usuário",
+          position: profile.position,
+          avatar_url: profile.avatar_url,
+          lessons_completed: lessonsCompleted,
+          average_score: Number(averageScore.toFixed(1)),
+          ranking: 0, // Will be set after sorting
+        };
+      });
+
+      const rankingData = await Promise.all(rankingPromises);
+      
+      // Sort by lessons completed (desc) then by average score (desc)
+      // Only include users with at least 1 completed lesson
+      const sortedRankings = rankingData
+        .filter(user => user.lessons_completed > 0)
+        .sort((a, b) => {
+          if (b.lessons_completed !== a.lessons_completed) {
+            return b.lessons_completed - a.lessons_completed;
+          }
+          return b.average_score - a.average_score;
+        })
+        .map((user, index) => ({
+          ...user,
+          ranking: index + 1,
+        }));
+
+      setRankings(sortedRankings.slice(0, 10)); // Top 10
+    } catch (error) {
+      console.error("Error loading ranking data:", error);
+      setRankings([]);
+    } finally {
+      setIsLoading(false);
+    }
+  };
   const getPositionIcon = (position: number) => {
     switch (position) {
       case 1:
@@ -58,54 +143,91 @@ export const RankingModal = ({ isOpen, onClose, rankings, month }: RankingModalP
             <Trophy className="h-6 w-6 text-primary" />
             Ranking do Mês
           </DialogTitle>
-          <p className="text-sm text-muted-foreground">{month}</p>
+          <p className="text-sm text-muted-foreground flex items-center justify-center gap-2">
+            <Calendar className="h-4 w-4" />
+            {currentMonth}
+          </p>
         </DialogHeader>
         
         <div className="space-y-4 mt-6">
-          {rankings.slice(0, 3).map((user, index) => {
-            const position = index + 1;
-            const initials = user.name.split(' ').map(n => n[0]).join('').toUpperCase();
-            
-            return (
-              <div 
-                key={user.id}
-                className={`flex items-center gap-4 p-4 rounded-xl transition-all ${
-                  position === 1 ? 'bg-gradient-to-r from-yellow-50 to-yellow-100 border-2 border-yellow-200' :
-                  position === 2 ? 'bg-gradient-to-r from-gray-50 to-gray-100 border-2 border-gray-200' :
-                  'bg-gradient-to-r from-amber-50 to-amber-100 border-2 border-amber-200'
-                }`}
-              >
-                <div className="flex items-center justify-center w-12 h-12">
-                  {getPositionIcon(position)}
+          {isLoading ? (
+            // Loading skeletons
+            [...Array(3)].map((_, index) => (
+              <div key={index} className="flex items-center gap-4 p-4 rounded-xl border">
+                <Skeleton className="w-12 h-12 rounded-full" />
+                <Skeleton className="w-12 h-12 rounded-full" />
+                <div className="flex-1 space-y-2">
+                  <Skeleton className="h-4 w-32" />
+                  <Skeleton className="h-3 w-24" />
                 </div>
-                
-                <Avatar className="h-12 w-12 border-2 border-white shadow-soft">
-                  <AvatarImage src={user.avatar} alt={user.name} />
-                  <AvatarFallback className="bg-gradient-primary text-primary-foreground font-bold">
-                    {initials}
-                  </AvatarFallback>
-                </Avatar>
-                
-                <div className="flex-1">
-                  <h4 className="font-semibold text-foreground">{user.name}</h4>
-                  <p className="text-xs text-muted-foreground">{user.position}</p>
-                </div>
-                
-                <div className="text-right">
-                  <Badge className={`${getPositionBadge(position)} font-bold`}>
-                    {user.completedLessons} lições
-                  </Badge>
-                </div>
+                <Skeleton className="h-6 w-20" />
               </div>
-            );
-          })}
-          
-          {/* Message for users not in top 3 */}
-          <div className="text-center py-4">
-            <p className="text-sm text-muted-foreground">
-              Continue se capacitando para aparecer no próximo ranking! 🚀
-            </p>
-          </div>
+            ))
+          ) : rankings.length === 0 ? (
+            <div className="text-center py-8">
+              <Trophy className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+              <h3 className="text-lg font-semibold text-foreground mb-2">
+                Nenhum ranking este mês
+              </h3>
+              <p className="text-sm text-muted-foreground">
+                Complete lições com nota acima de 80% para aparecer no ranking!
+              </p>
+            </div>
+          ) : (
+            <>
+              {rankings.map((user) => {
+                const position = user.ranking;
+                const initials = user.display_name.split(' ').map(n => n[0]).join('').toUpperCase();
+                
+                return (
+                  <div 
+                    key={user.user_id}
+                    className={`flex items-center gap-4 p-4 rounded-xl transition-all ${
+                      position === 1 ? 'bg-gradient-to-r from-yellow-50 to-yellow-100 border-2 border-yellow-200' :
+                      position === 2 ? 'bg-gradient-to-r from-gray-50 to-gray-100 border-2 border-gray-200' :
+                      position === 3 ? 'bg-gradient-to-r from-amber-50 to-amber-100 border-2 border-amber-200' :
+                      'bg-card border'
+                    }`}
+                  >
+                    <div className="flex items-center justify-center w-12 h-12">
+                      {getPositionIcon(position)}
+                    </div>
+                    
+                    <Avatar className="h-12 w-12 border-2 border-white shadow-soft">
+                      <AvatarImage src={user.avatar_url} alt={user.display_name} />
+                      <AvatarFallback className="bg-gradient-primary text-primary-foreground font-bold">
+                        {initials}
+                      </AvatarFallback>
+                    </Avatar>
+                    
+                    <div className="flex-1">
+                      <h4 className="font-semibold text-foreground">{user.display_name}</h4>
+                      <p className="text-xs text-muted-foreground">{user.position || "Membro"}</p>
+                    </div>
+                    
+                    <div className="text-right space-y-1">
+                      <Badge className={`${getPositionBadge(position)} font-bold text-xs`}>
+                        {user.lessons_completed} lições
+                      </Badge>
+                      <p className="text-xs text-muted-foreground">
+                        Média: {user.average_score}%
+                      </p>
+                    </div>
+                  </div>
+                );
+              })}
+              
+              {/* Message for users not in ranking */}
+              <div className="text-center py-4 border-t">
+                <p className="text-sm text-muted-foreground">
+                  Continue se capacitando para aparecer no próximo ranking! 🚀
+                </p>
+                <p className="text-xs text-muted-foreground mt-1">
+                  Complete lições com nota ≥ 80% para pontuar
+                </p>
+              </div>
+            </>
+          )}
         </div>
       </DialogContent>
     </Dialog>
