@@ -1,0 +1,10 @@
+.text-block {
+  max-width: 800px;
+  font-size: clamp(14px, 4vw, 20px);
+  line-height: 1.6;
+}
+
+.char {
+  will-change: transform;
+  display: inline-block;
+}

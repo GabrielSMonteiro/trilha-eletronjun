@@ -1,11 +1,16 @@
-import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Trophy, Users, Target, BookOpen, Zap, Code } from "lucide-react";
+import { SiInstagram, SiLinkedin, SiYoutube, SiFacebook, SiTiktok } from "react-icons/si";
 import { useNavigate } from "react-router-dom";
 import TextType from "@/components/TextType";
 import FallingText from "@/components/FallingText";
 import MagicButton from "@/components/MagicButton";
+import Threads from "@/components/Threads";
+import LogoLoop from "@/components/LogoLoop";
+import ShinyText from "@/components/ShinyText";
+import ScrambledText from "@/components/ScrambledText";
+import RotatingText from "@/components/RotatingText";
 
 const Landing = () => {
   const navigate = useNavigate();
@@ -40,26 +45,33 @@ const Landing = () => {
     },
   ];
 
-  const categories = [
+  const categories = ["Software", "Eletrônica", "Liderança", "Gestão"];
+
+  const socialLogos = [
     {
-      name: "Software",
-      icon: <Code className="h-5 w-5" />,
-      color: "text-blue-500",
+      node: <SiInstagram className="text-foreground" />,
+      title: "Instagram",
+      href: "https://instagram.com/eletronjun",
     },
     {
-      name: "Eletrônica",
-      icon: <Zap className="h-5 w-5" />,
-      color: "text-yellow-500",
+      node: <SiLinkedin className="text-foreground" />,
+      title: "LinkedIn",
+      href: "https://linkedin.com/company/eletronjun",
     },
     {
-      name: "Liderança",
-      icon: <Users className="h-5 w-5" />,
-      color: "text-purple-500",
+      node: <SiYoutube className="text-foreground" />,
+      title: "YouTube",
+      href: "https://youtube.com/@eletronjun",
     },
     {
-      name: "Gestão",
-      icon: <Target className="h-5 w-5" />,
-      color: "text-green-500",
+      node: <SiFacebook className="text-foreground" />,
+      title: "Facebook",
+      href: "https://facebook.com/eletronjun",
+    },
+    {
+      node: <SiTiktok className="text-foreground" />,
+      title: "TikTok",
+      href: "https://tiktok.com/@eletronjun",
     },
   ];
 
@@ -78,9 +90,20 @@ const Landing = () => {
                 />
               </span>
             </div>
-            <div>
+            <div style={{ minHeight: "60px" }}>
               <h1 className="text-xl font-bold text-foreground">CapacitaJun</h1>
-              <p className="text-xs text-muted-foreground">EletronJun</p>
+              <FallingText
+                text="EletronJun"
+                highlightWords={["EletronJun"]}
+                highlightClass="highlighted"
+                trigger="hover"
+                backgroundColor="transparent"
+                wireframes={false}
+                gravity={0.56}
+                fontSize="0.75rem"
+                mouseConstraintStiffness={0.9}
+                className="text-muted-foreground"
+              />
             </div>
           </div>
 
@@ -103,7 +126,7 @@ const Landing = () => {
         {/* Hero Section */}
         <div className="text-center mb-16">
           <Badge variant="secondary" className="mb-6 bg-gradient-secondary">
-            🚀 Sistema de Capacitações EletronJUN
+            🚀 <ShinyText text="Sistema de Capacitações EletronJUN" speed={3} />
           </Badge>
 
           <h1 className="text-5xl md:text-6xl font-bold text-foreground mb-6 leading-tight">
@@ -118,18 +141,15 @@ const Landing = () => {
           </h1>
 
           <div className="mb-8">
-            <FallingText
-              text="Desenvolva suas habilidades através de trilhas gamificadas. Assista vídeos, responda questões e compete com seus colegas no ranking mensal."
-              highlightWords={["Desenvolva", "gamificadas", "trilhas", "ranking"]}
-              highlightClass="highlighted"
-              trigger="hover"
-              backgroundColor="transparent"
-              wireframes={false}
-              gravity={0.56}
-              fontSize="1.25rem"
-              mouseConstraintStiffness={0.9}
-              className="max-w-2xl mx-auto"
-            />
+            <ScrambledText
+              radius={100}
+              duration={1.2}
+              speed={0.5}
+              scrambleChars=".:"
+              className="max-w-2xl mx-auto text-muted-foreground"
+            >
+              Desenvolva suas habilidades através de trilhas gamificadas. Assista vídeos, responda questões e compete com seus colegas no ranking mensal.
+            </ScrambledText>
           </div>
 
           <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
@@ -173,33 +193,25 @@ const Landing = () => {
 
         {/* Categories Preview */}
         <div className="text-center mb-16">
-          <h2 className="text-3xl font-bold text-foreground mb-4">
-            Áreas de Capacitação
+          <h2 className="text-3xl font-bold text-foreground mb-8">
+            <span className="mr-3">Capacite-se em</span>
+            <RotatingText
+              texts={categories}
+              mainClassName="inline-flex px-4 py-2 bg-gradient-primary text-primary-foreground rounded-lg"
+              staggerFrom="last"
+              initial={{ y: "100%" }}
+              animate={{ y: 0 }}
+              exit={{ y: "-120%" }}
+              staggerDuration={0.025}
+              splitLevelClassName="overflow-hidden"
+              transition={{ type: "spring", damping: 30, stiffness: 400 }}
+              rotationInterval={2000}
+            />
           </h2>
-          <p className="text-muted-foreground mb-8 max-w-2xl mx-auto">
-            Escolha entre diversas trilhas de conhecimento e desenvolva
-            habilidades específicas para sua carreira
-          </p>
-
-          <div className="flex flex-wrap justify-center gap-4">
-            {categories.map((category, index) => (
-              <Card
-                key={index}
-                className="border-2 border-border shadow-soft hover:shadow-medium transition-all duration-300"
-              >
-                <CardContent className="p-4 flex items-center gap-3">
-                  <span className={category.color}>{category.icon}</span>
-                  <span className="font-medium text-foreground">
-                    {category.name}
-                  </span>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
         </div>
 
         {/* How it Works */}
-        <div className="bg-card rounded-3xl p-8 shadow-medium border-2 border-border">
+        <div className="bg-card rounded-3xl p-8 shadow-medium border-2 border-border mb-16">
           <h2 className="text-3xl font-bold text-center text-foreground mb-8">
             Como Funciona
           </h2>
@@ -244,6 +256,36 @@ const Landing = () => {
                 Desbloqueie novas lições e suba no ranking mensal
               </p>
             </div>
+          </div>
+        </div>
+
+        {/* Threads Effect */}
+        <div style={{ width: '100%', height: '400px', position: 'relative', marginBottom: '4rem' }}>
+          <Threads
+            color={[0.11, 0.72, 0.8]}
+            amplitude={1}
+            distance={0}
+            enableMouseInteraction={true}
+          />
+        </div>
+
+        {/* Social Media */}
+        <div className="mb-16">
+          <h2 className="text-3xl font-bold text-center text-foreground mb-8">
+            Siga a EletronJun
+          </h2>
+          <div style={{ height: '120px', position: 'relative', overflow: 'hidden' }}>
+            <LogoLoop
+              logos={socialLogos}
+              speed={80}
+              direction="left"
+              logoHeight={48}
+              gap={60}
+              pauseOnHover
+              scaleOnHover
+              fadeOut
+              ariaLabel="EletronJun nas redes sociais"
+            />
           </div>
         </div>
 
