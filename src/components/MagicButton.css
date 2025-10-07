@@ -1,0 +1,18 @@
+.magic-button {
+  position: relative;
+  overflow: hidden;
+  transition: all 0.3s ease;
+  transform-style: preserve-3d;
+}
+
+.magic-button--glow {
+  box-shadow: 0 0 20px rgba(var(--glow-color), 0.3);
+}
+
+.magic-button:hover {
+  box-shadow: 0 0 30px rgba(var(--glow-color), 0.5);
+}
+
+.magic-particle {
+  pointer-events: none;
+}

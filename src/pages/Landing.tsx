@@ -3,6 +3,9 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Trophy, Users, Target, BookOpen, Zap, Code } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import TextType from "@/components/TextType";
+import FallingText from "@/components/FallingText";
+import MagicButton from "@/components/MagicButton";
 
 const Landing = () => {
   const navigate = useNavigate();
@@ -98,28 +101,47 @@ const Landing = () => {
           </Badge>
 
           <h1 className="text-5xl md:text-6xl font-bold text-foreground mb-6 leading-tight">
-            Capacitação da
-            <span className="bg-gradient-primary bg-clip-text text-transparent">
-              {" "}
-              EletronJun
-            </span>
+            <TextType
+              text={["Capacitação da EletronJun", "Aprenda. Pratique. Evolua.", "Seu futuro começa aqui."]}
+              typingSpeed={75}
+              pauseDuration={1500}
+              showCursor={true}
+              cursorCharacter="|"
+              className="inline-block"
+            />
           </h1>
 
-          <p className="text-xl text-muted-foreground mb-8 max-w-2xl mx-auto leading-relaxed">
-            Desenvolva suas habilidades através de trilhas gamificadas. Assista
-            vídeos, responda questões e compete com seus colegas no ranking
-            mensal.
-          </p>
+          <div className="mb-8">
+            <FallingText
+              text="Desenvolva suas habilidades através de trilhas gamificadas. Assista vídeos, responda questões e compete com seus colegas no ranking mensal."
+              highlightWords={["Desenvolva", "gamificadas", "trilhas", "ranking"]}
+              highlightClass="highlighted"
+              trigger="hover"
+              backgroundColor="transparent"
+              wireframes={false}
+              gravity={0.56}
+              fontSize="1.25rem"
+              mouseConstraintStiffness={0.9}
+              className="max-w-2xl mx-auto"
+            />
+          </div>
 
           <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
-            <Button
+            <MagicButton
               onClick={handleLogin}
-              size="lg"
               className="bg-gradient-primary shadow-strong text-lg px-8 py-6 h-auto"
+              enableStars={true}
+              enableSpotlight={true}
+              enableBorderGlow={true}
+              enableTilt={true}
+              enableMagnetism={true}
+              clickEffect={true}
+              particleCount={12}
+              glowColor="27, 184, 205"
             >
               <BookOpen className="h-5 w-5 mr-2" />
               Começar Agora
-            </Button>
+            </MagicButton>
           </div>
         </div>
 
@@ -229,14 +251,20 @@ const Landing = () => {
             habilidades de forma divertida e eficaz.
           </p>
 
-          <Button
+          <MagicButton
             onClick={handleLogin}
-            size="lg"
             className="bg-gradient-primary shadow-strong text-lg px-8 py-6 h-auto"
+            enableStars={true}
+            enableBorderGlow={true}
+            enableTilt={true}
+            enableMagnetism={true}
+            clickEffect={true}
+            particleCount={12}
+            glowColor="27, 184, 205"
           >
             <Target className="h-5 w-5 mr-2" />
             Entrar com Email EletronJUN
-          </Button>
+          </MagicButton>
         </div>
       </div>
     </div>
