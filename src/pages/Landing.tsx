@@ -84,12 +84,18 @@ const Landing = () => {
             </div>
           </div>
 
-          <Button
+          <MagicButton
             onClick={handleLogin}
             className="bg-gradient-primary shadow-medium"
+            enableStars={false}
+            enableBorderGlow={true}
+            enableTilt={false}
+            enableMagnetism={false}
+            clickEffect={true}
+            glowColor="27, 184, 205"
           >
             Entrar
-          </Button>
+          </MagicButton>
         </div>
       </div>
 
