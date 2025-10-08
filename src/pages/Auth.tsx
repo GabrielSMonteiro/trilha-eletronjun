@@ -75,8 +75,15 @@ const Auth = () => {
         data: { user },
       } = await supabase.auth.getUser();
       if (user) {
-        // Redirecionar admin para /admin
-        if (user.email === "admin@eletronjun.com.br") {
+        // Check if user has admin role
+        const { data: userRole } = await supabase
+          .from("user_roles")
+          .select("role")
+          .eq("user_id", user.id)
+          .eq("role", "admin")
+          .maybeSingle();
+
+        if (userRole) {
           navigate("/admin");
         } else {
           navigate("/app");
@@ -147,9 +154,16 @@ const Auth = () => {
           description: "Email ou senha incorretos.",
           variant: "destructive",
         });
-      } else {
-        // Redirecionar admin para /admin
-        if (authData.user?.email === "admin@eletronjun.com.br") {
+      } else if (authData.user) {
+        // Check if user has admin role
+        const { data: userRole } = await supabase
+          .from("user_roles")
+          .select("role")
+          .eq("user_id", authData.user.id)
+          .eq("role", "admin")
+          .maybeSingle();
+
+        if (userRole) {
           navigate("/admin");
         } else {
           navigate("/app");

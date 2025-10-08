@@ -59,24 +59,26 @@ const Admin = () => {
     if (!user) return;
 
     try {
-      const { data: profile, error } = await supabase
-        .from("profiles")
-        .select("*")
+      // Check if user has admin role
+      const { data: userRole, error: roleError } = await supabase
+        .from("user_roles")
+        .select("role")
         .eq("user_id", user.id)
-        .single();
+        .eq("role", "admin")
+        .maybeSingle();
 
-      if (error && error.code !== "PGRST116") {
-        console.error("Error loading profile:", error);
+      if (roleError) {
+        console.error("Error checking admin role:", roleError);
         toast({
           title: "Erro",
-          description: "Erro ao carregar perfil. Tente novamente.",
+          description: "Erro ao verificar permissões. Tente novamente.",
           variant: "destructive",
         });
         navigate("/app");
         return;
       }
 
-      const isUserAdmin = user.email === "admin@eletronjun.com.br" || profile?.is_admin;
+      const isUserAdmin = !!userRole;
       
       if (!isUserAdmin) {
         toast({
@@ -86,6 +88,17 @@ const Admin = () => {
         });
         navigate("/app");
         return;
+      }
+
+      // Load profile data
+      const { data: profile, error: profileError } = await supabase
+        .from("profiles")
+        .select("*")
+        .eq("user_id", user.id)
+        .single();
+
+      if (profileError && profileError.code !== "PGRST116") {
+        console.error("Error loading profile:", profileError);
       }
 
       setProfile(profile);
