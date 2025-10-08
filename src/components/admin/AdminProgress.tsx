@@ -6,8 +6,10 @@ import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { BarChart, TrendingUp, Target, Users, Search, BookOpen } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/hooks/use-toast";
 
 interface Category {
   id: string;
@@ -41,6 +43,15 @@ interface OverallStats {
   totalLessonsInProgress: number;
 }
 
+interface UserCategoryProgress {
+  category_id: string;
+  category_name: string;
+  total_lessons: number;
+  completed_lessons: number;
+  progress_percentage: number;
+  avg_score: number | null;
+}
+
 export const AdminProgress = () => {
   const [categories, setCategories] = useState<Category[]>([]);
   const [categoryProgress, setCategoryProgress] = useState<CategoryProgress[]>([]);
@@ -55,6 +66,11 @@ export const AdminProgress = () => {
   const [selectedCategory, setSelectedCategory] = useState<string>("");
   const [searchTerm, setSearchTerm] = useState("");
   const [isLoading, setIsLoading] = useState(true);
+  const [selectedUserId, setSelectedUserId] = useState<string | null>(null);
+  const [userCategoryProgress, setUserCategoryProgress] = useState<UserCategoryProgress[]>([]);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isLoadingModal, setIsLoadingModal] = useState(false);
+  const { toast } = useToast();
 
   useEffect(() => {
     loadProgressData();
@@ -194,6 +210,89 @@ export const AdminProgress = () => {
   const getFilteredCategoryProgress = () => {
     if (!selectedCategory) return categoryProgress;
     return categoryProgress.filter(cp => cp.category_id === selectedCategory);
+  };
+
+  const loadUserCategoryProgress = async (userId: string) => {
+    setIsLoadingModal(true);
+    try {
+      // Pegar todas as categorias
+      const { data: categoriesData } = await supabase
+        .from("categories")
+        .select("id, display_name")
+        .order("display_name");
+
+      if (!categoriesData) {
+        setIsLoadingModal(false);
+        return;
+      }
+
+      // Para cada categoria, calcular o progresso do usuário
+      const progressPromises = categoriesData.map(async (category) => {
+        // Pegar todas as lições da categoria
+        const { data: lessonsData } = await supabase
+          .from("lessons")
+          .select("id")
+          .eq("category_id", category.id);
+
+        const totalLessons = lessonsData?.length || 0;
+        const lessonIds = lessonsData?.map(l => l.id) || [];
+
+        if (lessonIds.length === 0) {
+          return {
+            category_id: category.id,
+            category_name: category.display_name,
+            total_lessons: 0,
+            completed_lessons: 0,
+            progress_percentage: 0,
+            avg_score: null,
+          };
+        }
+
+        // Pegar progresso do usuário nessas lições
+        const { data: progressData } = await supabase
+          .from("user_progress")
+          .select("lesson_id, completed_at, score")
+          .eq("user_id", userId)
+          .in("lesson_id", lessonIds);
+
+        const completedProgress = progressData?.filter(p => p.completed_at) || [];
+        const completedLessons = completedProgress.length;
+        const avgScore = completedProgress.length > 0
+          ? completedProgress.reduce((sum, p) => sum + (p.score || 0), 0) / completedProgress.length
+          : null;
+
+        const progressPercentage = totalLessons > 0
+          ? Math.round((completedLessons / totalLessons) * 100)
+          : 0;
+
+        return {
+          category_id: category.id,
+          category_name: category.display_name,
+          total_lessons: totalLessons,
+          completed_lessons: completedLessons,
+          progress_percentage: progressPercentage,
+          avg_score: avgScore,
+        };
+      });
+
+      const categoryProgressData = await Promise.all(progressPromises);
+      setUserCategoryProgress(categoryProgressData);
+    } catch (error) {
+      console.error("Error loading user category progress:", error);
+      toast({
+        title: "Erro",
+        description: "Não foi possível carregar o progresso do usuário.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoadingModal(false);
+    }
+  };
+
+  const handleShowUserDetails = async (userId: string) => {
+    setSelectedUserId(userId);
+    setIsModalOpen(true);
+    await loadUserCategoryProgress(userId);
   };
 
   if (isLoading) {
@@ -357,43 +456,90 @@ export const AdminProgress = () => {
                 </p>
               ) : (
                 filteredUserProgress.map((user) => (
-                  <div key={user.user_id} className="flex items-center gap-4 p-3 border rounded-lg">
-                    <Avatar className="h-10 w-10">
-                      <AvatarFallback>
-                        {user.display_name.slice(0, 2).toUpperCase()}
-                      </AvatarFallback>
-                    </Avatar>
-                    
-                    <div className="flex-1 space-y-1">
+                  <Card key={user.user_id}>
+                    <CardContent className="p-4">
                       <div className="flex items-center justify-between">
-                        <p className="font-medium text-sm">{user.display_name}</p>
-                        <Badge variant="secondary" className="text-xs">
-                          {user.completion_percentage}%
-                        </Badge>
+                        <div className="flex items-center gap-3">
+                          <Avatar className="h-10 w-10">
+                            <AvatarFallback>
+                              {user.display_name.slice(0, 2).toUpperCase()}
+                            </AvatarFallback>
+                          </Avatar>
+                          <div>
+                            <p className="font-medium">{user.display_name}</p>
+                            <p className="text-sm text-muted-foreground">
+                              {user.position || "Cargo não informado"}
+                            </p>
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-4">
+                          <div className="text-right">
+                            <p className="text-sm font-medium">{user.total_lessons_completed} lições</p>
+                            <p className="text-xs text-muted-foreground">concluídas</p>
+                          </div>
+                          <Button size="sm" onClick={() => handleShowUserDetails(user.user_id)}>
+                            Ver mais
+                          </Button>
+                        </div>
                       </div>
-                      
-                      <p className="text-xs text-muted-foreground">
-                        {user.position || "Cargo não informado"}
-                      </p>
-                      
-                      <Progress value={user.completion_percentage} className="h-1.5" />
-                      
-                      <div className="flex items-center justify-between text-xs text-muted-foreground">
-                        <span>
-                          {user.total_lessons_completed}/{user.total_lessons_started} lições
-                        </span>
-                        <span>
-                          Média: {user.average_score}%
-                        </span>
-                      </div>
-                    </div>
-                  </div>
+                    </CardContent>
+                  </Card>
                 ))
               )}
             </div>
           </CardContent>
         </Card>
       </div>
+
+      {/* Modal de detalhes do usuário */}
+      <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
+        <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>
+              Progresso de {userProgress.find(u => u.user_id === selectedUserId)?.display_name}
+            </DialogTitle>
+          </DialogHeader>
+          
+          {isLoadingModal ? (
+            <div className="space-y-4 py-4">
+              {[...Array(4)].map((_, i) => (
+                <div key={i} className="space-y-2">
+                  <div className="h-4 bg-muted rounded w-32 animate-pulse"></div>
+                  <div className="h-2 bg-muted rounded animate-pulse"></div>
+                  <div className="h-3 bg-muted rounded w-48 animate-pulse"></div>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="space-y-4 py-4">
+              {userCategoryProgress.map((category) => (
+                <div key={category.category_id} className="space-y-2">
+                  <div className="flex justify-between items-center">
+                    <span className="font-medium">{category.category_name}</span>
+                    <Badge variant={category.progress_percentage === 100 ? "default" : "secondary"}>
+                      {category.progress_percentage}%
+                    </Badge>
+                  </div>
+                  <Progress value={category.progress_percentage} className="h-2" />
+                  <div className="flex justify-between text-xs text-muted-foreground">
+                    <span>
+                      {category.completed_lessons}/{category.total_lessons} lições concluídas
+                    </span>
+                    {category.avg_score !== null && (
+                      <span>Média: {category.avg_score.toFixed(1)}%</span>
+                    )}
+                  </div>
+                </div>
+              ))}
+              {userCategoryProgress.length === 0 && (
+                <p className="text-center text-muted-foreground py-8">
+                  Nenhum progresso registrado ainda.
+                </p>
+              )}
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };

@@ -62,6 +62,7 @@ interface Lesson {
   order_index: number;
   category_id: string;
   categories?: { display_name: string };
+  questions_count?: number;
 }
 
 interface Question {
@@ -117,36 +118,86 @@ export const AdminContent = () => {
 
   useEffect(() => {
     loadCategories();
-    loadLessons();
+    loadLessonsWithQuestionCount();
     loadQuestions();
   }, []);
 
   const loadCategories = async () => {
-    const { data, error } = await supabase
-      .from("categories")
-      .select("*")
-      .order("display_name");
+    try {
+      const { data, error } = await supabase
+        .from("categories")
+        .select("*")
+        .order("display_name");
 
-    if (error) {
-      console.error("Error loading categories:", error);
-    } else {
+      if (error) throw error;
       setCategories(data || []);
+    } catch (error) {
+      console.error("Error loading categories:", error);
+      toast({
+        title: "Erro",
+        description: "Não foi possível carregar as categorias.",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const loadLessonsWithQuestionCount = async () => {
+    try {
+      const { data: lessonsData, error: lessonsError } = await supabase
+        .from("lessons")
+        .select(`
+          *,
+          categories!inner(display_name)
+        `)
+        .order("order_index");
+
+      if (lessonsError) throw lessonsError;
+
+      // Para cada lição, contar o número de questões
+      const lessonsWithCount = await Promise.all(
+        (lessonsData || []).map(async (lesson) => {
+          const { data: questionsData } = await supabase
+            .from("questions")
+            .select("id")
+            .eq("lesson_id", lesson.id);
+
+          return {
+            ...lesson,
+            questions_count: questionsData?.length || 0,
+          };
+        })
+      );
+
+      setLessons(lessonsWithCount);
+    } catch (error) {
+      console.error("Error loading lessons:", error);
+      toast({
+        title: "Erro",
+        description: "Não foi possível carregar as lições. Tente novamente.",
+        variant: "destructive",
+      });
     }
   };
 
   const loadLessons = async () => {
-    const { data, error } = await supabase
-      .from("lessons")
-      .select(`
-        *,
-        categories!inner(display_name)
-      `)
-      .order("order_index");
+    try {
+      const { data, error } = await supabase
+        .from("lessons")
+        .select(`
+          *,
+          categories!inner(display_name)
+        `)
+        .order("order_index");
 
-    if (error) {
-      console.error("Error loading lessons:", error);
-    } else {
+      if (error) throw error;
       setLessons(data || []);
+    } catch (error) {
+      console.error("Error loading lessons:", error);
+      toast({
+        title: "Erro",
+        description: "Não foi possível carregar as lições. Tente novamente.",
+        variant: "destructive",
+      });
     }
   };
 
@@ -203,7 +254,7 @@ export const AdminContent = () => {
       lessonForm.reset();
       setIsLessonDialogOpen(false);
       setEditingLesson(null);
-      loadLessons();
+      loadLessonsWithQuestionCount();
     } catch (error) {
       console.error("Error saving lesson:", error);
       toast({
@@ -308,7 +359,7 @@ export const AdminContent = () => {
           title: "Lição excluída!",
           description: "A lição foi excluída com sucesso.",
         });
-        loadLessons();
+        loadLessonsWithQuestionCount();
       }
     }
   };
@@ -557,51 +608,69 @@ export const AdminContent = () => {
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead>Título</TableHead>
-                    <TableHead>Categoria</TableHead>
+                    <TableHead>Lição</TableHead>
+                    <TableHead>Trilha/Categoria</TableHead>
                     <TableHead>Tipo</TableHead>
-                    <TableHead>Ordem</TableHead>
+                    <TableHead>Questões</TableHead>
                     <TableHead className="text-right">Ações</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {getFilteredLessons().map((lesson) => (
-                    <TableRow key={lesson.id}>
-                      <TableCell className="font-medium">{lesson.title}</TableCell>
-                      <TableCell>
-                        <Badge variant="secondary">
-                          {(lesson.categories as any)?.display_name}
-                        </Badge>
-                      </TableCell>
-                      <TableCell>
-                        <div className="flex items-center gap-2">
-                          {getLessonIcon(lesson)}
-                          <span className="text-sm">
-                            {lesson.video_url ? "Vídeo" : lesson.external_link ? "Link" : "Texto"}
-                          </span>
-                        </div>
-                      </TableCell>
-                      <TableCell>{lesson.order_index}</TableCell>
-                      <TableCell className="text-right">
-                        <div className="flex justify-end gap-2">
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() => handleEditLesson(lesson)}
-                          >
-                            <Edit className="h-4 w-4" />
-                          </Button>
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() => handleDeleteLesson(lesson.id)}
-                          >
-                            <Trash className="h-4 w-4" />
-                          </Button>
-                        </div>
+                  {getFilteredLessons().length === 0 ? (
+                    <TableRow>
+                      <TableCell colSpan={5} className="text-center py-8 text-muted-foreground">
+                        Nenhuma lição encontrada
                       </TableCell>
                     </TableRow>
-                  ))}
+                  ) : (
+                    getFilteredLessons().map((lesson) => (
+                      <TableRow key={lesson.id}>
+                        <TableCell>
+                          <div>
+                            <div className="font-medium">{lesson.title}</div>
+                            <div className="text-sm text-muted-foreground">Ordem: {lesson.order_index}</div>
+                          </div>
+                        </TableCell>
+                        <TableCell>
+                          <Badge variant="outline">
+                            {(lesson.categories as any)?.display_name}
+                          </Badge>
+                        </TableCell>
+                        <TableCell>
+                          <div className="flex items-center gap-2">
+                            {getLessonIcon(lesson)}
+                            <span className="text-sm">
+                              {lesson.video_url ? "Vídeo" : lesson.external_link ? "Link" : "Texto"}
+                            </span>
+                          </div>
+                        </TableCell>
+                        <TableCell>
+                          <Badge variant="secondary">
+                            {lesson.questions_count || 0} questões
+                          </Badge>
+                        </TableCell>
+                        <TableCell className="text-right">
+                          <div className="flex justify-end gap-2">
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => handleEditLesson(lesson)}
+                            >
+                              <Edit className="h-4 w-4 mr-1" />
+                              Editar
+                            </Button>
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => handleDeleteLesson(lesson.id)}
+                            >
+                              <Trash className="h-4 w-4" />
+                            </Button>
+                          </div>
+                        </TableCell>
+                      </TableRow>
+                    ))
+                  )}
                 </TableBody>
               </Table>
             </CardContent>
