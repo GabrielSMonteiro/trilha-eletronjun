@@ -80,7 +80,7 @@ export const LessonModal = ({ lesson, isOpen, onClose, onComplete }: LessonModal
     setIsLoadingQuestions(true);
     try {
       const { data, error } = await supabase
-        .from("questions")
+        .from("questions_for_users")
         .select("*")
         .eq("lesson_id", lesson.id)
         .order("created_at");

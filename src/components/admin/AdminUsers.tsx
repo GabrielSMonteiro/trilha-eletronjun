@@ -33,7 +33,7 @@ interface UserProfile {
   user_id: string;
   display_name: string;
   position?: string;
-  is_admin: boolean;
+  role?: string;
   created_at: string;
   user_created_at?: string;
 }
@@ -86,12 +86,23 @@ export const AdminUsers = () => {
           variant: "destructive",
         });
       } else {
-        const userProfiles = data || [];
+        // Get user roles
+        const { data: rolesData } = await supabase
+          .from("user_roles")
+          .select("user_id, role");
+        
+        const rolesMap = new Map(rolesData?.map(r => [r.user_id, r.role]) || []);
+        
+        const userProfiles = (data || []).map(user => ({
+          ...user,
+          role: rolesMap.get(user.user_id) || 'user'
+        }));
+        
         setUsers(userProfiles);
         
         // Calculate stats
         const total = userProfiles.length;
-        const admins = userProfiles.filter(user => user.is_admin).length;
+        const admins = userProfiles.filter(user => user.role === 'admin').length;
         const normalUsers = total - admins;
         
         setStats({ total, normalUsers, admins });
@@ -292,8 +303,8 @@ export const AdminUsers = () => {
                     </TableCell>
                     <TableCell>{user.position || "Não informado"}</TableCell>
                     <TableCell>
-                      <Badge variant={user.is_admin ? "default" : "secondary"}>
-                        {user.is_admin ? (
+                      <Badge variant={user.role === 'admin' ? "default" : "secondary"}>
+                        {user.role === 'admin' ? (
                           <>
                             <Crown className="h-3 w-3 mr-1" />
                             Admin

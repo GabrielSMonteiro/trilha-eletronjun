@@ -130,10 +130,24 @@ export const AdminProgress = () => {
       setCategoryProgress(categoryProgressData);
 
       // Calculate user progress manually
-      const { data: profilesData } = await supabase
+      // Get admin user IDs
+      const { data: adminRoles } = await supabase
+        .from("user_roles")
+        .select("user_id")
+        .eq("role", "admin");
+      
+      const adminUserIds = adminRoles?.map(r => r.user_id) || [];
+      
+      // Get non-admin profiles
+      let query = supabase
         .from("profiles")
-        .select("user_id, display_name, position, created_at")
-        .eq("is_admin", false);
+        .select("user_id, display_name, position, created_at");
+      
+      if (adminUserIds.length > 0) {
+        query = query.not("user_id", "in", `(${adminUserIds.join(",")})`);
+      }
+      
+      const { data: profilesData } = await query;
 
       const userProgressPromises = (profilesData || []).map(async (profile) => {
         const { data: progressData } = await supabase

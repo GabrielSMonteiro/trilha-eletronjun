@@ -48,10 +48,24 @@ export const RankingModal = ({ isOpen, onClose }: RankingModalProps) => {
       setCurrentMonth(monthName);
 
       // Get ranking for current month with score >= 80%
-      const { data: profilesData } = await supabase
+      // First get admin user IDs
+      const { data: adminRoles } = await supabase
+        .from("user_roles")
+        .select("user_id")
+        .eq("role", "admin");
+      
+      const adminUserIds = adminRoles?.map(r => r.user_id) || [];
+      
+      // Get non-admin profiles
+      let query = supabase
         .from("profiles")
-        .select("user_id, display_name, position, avatar_url")
-        .eq("is_admin", false);
+        .select("user_id, display_name, position, avatar_url");
+      
+      if (adminUserIds.length > 0) {
+        query = query.not("user_id", "in", `(${adminUserIds.join(",")})`);
+      }
+      
+      const { data: profilesData } = await query;
 
       if (!profilesData) {
         setRankings([]);

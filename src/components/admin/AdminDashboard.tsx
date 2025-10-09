@@ -42,8 +42,21 @@ export const AdminDashboard = () => {
     setIsLoading(true);
     try {
       // Load basic stats
+      // Get admin user IDs
+      const { data: adminRoles } = await supabase
+        .from('user_roles')
+        .select('user_id')
+        .eq('role', 'admin');
+      
+      const adminUserIds = adminRoles?.map(r => r.user_id) || [];
+      
+      let usersQuery = supabase.from('profiles').select('id', { count: 'exact' });
+      if (adminUserIds.length > 0) {
+        usersQuery = usersQuery.not('user_id', 'in', `(${adminUserIds.join(',')})`);
+      }
+      
       const [usersResult, lessonsResult, completionsResult, categoriesResult] = await Promise.all([
-        supabase.from('profiles').select('id', { count: 'exact' }).neq('is_admin', true),
+        usersQuery,
         supabase.from('lessons').select('id', { count: 'exact' }),
         supabase.from('user_progress').select('id', { count: 'exact' }).not('completed_at', 'is', null),
         supabase.from('categories').select('id', { count: 'exact' }),
