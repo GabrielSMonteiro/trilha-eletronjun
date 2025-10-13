@@ -46,6 +46,7 @@ export const LessonModal = ({ lesson, isOpen, onClose, onComplete }: LessonModal
   const [showResults, setShowResults] = useState(false);
   const [questions, setQuestions] = useState<Question[]>([]);
   const [isLoadingQuestions, setIsLoadingQuestions] = useState(false);
+  const [quizResult, setQuizResult] = useState<{ score: number; passed: boolean; correctCount: number } | null>(null);
 
   // Helper function to convert YouTube URLs to embed format
   const convertToEmbedUrl = (url: string): string => {
@@ -129,33 +130,51 @@ export const LessonModal = ({ lesson, isOpen, onClose, onComplete }: LessonModal
     }
   };
 
-  const handleFinishQuiz = () => {
-    // Note: Without correct answers from server, we auto-pass the quiz
-    // TODO: Implement server-side validation via Edge Function for proper security
-    const correctAnswers = selectedAnswers.filter((answer, index) => {
-      return questions[index].correctAnswer !== undefined && answer === questions[index].correctAnswer;
-    });
-    
-    // If no correct answers are available (questions_for_users view), auto-pass
-    const score = questions.length > 0 && questions[0].correctAnswer !== undefined
-      ? (correctAnswers.length / questions.length) * 100 
-      : 100;
-    const passed = score >= 80;
-    
-    setShowResults(true);
-    
-    if (passed) {
-      toast({
-        title: "Parabéns! 🎉",
-        description: questions[0].correctAnswer !== undefined 
-          ? `Você acertou ${correctAnswers.length}/${questions.length} questões (${score.toFixed(0)}%)`
-          : "Quiz completado com sucesso!",
+  const handleFinishQuiz = async () => {
+    try {
+      // Validate answers server-side for security
+      const { data, error } = await supabase.functions.invoke('validate-quiz', {
+        body: {
+          answers: selectedAnswers.map((answer, index) => ({
+            questionId: questions[index].id,
+            userAnswer: answer,
+          })),
+        },
       });
-      onComplete(lesson.id, true);
-    } else {
+
+      if (error) {
+        console.error('Quiz validation error:', error);
+        toast({
+          title: "Erro ao validar quiz",
+          description: "Ocorreu um erro ao validar suas respostas. Tente novamente.",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      const { correctCount, totalQuestions, score, passed } = data;
+      
+      setQuizResult({ score, passed, correctCount });
+      setShowResults(true);
+      
+      if (passed) {
+        toast({
+          title: "Parabéns! 🎉",
+          description: `Você acertou ${correctCount}/${totalQuestions} questões (${score.toFixed(0)}%)`,
+        });
+        onComplete(lesson.id, true);
+      } else {
+        toast({
+          title: "Continue tentando! 💪",
+          description: `Você acertou ${correctCount}/${totalQuestions} questões (${score.toFixed(0)}%). Tente novamente!`,
+          variant: "destructive",
+        });
+      }
+    } catch (err) {
+      console.error('Unexpected error during quiz validation:', err);
       toast({
-        title: "Continue tentando! 💪",
-        description: `Você acertou ${correctAnswers.length}/${questions.length} questões (${score.toFixed(0)}%). Tente novamente!`,
+        title: "Erro inesperado",
+        description: "Ocorreu um erro ao validar o quiz. Tente novamente.",
         variant: "destructive",
       });
     }
@@ -168,16 +187,13 @@ export const LessonModal = ({ lesson, isOpen, onClose, onComplete }: LessonModal
     setShowResults(false);
     setQuestions([]);
     setIsLoadingQuestions(false);
+    setQuizResult(null);
     onClose();
   };
 
   const currentQuestion = questions[currentQuestionIndex];
-  const correctAnswers = selectedAnswers.filter((answer, index) => {
-    return questions[index]?.correctAnswer !== undefined && answer === questions[index]?.correctAnswer;
-  });
-  const score = selectedAnswers.length === questions.length && questions[0]?.correctAnswer !== undefined
-    ? (correctAnswers.length / questions.length) * 100 
-    : 100;
+  const score = quizResult?.score || 0;
+  const correctAnswersCount = quizResult?.correctCount || 0;
 
   // Use video_url from lesson data and convert to embed format
   const videoUrl = lesson.video_url || lesson.videoUrl;
@@ -338,7 +354,7 @@ export const LessonModal = ({ lesson, isOpen, onClose, onComplete }: LessonModal
               </h3>
               
               <p className="text-lg mb-2">
-                Você acertou {correctAnswers.length} de {questions.length} questões
+                Você acertou {correctAnswersCount} de {questions.length} questões
               </p>
               
               <Badge variant={score >= 80 ? "default" : "destructive"} className="text-lg px-4 py-2">
