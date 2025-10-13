@@ -11,6 +11,8 @@ import LogoLoop from "@/components/LogoLoop";
 import ShinyText from "@/components/ShinyText";
 import ScrambledText from "@/components/ScrambledText";
 import RotatingText from "@/components/RotatingText";
+import { ParticleTextEffect } from "@/components/ui/particle-text-effect";
+import { HyperspeedBackground } from "@/components/HyperspeedBackground";
 
 const Landing = () => {
   const navigate = useNavigate();
@@ -76,7 +78,8 @@ const Landing = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-hero">
+    <div className="min-h-screen relative">
+      <HyperspeedBackground />
       {/* Header */}
       <div className="bg-card/80 backdrop-blur-sm border-b border-border shadow-soft">
         <div className="max-w-6xl mx-auto px-4 py-4 flex items-center justify-between">
@@ -91,18 +94,11 @@ const Landing = () => {
               </span>
             </div>
             <div style={{ minHeight: "60px" }}>
-              <h1 className="text-xl font-bold text-foreground">CapacitaJun</h1>
-              <FallingText
-                text="EletronJun"
-                highlightWords={["EletronJun"]}
-                highlightClass="highlighted"
-                trigger="hover"
-                backgroundColor="transparent"
-                wireframes={false}
-                gravity={0.56}
-                fontSize="0.75rem"
-                mouseConstraintStiffness={0.9}
-                className="text-muted-foreground"
+              <ParticleTextEffect 
+                words={["CapacitaJun", "A plataforma de capacitação da EletronJun"]}
+                width={400}
+                height={60}
+                className="mx-auto"
               />
             </div>
           </div>
