@@ -135,7 +135,7 @@ export const AdminContent = () => {
       if (error) throw error;
       setCategories(data || []);
     } catch (error) {
-      console.error("Error loading categories:", error);
+      if (import.meta.env?.DEV) console.error("Error loading categories:", error);
       toast({
         title: "Erro",
         description: "Não foi possível carregar as categorias.",
@@ -173,7 +173,7 @@ export const AdminContent = () => {
 
       setLessons(lessonsWithCount);
     } catch (error) {
-      console.error("Error loading lessons:", error);
+      if (import.meta.env?.DEV) console.error("Error loading lessons:", error);
       toast({
         title: "Erro",
         description: "Não foi possível carregar as lições. Tente novamente.",
@@ -195,7 +195,7 @@ export const AdminContent = () => {
       if (error) throw error;
       setLessons(data || []);
     } catch (error) {
-      console.error("Error loading lessons:", error);
+      if (import.meta.env?.DEV) console.error("Error loading lessons:", error);
       toast({
         title: "Erro",
         description: "Não foi possível carregar as lições. Tente novamente.",
@@ -214,7 +214,7 @@ export const AdminContent = () => {
       .order("created_at");
 
     if (error) {
-      console.error("Error loading questions:", error);
+      if (import.meta.env?.DEV) console.error("Error loading questions:", error);
     } else {
       setQuestions(data || []);
     }
@@ -236,13 +236,9 @@ export const AdminContent = () => {
 
       if (uploadError) throw uploadError;
 
-      const { data: { publicUrl } } = supabase.storage
-        .from('lesson-videos')
-        .getPublicUrl(filePath);
-
-      return publicUrl;
+      return filePath;
     } catch (error) {
-      console.error('Error uploading video:', error);
+      if (import.meta.env?.DEV) console.error('Error uploading video:', error);
       toast({
         title: "Erro",
         description: "Erro ao fazer upload do vídeo. Tente novamente.",
@@ -307,7 +303,7 @@ export const AdminContent = () => {
       setEditingLesson(null);
       loadLessonsWithQuestionCount();
     } catch (error) {
-      console.error("Error saving lesson:", error);
+      if (import.meta.env?.DEV) console.error("Error saving lesson:", error);
       toast({
         title: "Erro",
         description: "Erro ao salvar lição. Tente novamente.",
@@ -356,7 +352,7 @@ export const AdminContent = () => {
       setEditingQuestion(null);
       loadQuestions();
     } catch (error) {
-      console.error("Error saving question:", error);
+      if (import.meta.env?.DEV) console.error("Error saving question:", error);
       toast({
         title: "Erro",
         description: "Erro ao salvar questão. Tente novamente.",

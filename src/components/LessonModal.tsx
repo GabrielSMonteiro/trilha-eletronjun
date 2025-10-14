@@ -47,6 +47,7 @@ export const LessonModal = ({ lesson, isOpen, onClose, onComplete }: LessonModal
   const [questions, setQuestions] = useState<Question[]>([]);
   const [isLoadingQuestions, setIsLoadingQuestions] = useState(false);
   const [quizResult, setQuizResult] = useState<{ score: number; passed: boolean; correctCount: number } | null>(null);
+  const [signedVideoUrl, setSignedVideoUrl] = useState<string | null>(null);
 
   // Helper function to convert YouTube URLs to embed format
   const convertToEmbedUrl = (url: string): string => {
@@ -75,6 +76,38 @@ export const LessonModal = ({ lesson, isOpen, onClose, onComplete }: LessonModal
     }
   }, [lesson?.id]);
 
+  // Generate a signed URL for private storage videos (non-YouTube)
+  useEffect(() => {
+    const setupSignedUrl = async () => {
+      const path = lesson?.video_url || lesson?.videoUrl;
+      if (!path) {
+        setSignedVideoUrl(null);
+        return;
+      }
+      const isYouTube = path.includes('youtube.com') || path.includes('youtu.be');
+      if (isYouTube) {
+        setSignedVideoUrl(null);
+        return;
+      }
+      try {
+        const { data, error } = await supabase.storage
+          .from('lesson-videos')
+          .createSignedUrl(path, 3600);
+        if (error) throw error;
+        setSignedVideoUrl(data?.signedUrl || null);
+      } catch (error) {
+        if (import.meta.env?.DEV) console.error('Error creating signed video URL:', error);
+        setSignedVideoUrl(null);
+        toast({
+          title: 'Erro ao carregar vídeo',
+          description: 'Não foi possível acessar o vídeo desta lição.',
+          variant: 'destructive',
+        });
+      }
+    };
+    setupSignedUrl();
+  }, [lesson?.video_url, lesson?.videoUrl]);
+
   const loadQuestions = async () => {
     if (!lesson) return;
     
@@ -87,7 +120,7 @@ export const LessonModal = ({ lesson, isOpen, onClose, onComplete }: LessonModal
         .order("created_at");
 
       if (error) {
-        console.error("Error loading questions:", error);
+        if (import.meta.env?.DEV) console.error("Error loading questions:", error);
         setQuestions([]);
       } else {
         const formattedQuestions = (data || []).map(q => ({
@@ -100,7 +133,7 @@ export const LessonModal = ({ lesson, isOpen, onClose, onComplete }: LessonModal
         setQuestions(formattedQuestions);
       }
     } catch (error) {
-      console.error("Error loading questions:", error);
+      if (import.meta.env?.DEV) console.error("Error loading questions:", error);
       setQuestions([]);
     } finally {
       setIsLoadingQuestions(false);
@@ -143,7 +176,7 @@ export const LessonModal = ({ lesson, isOpen, onClose, onComplete }: LessonModal
       });
 
       if (error) {
-        console.error('Quiz validation error:', error);
+        if (import.meta.env?.DEV) console.error('Quiz validation error:', error);
         toast({
           title: "Erro ao validar quiz",
           description: "Ocorreu um erro ao validar suas respostas. Tente novamente.",
@@ -171,7 +204,7 @@ export const LessonModal = ({ lesson, isOpen, onClose, onComplete }: LessonModal
         });
       }
     } catch (err) {
-      console.error('Unexpected error during quiz validation:', err);
+      if (import.meta.env?.DEV) console.error('Unexpected error during quiz validation:', err);
       toast({
         title: "Erro inesperado",
         description: "Ocorreu um erro ao validar o quiz. Tente novamente.",
@@ -195,9 +228,10 @@ export const LessonModal = ({ lesson, isOpen, onClose, onComplete }: LessonModal
   const score = quizResult?.score || 0;
   const correctAnswersCount = quizResult?.correctCount || 0;
 
-  // Use video_url from lesson data and convert to embed format
-  const videoUrl = lesson.video_url || lesson.videoUrl;
-  const embedUrl = videoUrl ? convertToEmbedUrl(videoUrl) : null;
+  // Use video_url from lesson data and prepare playback source
+  const videoUrlPath = lesson.video_url || lesson.videoUrl;
+  const isYouTube = !!videoUrlPath && (videoUrlPath.includes('youtube.com') || videoUrlPath.includes('youtu.be'));
+  const embedUrl = isYouTube && videoUrlPath ? convertToEmbedUrl(videoUrlPath) : null;
   const externalLink = lesson.external_link || lesson.contentUrl;
 
   return (
@@ -218,30 +252,36 @@ export const LessonModal = ({ lesson, isOpen, onClose, onComplete }: LessonModal
         {currentPhase === "content" && (
           <div className="space-y-6">
             <div className="aspect-video bg-muted rounded-xl flex items-center justify-center">
-              {embedUrl ? (
-                <iframe
-                  src={embedUrl}
-                  className="w-full h-full rounded-xl"
-                  allowFullScreen
-                  title={lesson.title}
-                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                />
-              ) : externalLink ? (
-                <div className="text-center">
-                  <ExternalLink className="h-12 w-12 mx-auto mb-4 text-primary" />
-                  <p className="text-muted-foreground mb-4">Conteúdo externo</p>
-                  <Button asChild className="bg-gradient-primary">
-                    <a href={externalLink} target="_blank" rel="noopener noreferrer">
-                      Acessar Conteúdo
-                    </a>
-                  </Button>
-                </div>
-              ) : (
-                <div className="text-center">
-                  <Play className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
-                  <p className="text-muted-foreground">Conteúdo em desenvolvimento</p>
-                </div>
-              )}
+                {isYouTube && embedUrl ? (
+                  <iframe
+                    src={embedUrl}
+                    className="w-full h-full rounded-xl"
+                    allowFullScreen
+                    title={lesson.title}
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                  />
+                ) : signedVideoUrl ? (
+                  <video
+                    src={signedVideoUrl}
+                    className="w-full h-full rounded-xl"
+                    controls
+                  />
+                ) : externalLink ? (
+                  <div className="text-center">
+                    <ExternalLink className="h-12 w-12 mx-auto mb-4 text-primary" />
+                    <p className="text-muted-foreground mb-4">Conteúdo externo</p>
+                    <Button asChild className="bg-gradient-primary">
+                      <a href={externalLink} target="_blank" rel="noopener noreferrer">
+                        Acessar Conteúdo
+                      </a>
+                    </Button>
+                  </div>
+                ) : (
+                  <div className="text-center">
+                    <Play className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
+                    <p className="text-muted-foreground">Conteúdo em desenvolvimento</p>
+                  </div>
+                )}
             </div>
 
             {lesson.description && (

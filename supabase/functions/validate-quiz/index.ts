@@ -39,7 +39,7 @@ serve(async (req) => {
           }
 
           const isCorrect = userAnswer === data.correct_answer;
-          console.log('Validated answer:', { questionId, userAnswer, correctAnswer: data.correct_answer, isCorrect });
+          console.log('Validated answer:', { questionId, isCorrect });
           
           return { questionId, isCorrect };
         } catch (err) {

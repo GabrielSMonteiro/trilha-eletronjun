@@ -19,6 +19,7 @@ const Admin = () => {
   const [session, setSession] = useState<Session | null>(null);
   const [profile, setProfile] = useState<Profile | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [isAuthorized, setIsAuthorized] = useState(false);
   const navigate = useNavigate();
   const { toast } = useToast();
 
@@ -90,6 +91,7 @@ const Admin = () => {
         return;
       }
 
+      setIsAuthorized(true);
       // Load profile data
       const { data: profile, error: profileError } = await supabase
         .from("profiles")
@@ -115,7 +117,7 @@ const Admin = () => {
     }
   };
 
-  if (isLoading) {
+  if (isLoading || !isAuthorized) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="text-center">
