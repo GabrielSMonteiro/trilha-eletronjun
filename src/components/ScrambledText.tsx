@@ -1,11 +1,7 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { gsap } from 'gsap';
-import { SplitText } from 'gsap-trial/SplitText';
-import { ScrambleTextPlugin } from 'gsap-trial/ScrambleTextPlugin';
 
 import './ScrambledText.css';
-
-gsap.registerPlugin(SplitText, ScrambleTextPlugin);
 
 const ScrambledText = ({
   radius = 100,
@@ -17,58 +13,70 @@ const ScrambledText = ({
   children
 }) => {
   const rootRef = useRef(null);
-  const charsRef = useRef([]);
+  const [chars, setChars] = useState([]);
 
   useEffect(() => {
+    if (!rootRef.current || !children) return;
+
+    // Split text into characters manually
+    const text = typeof children === 'string' ? children : children.toString();
+    const charElements = text.split('').map((char, i) => ({
+      id: i,
+      original: char,
+      current: char
+    }));
+    setChars(charElements);
+  }, [children]);
+
+  const scrambleChar = (char, callback) => {
+    const chars = scrambleChars.split('');
+    let iterations = 0;
+    const maxIterations = Math.floor(10 * speed);
+    
+    const interval = setInterval(() => {
+      if (iterations >= maxIterations) {
+        clearInterval(interval);
+        callback(char.original);
+      } else {
+        const randomChar = chars[Math.floor(Math.random() * chars.length)];
+        callback(randomChar);
+        iterations++;
+      }
+    }, 50);
+  };
+
+  const handleMove = (e) => {
     if (!rootRef.current) return;
 
-    const split = SplitText.create(rootRef.current.querySelector('p'), {
-      type: 'chars',
-      charsClass: 'char'
+    const charElements = rootRef.current.querySelectorAll('.char');
+    charElements.forEach((c, index) => {
+      const { left, top, width, height } = c.getBoundingClientRect();
+      const dx = e.clientX - (left + width / 2);
+      const dy = e.clientY - (top + height / 2);
+      const dist = Math.hypot(dx, dy);
+
+      if (dist < radius) {
+        scrambleChar(chars[index], (newChar) => {
+          c.textContent = newChar;
+        });
+      }
     });
-    charsRef.current = split.chars;
-
-    charsRef.current.forEach(c => {
-      gsap.set(c, {
-        display: 'inline-block',
-        attr: { 'data-content': c.innerHTML }
-      });
-    });
-
-    const handleMove = e => {
-      charsRef.current.forEach(c => {
-        const { left, top, width, height } = c.getBoundingClientRect();
-        const dx = e.clientX - (left + width / 2);
-        const dy = e.clientY - (top + height / 2);
-        const dist = Math.hypot(dx, dy);
-
-        if (dist < radius) {
-          gsap.to(c, {
-            overwrite: true,
-            duration: duration * (1 - dist / radius),
-            scrambleText: {
-              text: c.dataset.content || '',
-              chars: scrambleChars,
-              speed
-            },
-            ease: 'none'
-          });
-        }
-      });
-    };
-
-    const el = rootRef.current;
-    el.addEventListener('pointermove', handleMove);
-
-    return () => {
-      el.removeEventListener('pointermove', handleMove);
-      split.revert();
-    };
-  }, [radius, duration, speed, scrambleChars]);
+  };
 
   return (
-    <div ref={rootRef} className={`text-block ${className}`} style={style}>
-      <p>{children}</p>
+    <div 
+      ref={rootRef} 
+      className={`text-block ${className}`} 
+      style={style}
+      onPointerMove={handleMove}
+    >
+      <p>
+        {chars.map((char) => (
+          <span key={char.id} className="char" style={{ display: 'inline-block' }}>
+            {char.current}
+          </span>
+        ))}
+      </p>
     </div>
   );
 };

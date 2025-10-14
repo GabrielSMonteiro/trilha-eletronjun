@@ -16,11 +16,12 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
+  FormDescription,
 } from "@/components/ui/form";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { Plus, Video, FileText, BookOpen, Edit, Trash, Search } from "lucide-react";
+import { Plus, Video, FileText, BookOpen, Edit, Trash, Search, Upload, X } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 
@@ -87,6 +88,8 @@ export const AdminContent = () => {
   const [isQuestionDialogOpen, setIsQuestionDialogOpen] = useState(false);
   const [editingLesson, setEditingLesson] = useState<Lesson | null>(null);
   const [editingQuestion, setEditingQuestion] = useState<Question | null>(null);
+  const [uploadingVideo, setUploadingVideo] = useState(false);
+  const [videoFile, setVideoFile] = useState<File | null>(null);
   const { toast } = useToast();
 
   const lessonForm = useForm<LessonForm>({
@@ -217,12 +220,59 @@ export const AdminContent = () => {
     }
   };
 
+  const handleVideoUpload = async (file: File): Promise<string | null> => {
+    try {
+      setUploadingVideo(true);
+      const fileExt = file.name.split('.').pop();
+      const fileName = `${Math.random().toString(36).substring(2)}_${Date.now()}.${fileExt}`;
+      const filePath = `${fileName}`;
+
+      const { error: uploadError, data } = await supabase.storage
+        .from('lesson-videos')
+        .upload(filePath, file, {
+          cacheControl: '3600',
+          upsert: false
+        });
+
+      if (uploadError) throw uploadError;
+
+      const { data: { publicUrl } } = supabase.storage
+        .from('lesson-videos')
+        .getPublicUrl(filePath);
+
+      return publicUrl;
+    } catch (error) {
+      console.error('Error uploading video:', error);
+      toast({
+        title: "Erro",
+        description: "Erro ao fazer upload do vídeo. Tente novamente.",
+        variant: "destructive",
+      });
+      return null;
+    } finally {
+      setUploadingVideo(false);
+    }
+  };
+
   const onSubmitLesson = async (data: LessonForm) => {
     try {
+      let videoUrl = data.video_url;
+
+      // Se há um arquivo de vídeo selecionado, fazer upload
+      if (videoFile) {
+        const uploadedUrl = await handleVideoUpload(videoFile);
+        if (uploadedUrl) {
+          videoUrl = uploadedUrl;
+        }
+      }
+
       if (editingLesson) {
         const { error } = await supabase
           .from("lessons")
-          .update(data)
+          .update({
+            ...data,
+            video_url: videoUrl || null,
+          })
           .eq("id", editingLesson.id);
 
         if (error) throw error;
@@ -237,7 +287,7 @@ export const AdminContent = () => {
           .insert({
             title: data.title,
             description: data.description || null,
-            video_url: data.video_url || null,
+            video_url: videoUrl || null,
             external_link: data.external_link || null,
             category_id: data.category_id,
             order_index: data.order_index,
@@ -252,6 +302,7 @@ export const AdminContent = () => {
       }
 
       lessonForm.reset();
+      setVideoFile(null);
       setIsLessonDialogOpen(false);
       setEditingLesson(null);
       loadLessonsWithQuestionCount();
@@ -316,6 +367,7 @@ export const AdminContent = () => {
 
   const handleEditLesson = (lesson: Lesson) => {
     setEditingLesson(lesson);
+    setVideoFile(null);
     lessonForm.reset({
       title: lesson.title,
       description: lesson.description || "",
@@ -456,6 +508,7 @@ export const AdminContent = () => {
               <DialogTrigger asChild>
                 <Button onClick={() => {
                   setEditingLesson(null);
+                  setVideoFile(null);
                   lessonForm.reset({
                     title: "",
                     description: "",
@@ -506,20 +559,85 @@ export const AdminContent = () => {
                       )}
                     />
 
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <FormField
-                        control={lessonForm.control}
-                        name="video_url"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>URL do Vídeo (opcional)</FormLabel>
-                            <FormControl>
-                              <Input placeholder="https://youtube.com/..." {...field} />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
+                    <div className="space-y-4">
+                      <div className="border-2 border-dashed border-border rounded-lg p-6">
+                        <FormLabel className="block mb-2">Vídeo da Lição</FormLabel>
+                        <FormDescription className="mb-4">
+                          Você pode fazer upload de um arquivo de vídeo ou inserir um link do YouTube/Vimeo
+                        </FormDescription>
+                        
+                        <div className="space-y-4">
+                          {/* Video file upload */}
+                          <div>
+                            <Label htmlFor="video-file" className="block text-sm mb-2">
+                              Upload de Arquivo
+                            </Label>
+                            <div className="flex items-center gap-2">
+                              <Input
+                                id="video-file"
+                                type="file"
+                                accept="video/*"
+                                onChange={(e) => {
+                                  const file = e.target.files?.[0];
+                                  if (file) {
+                                    setVideoFile(file);
+                                    lessonForm.setValue('video_url', '');
+                                  }
+                                }}
+                                disabled={uploadingVideo}
+                                className="flex-1"
+                              />
+                              {videoFile && (
+                                <Button
+                                  type="button"
+                                  variant="ghost"
+                                  size="icon"
+                                  onClick={() => setVideoFile(null)}
+                                >
+                                  <X className="h-4 w-4" />
+                                </Button>
+                              )}
+                            </div>
+                            {videoFile && (
+                              <p className="text-sm text-muted-foreground mt-2">
+                                Arquivo selecionado: {videoFile.name}
+                              </p>
+                            )}
+                          </div>
+
+                          {/* Or separator */}
+                          <div className="flex items-center gap-4">
+                            <div className="flex-1 h-px bg-border" />
+                            <span className="text-sm text-muted-foreground">OU</span>
+                            <div className="flex-1 h-px bg-border" />
+                          </div>
+
+                          {/* Video URL */}
+                          <FormField
+                            control={lessonForm.control}
+                            name="video_url"
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel>URL do Vídeo (YouTube, Vimeo, etc.)</FormLabel>
+                                <FormControl>
+                                  <Input 
+                                    placeholder="https://youtube.com/watch?v=..." 
+                                    {...field}
+                                    onChange={(e) => {
+                                      field.onChange(e);
+                                      if (e.target.value) {
+                                        setVideoFile(null);
+                                      }
+                                    }}
+                                    disabled={!!videoFile}
+                                  />
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                        </div>
+                      </div>
 
                       <FormField
                         control={lessonForm.control}
@@ -530,6 +648,9 @@ export const AdminContent = () => {
                             <FormControl>
                               <Input placeholder="https://..." {...field} />
                             </FormControl>
+                            <FormDescription>
+                              Link para material complementar, documentação, etc.
+                            </FormDescription>
                             <FormMessage />
                           </FormItem>
                         )}
@@ -586,12 +707,22 @@ export const AdminContent = () => {
                       <Button 
                         type="button" 
                         variant="outline" 
-                        onClick={() => setIsLessonDialogOpen(false)}
+                        onClick={() => {
+                          setIsLessonDialogOpen(false);
+                          setVideoFile(null);
+                        }}
                       >
                         Cancelar
                       </Button>
-                      <Button type="submit">
-                        {editingLesson ? "Atualizar" : "Criar"} Lição
+                      <Button type="submit" disabled={uploadingVideo}>
+                        {uploadingVideo ? (
+                          <>
+                            <Upload className="h-4 w-4 mr-2 animate-spin" />
+                            Fazendo upload...
+                          </>
+                        ) : (
+                          <>{editingLesson ? "Atualizar" : "Criar"} Lição</>
+                        )}
                       </Button>
                     </div>
                   </form>
