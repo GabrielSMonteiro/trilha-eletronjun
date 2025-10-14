@@ -63,7 +63,7 @@ export const AdminProgress = () => {
     totalActiveUsers: 0,
     totalLessonsInProgress: 0,
   });
-  const [selectedCategory, setSelectedCategory] = useState<string>("");
+  const [selectedCategory, setSelectedCategory] = useState<string>("all");
   const [searchTerm, setSearchTerm] = useState("");
   const [isLoading, setIsLoading] = useState(true);
   const [selectedUserId, setSelectedUserId] = useState<string | null>(null);
@@ -222,7 +222,7 @@ export const AdminProgress = () => {
   };
 
   const getFilteredCategoryProgress = () => {
-    if (!selectedCategory) return categoryProgress;
+    if (selectedCategory === "all") return categoryProgress;
     return categoryProgress.filter(cp => cp.category_id === selectedCategory);
   };
 
@@ -409,7 +409,7 @@ export const AdminProgress = () => {
                   <SelectValue placeholder="Todas as categorias" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">Todas as categorias</SelectItem>
+                  <SelectItem value="all">Todas as categorias</SelectItem>
                   {categories.map((category) => (
                     <SelectItem key={category.id} value={category.id}>
                       {category.display_name}

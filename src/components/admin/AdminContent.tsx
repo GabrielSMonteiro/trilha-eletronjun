@@ -82,7 +82,7 @@ export const AdminContent = () => {
   const [categories, setCategories] = useState<Category[]>([]);
   const [lessons, setLessons] = useState<Lesson[]>([]);
   const [questions, setQuestions] = useState<Question[]>([]);
-  const [selectedCategory, setSelectedCategory] = useState<string>("");
+  const [selectedCategory, setSelectedCategory] = useState<string>("all");
   const [searchTerm, setSearchTerm] = useState("");
   const [isLessonDialogOpen, setIsLessonDialogOpen] = useState(false);
   const [isQuestionDialogOpen, setIsQuestionDialogOpen] = useState(false);
@@ -441,7 +441,7 @@ export const AdminContent = () => {
 
   const getFilteredLessons = () => {
     return lessons.filter(lesson => {
-      const matchesCategory = !selectedCategory || lesson.category_id === selectedCategory;
+      const matchesCategory = selectedCategory === "all" || lesson.category_id === selectedCategory;
       const matchesSearch = !searchTerm || 
         lesson.title.toLowerCase().includes(searchTerm.toLowerCase());
       return matchesCategory && matchesSearch;
@@ -494,7 +494,7 @@ export const AdminContent = () => {
                   <SelectValue placeholder="Filtrar por categoria" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">Todas as categorias</SelectItem>
+                  <SelectItem value="all">Todas as categorias</SelectItem>
                   {categories.map((category) => (
                     <SelectItem key={category.id} value={category.id}>
                       {category.display_name}
