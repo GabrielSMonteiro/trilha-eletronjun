@@ -168,6 +168,7 @@ export const LessonModal = ({ lesson, isOpen, onClose, onComplete }: LessonModal
       // Validate answers server-side for security
       const { data, error } = await supabase.functions.invoke('validate-quiz', {
         body: {
+          lessonId: lesson.id,
           answers: selectedAnswers.map((answer, index) => ({
             questionId: questions[index].id,
             userAnswer: answer,
