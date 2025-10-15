@@ -25,6 +25,11 @@ import { Plus, Video, FileText, BookOpen, Edit, Trash, Search, Upload, X } from 
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 
+// Video upload validation constants
+const ALLOWED_VIDEO_TYPES = ['video/mp4', 'video/webm', 'video/ogg', 'video/quicktime'];
+const ALLOWED_EXTENSIONS = ['mp4', 'webm', 'ogg', 'mov'];
+const MAX_FILE_SIZE = 500 * 1024 * 1024; // 500MB
+
 // Schemas
 const lessonSchema = z.object({
   title: z.string().min(5, "Título deve ter pelo menos 5 caracteres"),
@@ -223,7 +228,65 @@ export const AdminContent = () => {
   const handleVideoUpload = async (file: File): Promise<string | null> => {
     try {
       setUploadingVideo(true);
-      const fileExt = file.name.split('.').pop();
+
+      // Validate MIME type
+      if (!ALLOWED_VIDEO_TYPES.includes(file.type)) {
+        toast({
+          title: "Tipo de arquivo inválido",
+          description: `Apenas vídeos são permitidos. Tipo recebido: ${file.type}`,
+          variant: "destructive",
+        });
+        return null;
+      }
+
+      // Validate extension
+      const fileExt = file.name.split('.').pop()?.toLowerCase();
+      if (!fileExt || !ALLOWED_EXTENSIONS.includes(fileExt)) {
+        toast({
+          title: "Extensão inválida",
+          description: "Extensões permitidas: mp4, webm, ogg, mov",
+          variant: "destructive",
+        });
+        return null;
+      }
+
+      // Validate extension matches MIME type
+      const mimeToExt: Record<string, string[]> = {
+        'video/mp4': ['mp4'],
+        'video/webm': ['webm'],
+        'video/ogg': ['ogg'],
+        'video/quicktime': ['mov']
+      };
+
+      if (!mimeToExt[file.type]?.includes(fileExt)) {
+        toast({
+          title: "Incompatibilidade detectada",
+          description: "A extensão do arquivo não corresponde ao tipo de vídeo",
+          variant: "destructive",
+        });
+        return null;
+      }
+
+      // Validate file size
+      if (file.size === 0) {
+        toast({
+          title: "Arquivo vazio",
+          description: "O arquivo selecionado está vazio",
+          variant: "destructive",
+        });
+        return null;
+      }
+
+      if (file.size > MAX_FILE_SIZE) {
+        const sizeMB = (file.size / (1024 * 1024)).toFixed(2);
+        toast({
+          title: "Arquivo muito grande",
+          description: `Tamanho: ${sizeMB}MB. Máximo permitido: 500MB`,
+          variant: "destructive",
+        });
+        return null;
+      }
+
       const fileName = `${Math.random().toString(36).substring(2)}_${Date.now()}.${fileExt}`;
       const filePath = `${fileName}`;
 
@@ -572,7 +635,7 @@ export const AdminContent = () => {
                               <Input
                                 id="video-file"
                                 type="file"
-                                accept="video/*"
+                                accept="video/mp4,video/webm,video/ogg,video/quicktime"
                                 onChange={(e) => {
                                   const file = e.target.files?.[0];
                                   if (file) {
