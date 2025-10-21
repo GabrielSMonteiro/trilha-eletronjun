@@ -78,7 +78,7 @@ const Landing = () => {
   ];
 
   return (
-    <div className="min-h-screen relative bg-gradient-to-b from-black via-black to-gray-900">
+    <div className="min-h-screen relative bg-gradient-to-b from-black via-purple-950 to-black">
       <HyperspeedBackground />
       {/* Header */}
       <div className="bg-card/80 backdrop-blur-sm border-b border-border shadow-soft">
@@ -167,7 +167,7 @@ const Landing = () => {
           {features.map((feature, index) => (
             <Card
               key={index}
-              className="border-2 border-border shadow-medium hover:shadow-strong transition-all duration-300 hover:scale-105"
+              className="border-2 border-purple-700/30 bg-gradient-to-br from-purple-900/40 to-purple-950/60 shadow-medium hover:shadow-strong transition-all duration-300 hover:scale-105"
             >
               <CardContent className="p-6 text-center">
                 <div className="mb-4">{feature.icon}</div>
@@ -202,7 +202,7 @@ const Landing = () => {
         </div>
 
         {/* How it Works */}
-        <div className="bg-card rounded-3xl p-8 shadow-medium border-2 border-border mb-16">
+        <div className="bg-gradient-to-br from-purple-900/40 to-purple-950/60 rounded-3xl p-8 shadow-medium border-2 border-purple-700/30 mb-16">
           <h2 className="text-3xl font-bold text-center text-foreground mb-8">
             Como Funciona
           </h2>
@@ -290,31 +290,33 @@ const Landing = () => {
             habilidades de forma divertida e eficaz.
           </p>
 
-          <MagicButton
-            onClick={handleLogin}
-            className="bg-gradient-primary shadow-strong text-lg px-8 py-6 h-auto"
-            enableStars={true}
-            enableBorderGlow={true}
-            enableTilt={true}
-            enableMagnetism={true}
-            clickEffect={true}
-            particleCount={12}
-            glowColor="27, 184, 205"
-          >
-            <Target className="h-5 w-5 mr-2" />
-            Entrar com Email EletronJUN
-          </MagicButton>
-        </div>
-
-        {/* Particle Effect - Bottom Right */}
-        <div className="fixed bottom-8 right-8 z-10" style={{ width: '300px', height: '80px' }}>
-          <ParticleTextEffect 
-            words={["EletronJun"]}
-            width={300}
-            height={80}
-            color={{ r: 0, g: 200, b: 100 }}
-            className="mx-auto"
-          />
+          <div className="flex items-center gap-8">
+            <MagicButton
+              onClick={handleLogin}
+              className="bg-gradient-primary shadow-strong text-lg px-8 py-6 h-auto"
+              enableStars={true}
+              enableBorderGlow={true}
+              enableTilt={true}
+              enableMagnetism={true}
+              clickEffect={true}
+              particleCount={12}
+              glowColor="0, 200, 100"
+            >
+              <Target className="h-5 w-5 mr-2" />
+              Entrar com Email
+            </MagicButton>
+            
+            {/* Particle Effect - Fixed next to button */}
+            <div style={{ width: '200px', height: '60px' }}>
+              <ParticleTextEffect 
+                words={["EletronJun"]}
+                width={200}
+                height={60}
+                color={{ r: 0, g: 200, b: 100 }}
+                className="mx-auto"
+              />
+            </div>
+          </div>
         </div>
       </div>
     </div>

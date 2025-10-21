@@ -212,7 +212,7 @@ export const AdminUsers = () => {
       </div>
 
       {/* Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 md:gap-6">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Total de Usuários</CardTitle>
@@ -256,69 +256,72 @@ export const AdminUsers = () => {
       {/* Search and Table */}
       <Card>
         <CardHeader>
-          <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
-            <CardTitle>Usuários ({filteredUsers.length})</CardTitle>
+          <div className="flex flex-col gap-4 items-start">
+            <CardTitle className="text-lg md:text-xl">Usuários ({filteredUsers.length})</CardTitle>
             
-            <div className="relative">
+            <div className="relative w-full">
               <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
               <Input
                 placeholder="Buscar por nome ou cargo..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-10 w-full sm:w-80"
+                className="pl-10 w-full"
               />
             </div>
           </div>
         </CardHeader>
-        <CardContent>
+        <CardContent className="p-0 sm:p-6">
           <div className="overflow-x-auto">
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>Usuário</TableHead>
-                  <TableHead>Email</TableHead>
-                  <TableHead>Cargo</TableHead>
-                  <TableHead>Tipo</TableHead>
-                  <TableHead>Data de Cadastro</TableHead>
-                  <TableHead className="text-right">Ações</TableHead>
+                  <TableHead className="min-w-[150px]">Usuário</TableHead>
+                  <TableHead className="hidden md:table-cell">Email</TableHead>
+                  <TableHead className="hidden lg:table-cell">Cargo</TableHead>
+                  <TableHead className="min-w-[80px]">Tipo</TableHead>
+                  <TableHead className="hidden xl:table-cell">Data de Cadastro</TableHead>
+                  <TableHead className="text-right min-w-[60px]">Ações</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {filteredUsers.map((user) => (
                   <TableRow key={user.id}>
                     <TableCell>
-                      <div className="flex items-center gap-3">
-                        <Avatar className="h-8 w-8">
+                      <div className="flex items-center gap-2">
+                        <Avatar className="h-8 w-8 flex-shrink-0">
                           <AvatarFallback>
                             {user.display_name?.slice(0, 2).toUpperCase() || "US"}
                           </AvatarFallback>
                         </Avatar>
-                        <div>
-                          <p className="font-medium">{user.display_name || "Sem nome"}</p>
+                        <div className="min-w-0">
+                          <p className="font-medium truncate">{user.display_name || "Sem nome"}</p>
+                          <p className="text-xs text-muted-foreground md:hidden truncate">
+                            {getSimulatedEmail(user)}
+                          </p>
                         </div>
                       </div>
                     </TableCell>
-                    <TableCell className="text-muted-foreground">
+                    <TableCell className="hidden md:table-cell text-muted-foreground">
                       {getSimulatedEmail(user)}
                     </TableCell>
-                    <TableCell>{user.position || "Não informado"}</TableCell>
+                    <TableCell className="hidden lg:table-cell">{user.position || "Não informado"}</TableCell>
                     <TableCell>
-                      <Badge variant={user.role === 'admin' ? "default" : "secondary"}>
+                      <Badge variant={user.role === 'admin' ? "default" : "secondary"} className="text-xs">
                         {user.role === 'admin' ? (
                           <>
                             <Crown className="h-3 w-3 mr-1" />
-                            Admin
+                            <span className="hidden sm:inline">Admin</span>
                           </>
                         ) : (
                           <>
                             <UserCheck className="h-3 w-3 mr-1" />
-                            Usuário
+                            <span className="hidden sm:inline">User</span>
                           </>
                         )}
                       </Badge>
                     </TableCell>
-                    <TableCell>
-                      <div className="flex items-center gap-2 text-muted-foreground">
+                    <TableCell className="hidden xl:table-cell">
+                      <div className="flex items-center gap-2 text-muted-foreground text-sm">
                         <Calendar className="h-4 w-4" />
                         {formatDate(user.created_at)}
                       </div>
@@ -328,6 +331,7 @@ export const AdminUsers = () => {
                         variant="outline"
                         size="sm"
                         onClick={() => handleEditUser(user)}
+                        className="h-8 w-8 p-0"
                       >
                         <Edit className="h-4 w-4" />
                       </Button>

@@ -47,7 +47,8 @@ const questionSchema = z.object({
   option_b: z.string().min(1, "Opção B é obrigatória"),
   option_c: z.string().min(1, "Opção C é obrigatória"),
   option_d: z.string().min(1, "Opção D é obrigatória"),
-  correct_answer: z.number().min(0).max(3),
+  option_e: z.string().min(1, "Opção E é obrigatória"),
+  correct_answer: z.number().min(0).max(4),
 });
 
 type LessonForm = z.infer<typeof lessonSchema>;
@@ -78,6 +79,7 @@ interface Question {
   option_b: string;
   option_c: string;
   option_d: string;
+  option_e: string;
   correct_answer: number;
   lesson_id: string;
   lessons?: { title: string; categories?: { display_name: string } };
@@ -119,6 +121,7 @@ export const AdminContent = () => {
       option_b: "",
       option_c: "",
       option_d: "",
+      option_e: "",
       correct_answer: 0,
     },
     mode: "onChange",
@@ -161,7 +164,6 @@ export const AdminContent = () => {
 
       if (lessonsError) throw lessonsError;
 
-      // Para cada lição, contar o número de questões
       const lessonsWithCount = await Promise.all(
         (lessonsData || []).map(async (lesson) => {
           const { data: questionsData } = await supabase
@@ -229,7 +231,6 @@ export const AdminContent = () => {
     try {
       setUploadingVideo(true);
 
-      // Validate MIME type
       if (!ALLOWED_VIDEO_TYPES.includes(file.type)) {
         toast({
           title: "Tipo de arquivo inválido",
@@ -239,7 +240,6 @@ export const AdminContent = () => {
         return null;
       }
 
-      // Validate extension
       const fileExt = file.name.split('.').pop()?.toLowerCase();
       if (!fileExt || !ALLOWED_EXTENSIONS.includes(fileExt)) {
         toast({
@@ -250,7 +250,6 @@ export const AdminContent = () => {
         return null;
       }
 
-      // Validate extension matches MIME type
       const mimeToExt: Record<string, string[]> = {
         'video/mp4': ['mp4'],
         'video/webm': ['webm'],
@@ -267,7 +266,6 @@ export const AdminContent = () => {
         return null;
       }
 
-      // Validate file size
       if (file.size === 0) {
         toast({
           title: "Arquivo vazio",
@@ -317,7 +315,6 @@ export const AdminContent = () => {
     try {
       let videoUrl = data.video_url;
 
-      // Se há um arquivo de vídeo selecionado, fazer upload
       if (videoFile) {
         const uploadedUrl = await handleVideoUpload(videoFile);
         if (uploadedUrl) {
@@ -399,6 +396,7 @@ export const AdminContent = () => {
             option_b: data.option_b,
             option_c: data.option_c,
             option_d: data.option_d,
+            option_e: data.option_e,
             correct_answer: data.correct_answer,
           });
 
@@ -414,6 +412,7 @@ export const AdminContent = () => {
       setIsQuestionDialogOpen(false);
       setEditingQuestion(null);
       loadQuestions();
+      loadLessonsWithQuestionCount();
     } catch (error) {
       if (import.meta.env?.DEV) console.error("Error saving question:", error);
       toast({
@@ -447,6 +446,7 @@ export const AdminContent = () => {
       option_b: question.option_b,
       option_c: question.option_c,
       option_d: question.option_d,
+      option_e: question.option_e,
       correct_answer: question.correct_answer,
     });
     setIsQuestionDialogOpen(true);
@@ -494,6 +494,7 @@ export const AdminContent = () => {
           description: "A questão foi excluída com sucesso.",
         });
         loadQuestions();
+        loadLessonsWithQuestionCount();
       }
     }
   };
@@ -525,31 +526,31 @@ export const AdminContent = () => {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-3xl font-bold text-foreground">Gerenciar Conteúdo</h1>
-        <p className="text-muted-foreground">Crie e gerencie lições e questões</p>
+        <h1 className="text-2xl md:text-3xl font-bold text-foreground">Gerenciar Conteúdo</h1>
+        <p className="text-sm md:text-base text-muted-foreground">Crie e gerencie lições e questões</p>
       </div>
 
       <Tabs defaultValue="lessons" className="space-y-6">
-        <TabsList>
+        <TabsList className="grid w-full grid-cols-2 max-w-md">
           <TabsTrigger value="lessons">Lições</TabsTrigger>
           <TabsTrigger value="questions">Questões</TabsTrigger>
         </TabsList>
 
         <TabsContent value="lessons" className="space-y-6">
-          <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
+          <div className="flex flex-col gap-4">
             <div className="flex flex-col sm:flex-row gap-4 flex-1">
-              <div className="relative">
+              <div className="relative flex-1">
                 <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
                 <Input
                   placeholder="Buscar lições..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  className="pl-10 w-full sm:w-80"
+                  className="pl-10 w-full"
                 />
               </div>
 
               <Select value={selectedCategory} onValueChange={setSelectedCategory}>
-                <SelectTrigger className="w-full sm:w-48">
+                <SelectTrigger className="w-full sm:w-auto sm:min-w-[200px]">
                   <SelectValue placeholder="Filtrar por categoria" />
                 </SelectTrigger>
                 <SelectContent>
@@ -565,23 +566,26 @@ export const AdminContent = () => {
 
             <Dialog open={isLessonDialogOpen} onOpenChange={setIsLessonDialogOpen}>
               <DialogTrigger asChild>
-                <Button onClick={() => {
-                  setEditingLesson(null);
-                  setVideoFile(null);
-                  lessonForm.reset({
-                    title: "",
-                    description: "",
-                    video_url: "",
-                    external_link: "",
-                    category_id: "",
-                    order_index: 1,
-                  });
-                }}>
+                <Button 
+                  className="w-full sm:w-auto"
+                  onClick={() => {
+                    setEditingLesson(null);
+                    setVideoFile(null);
+                    lessonForm.reset({
+                      title: "",
+                      description: "",
+                      video_url: "",
+                      external_link: "",
+                      category_id: "",
+                      order_index: 1,
+                    });
+                  }}
+                >
                   <Plus className="h-4 w-4 mr-2" />
                   Nova Lição
                 </Button>
               </DialogTrigger>
-              <DialogContent className="max-w-2xl">
+              <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
                 <DialogHeader>
                   <DialogTitle>
                     {editingLesson ? "Editar Lição" : "Criar Nova Lição"}
@@ -590,6 +594,7 @@ export const AdminContent = () => {
 
                 <Form {...lessonForm}>
                   <form onSubmit={lessonForm.handleSubmit(onSubmitLesson)} className="space-y-4">
+                    {/* Lesson form fields */}
                     <FormField
                       control={lessonForm.control}
                       name="title"
@@ -792,104 +797,116 @@ export const AdminContent = () => {
 
           <Card>
             <CardHeader>
-              <CardTitle>Lições ({getFilteredLessons().length})</CardTitle>
+              <CardTitle className="text-lg md:text-xl">Lições ({getFilteredLessons().length})</CardTitle>
             </CardHeader>
-            <CardContent>
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Lição</TableHead>
-                    <TableHead>Trilha/Categoria</TableHead>
-                    <TableHead>Tipo</TableHead>
-                    <TableHead>Questões</TableHead>
-                    <TableHead className="text-right">Ações</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {getFilteredLessons().length === 0 ? (
+            <CardContent className="p-0 sm:p-6">
+              <div className="overflow-x-auto">
+                <Table>
+                  <TableHeader>
                     <TableRow>
-                      <TableCell colSpan={5} className="text-center py-8 text-muted-foreground">
-                        Nenhuma lição encontrada
-                      </TableCell>
+                      <TableHead className="min-w-[200px]">Lição</TableHead>
+                      <TableHead className="hidden md:table-cell">Trilha/Categoria</TableHead>
+                      <TableHead className="hidden lg:table-cell">Tipo</TableHead>
+                      <TableHead className="min-w-[80px]">Questões</TableHead>
+                      <TableHead className="text-right min-w-[120px]">Ações</TableHead>
                     </TableRow>
-                  ) : (
-                    getFilteredLessons().map((lesson) => (
-                      <TableRow key={lesson.id}>
-                        <TableCell>
-                          <div>
-                            <div className="font-medium">{lesson.title}</div>
-                            <div className="text-sm text-muted-foreground">Ordem: {lesson.order_index}</div>
-                          </div>
-                        </TableCell>
-                        <TableCell>
-                          <Badge variant="outline">
-                            {(lesson.categories as any)?.display_name}
-                          </Badge>
-                        </TableCell>
-                        <TableCell>
-                          <div className="flex items-center gap-2">
-                            {getLessonIcon(lesson)}
-                            <span className="text-sm">
-                              {lesson.video_url ? "Vídeo" : lesson.external_link ? "Link" : "Texto"}
-                            </span>
-                          </div>
-                        </TableCell>
-                        <TableCell>
-                          <Badge variant="secondary">
-                            {lesson.questions_count || 0} questões
-                          </Badge>
-                        </TableCell>
-                        <TableCell className="text-right">
-                          <div className="flex justify-end gap-2">
-                            <Button
-                              variant="outline"
-                              size="sm"
-                              onClick={() => handleEditLesson(lesson)}
-                            >
-                              <Edit className="h-4 w-4 mr-1" />
-                              Editar
-                            </Button>
-                            <Button
-                              variant="outline"
-                              size="sm"
-                              onClick={() => handleDeleteLesson(lesson.id)}
-                            >
-                              <Trash className="h-4 w-4" />
-                            </Button>
-                          </div>
+                  </TableHeader>
+                  <TableBody>
+                    {getFilteredLessons().length === 0 ? (
+                      <TableRow>
+                        <TableCell colSpan={5} className="text-center py-8 text-muted-foreground">
+                          Nenhuma lição encontrada
                         </TableCell>
                       </TableRow>
-                    ))
-                  )}
-                </TableBody>
-              </Table>
+                    ) : (
+                      getFilteredLessons().map((lesson) => (
+                        <TableRow key={lesson.id}>
+                          <TableCell>
+                            <div className="min-w-0">
+                              <div className="font-medium truncate">{lesson.title}</div>
+                              <div className="text-xs md:text-sm text-muted-foreground flex flex-wrap gap-2 mt-1">
+                                <span>Ordem: {lesson.order_index}</span>
+                                <span className="md:hidden">
+                                  • {(lesson.categories as any)?.display_name}
+                                </span>
+                              </div>
+                            </div>
+                          </TableCell>
+                          <TableCell className="hidden md:table-cell">
+                            <Badge variant="outline">
+                              {(lesson.categories as any)?.display_name}
+                            </Badge>
+                          </TableCell>
+                          <TableCell className="hidden lg:table-cell">
+                            <div className="flex items-center gap-2">
+                              {getLessonIcon(lesson)}
+                              <span className="text-sm">
+                                {lesson.video_url ? "Vídeo" : lesson.external_link ? "Link" : "Texto"}
+                              </span>
+                            </div>
+                          </TableCell>
+                          <TableCell>
+                            <Badge variant="secondary" className="text-xs">
+                              {lesson.questions_count || 0}
+                            </Badge>
+                          </TableCell>
+                          <TableCell className="text-right">
+                            <div className="flex justify-end gap-1">
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={() => handleEditLesson(lesson)}
+                                className="h-8 px-2"
+                              >
+                                <Edit className="h-4 w-4 md:mr-1" />
+                                <span className="hidden md:inline">Editar</span>
+                              </Button>
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={() => handleDeleteLesson(lesson.id)}
+                                className="h-8 w-8 p-0"
+                              >
+                                <Trash className="h-4 w-4" />
+                              </Button>
+                            </div>
+                          </TableCell>
+                        </TableRow>
+                      ))
+                    )}
+                  </TableBody>
+                </Table>
+              </div>
             </CardContent>
           </Card>
         </TabsContent>
 
         <TabsContent value="questions" className="space-y-6">
-          <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
-            <div className="relative">
+          <div className="flex flex-col gap-4">
+            <div className="relative flex-1">
               <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
               <Input
                 placeholder="Buscar questões..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-10 w-full sm:w-80"
+                className="pl-10 w-full"
               />
             </div>
 
             <Dialog open={isQuestionDialogOpen} onOpenChange={setIsQuestionDialogOpen}>
               <DialogTrigger asChild>
-                <Button onClick={() => {
-                  setEditingQuestion(null);
-                  questionForm.reset();
-                }}>
+                <Button 
+                  className="w-full sm:w-auto"
+                  onClick={() => {
+                    setEditingQuestion(null);
+                    questionForm.reset();
+                  }}
+                >
                   <Plus className="h-4 w-4 mr-2" />
                   Nova Questão
                 </Button>
               </DialogTrigger>
-              <DialogContent className="max-w-2xl">
+              <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
                 <DialogHeader>
                   <DialogTitle>
                     {editingQuestion ? "Editar Questão" : "Criar Nova Questão"}
@@ -937,7 +954,7 @@ export const AdminContent = () => {
                       )}
                     />
 
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="space-y-4">
                       <FormField
                         control={questionForm.control}
                         name="option_a"
@@ -993,6 +1010,20 @@ export const AdminContent = () => {
                           </FormItem>
                         )}
                       />
+
+                      <FormField
+                        control={questionForm.control}
+                        name="option_e"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Opção E</FormLabel>
+                            <FormControl>
+                              <Input placeholder="Opção E..." {...field} />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
                     </div>
 
                     <FormField
@@ -1012,6 +1043,7 @@ export const AdminContent = () => {
                               <SelectItem value="1">Opção B</SelectItem>
                               <SelectItem value="2">Opção C</SelectItem>
                               <SelectItem value="3">Opção D</SelectItem>
+                              <SelectItem value="4">Opção E</SelectItem>
                             </SelectContent>
                           </Select>
                           <FormMessage />
@@ -1039,59 +1071,70 @@ export const AdminContent = () => {
 
           <Card>
             <CardHeader>
-              <CardTitle>Questões ({getFilteredQuestions().length})</CardTitle>
+              <CardTitle className="text-lg md:text-xl">Questões ({getFilteredQuestions().length})</CardTitle>
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
-                {getFilteredQuestions().map((question) => (
-                  <div key={question.id} className="border rounded-lg p-4">
-                    <div className="flex justify-between items-start mb-3">
-                      <div className="flex-1">
-                        <p className="font-medium">{question.question_text}</p>
-                        <p className="text-sm text-muted-foreground mt-1">
-                          Lição: {(question.lessons as any)?.title}
-                        </p>
-                      </div>
-                      <div className="flex gap-2">
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => handleEditQuestion(question)}
-                        >
-                          <Edit className="h-4 w-4" />
-                        </Button>
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => handleDeleteQuestion(question.id)}
-                        >
-                          <Trash className="h-4 w-4" />
-                        </Button>
-                      </div>
-                    </div>
-
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
-                      {[
-                        { label: "A", text: question.option_a, isCorrect: question.correct_answer === 0 },
-                        { label: "B", text: question.option_b, isCorrect: question.correct_answer === 1 },
-                        { label: "C", text: question.option_c, isCorrect: question.correct_answer === 2 },
-                        { label: "D", text: question.option_d, isCorrect: question.correct_answer === 3 },
-                      ].map((option) => (
-                        <div 
-                          key={option.label} 
-                          className={`text-sm p-2 rounded border ${
-                            option.isCorrect ? 'bg-green-50 border-green-200' : 'bg-gray-50'
-                          }`}
-                        >
-                          <span className="font-medium">{option.label}:</span> {option.text}
-                          {option.isCorrect && (
-                            <Badge variant="secondary" className="ml-2">Correta</Badge>
-                          )}
-                        </div>
-                      ))}
-                    </div>
+                {getFilteredQuestions().length === 0 ? (
+                  <div className="text-center py-8 text-muted-foreground">
+                    <p>Nenhuma questão encontrada</p>
+                    <p className="text-sm mt-2">Crie questões para as lições cadastradas</p>
                   </div>
-                ))}
+                ) : (
+                  getFilteredQuestions().map((question) => (
+                    <div key={question.id} className="border rounded-lg p-3 md:p-4">
+                      <div className="flex flex-col sm:flex-row gap-3 sm:justify-between sm:items-start mb-3">
+                        <div className="flex-1 min-w-0">
+                          <p className="font-medium break-words">{question.question_text}</p>
+                          <p className="text-xs md:text-sm text-muted-foreground mt-1 truncate">
+                            Lição: {(question.lessons as any)?.title}
+                          </p>
+                        </div>
+                        <div className="flex gap-2 flex-shrink-0">
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => handleEditQuestion(question)}
+                            className="h-8"
+                          >
+                            <Edit className="h-4 w-4 md:mr-1" />
+                            <span className="hidden md:inline">Editar</span>
+                          </Button>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => handleDeleteQuestion(question.id)}
+                            className="h-8 w-8 p-0"
+                          >
+                            <Trash className="h-4 w-4" />
+                          </Button>
+                        </div>
+                      </div>
+
+                      <div className="grid grid-cols-1 gap-2">
+                        {[
+                          { label: "A", text: question.option_a, isCorrect: question.correct_answer === 0 },
+                          { label: "B", text: question.option_b, isCorrect: question.correct_answer === 1 },
+                          { label: "C", text: question.option_c, isCorrect: question.correct_answer === 2 },
+                          { label: "D", text: question.option_d, isCorrect: question.correct_answer === 3 },
+                          { label: "E", text: question.option_e, isCorrect: question.correct_answer === 4 },
+                        ].map((option) => (
+                          <div 
+                            key={option.label} 
+                            className={`text-sm p-2 rounded border break-words ${
+                              option.isCorrect ? 'bg-green-50 border-green-200 dark:bg-green-900/20 dark:border-green-800' : 'bg-gray-50 dark:bg-gray-800/50'
+                            }`}
+                          >
+                            <span className="font-medium">{option.label}:</span> {option.text}
+                            {option.isCorrect && (
+                              <Badge variant="secondary" className="ml-2 text-xs">Correta</Badge>
+                            )}
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  ))
+                )}
               </div>
             </CardContent>
           </Card>
