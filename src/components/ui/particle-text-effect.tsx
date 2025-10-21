@@ -132,6 +132,7 @@ interface ParticleTextEffectProps {
   className?: string
   width?: number
   height?: number
+  color?: { r: number, g: number, b: number }
 }
 
 const DEFAULT_WORDS = ["CapacitaJun", "A plataforma de capacitação da EletronJun"]
@@ -140,7 +141,8 @@ export function ParticleTextEffect({
   words = DEFAULT_WORDS, 
   className = "",
   width = 1000,
-  height = 200
+  height = 200,
+  color = { r: 27, g: 184, b: 205 }
 }: ParticleTextEffectProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const animationRef = useRef<number>()
@@ -189,9 +191,9 @@ export function ParticleTextEffect({
     const pixels = imageData.data
 
     const newColor = {
-      r: 27 + Math.random() * 50,
-      g: 184 + Math.random() * 50,
-      b: 205 + Math.random() * 50,
+      r: color.r + Math.random() * 30,
+      g: color.g + Math.random() * 30,
+      b: color.b + Math.random() * 30,
     }
 
     const particles = particlesRef.current

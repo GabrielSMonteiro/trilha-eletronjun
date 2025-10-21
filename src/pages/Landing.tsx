@@ -78,7 +78,7 @@ const Landing = () => {
   ];
 
   return (
-    <div className="min-h-screen relative">
+    <div className="min-h-screen relative bg-gradient-to-b from-black via-black to-gray-900">
       <HyperspeedBackground />
       {/* Header */}
       <div className="bg-card/80 backdrop-blur-sm border-b border-border shadow-soft">
@@ -93,13 +93,8 @@ const Landing = () => {
                 />
               </span>
             </div>
-            <div style={{ minHeight: "60px" }}>
-              <ParticleTextEffect 
-                words={["CapacitaJun", "A plataforma de capacitação da EletronJun"]}
-                width={400}
-                height={60}
-                className="mx-auto"
-              />
+            <div className="text-2xl font-bold text-foreground">
+              CapacitaJun
             </div>
           </div>
 
@@ -144,7 +139,7 @@ const Landing = () => {
               scrambleChars=".:"
               className="max-w-2xl mx-auto text-muted-foreground"
             >
-              Desenvolva suas habilidades através de trilhas gamificadas. Assista vídeos, responda questões e compete com seus colegas no ranking mensal.
+              Desenvolva suas habilidades através de trilhas gamificadas. Assista vídeos, responda questões e compita com seus colegas no ranking mensal.
             </ScrambledText>
           </div>
 
@@ -258,7 +253,7 @@ const Landing = () => {
         {/* Threads Effect */}
         <div style={{ width: '100%', height: '400px', position: 'relative', marginBottom: '4rem' }}>
           <Threads
-            color={[0.11, 0.72, 0.8]}
+            color={[0, 0.8, 0.4]}
             amplitude={1}
             distance={0}
             enableMouseInteraction={true}
@@ -309,6 +304,17 @@ const Landing = () => {
             <Target className="h-5 w-5 mr-2" />
             Entrar com Email EletronJUN
           </MagicButton>
+        </div>
+
+        {/* Particle Effect - Bottom Right */}
+        <div className="fixed bottom-8 right-8 z-10" style={{ width: '300px', height: '80px' }}>
+          <ParticleTextEffect 
+            words={["EletronJun"]}
+            width={300}
+            height={80}
+            color={{ r: 0, g: 200, b: 100 }}
+            className="mx-auto"
+          />
         </div>
       </div>
     </div>
