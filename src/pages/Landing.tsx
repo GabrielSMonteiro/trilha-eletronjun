@@ -290,7 +290,7 @@ const Landing = () => {
             habilidades de forma divertida e eficaz.
           </p>
 
-          <div className="flex items-center gap-8">
+          <div className="flex justify-center">
             <MagicButton
               onClick={handleLogin}
               className="bg-gradient-primary shadow-strong text-lg px-8 py-6 h-auto"
@@ -305,17 +305,6 @@ const Landing = () => {
               <Target className="h-5 w-5 mr-2" />
               Entrar com Email
             </MagicButton>
-            
-            {/* Particle Effect - Fixed next to button */}
-            <div style={{ width: '200px', height: '60px' }}>
-              <ParticleTextEffect 
-                words={["EletronJun"]}
-                width={200}
-                height={60}
-                color={{ r: 0, g: 200, b: 100 }}
-                className="mx-auto"
-              />
-            </div>
           </div>
         </div>
       </div>

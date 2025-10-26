@@ -197,10 +197,10 @@ export const RankingModal = ({ isOpen, onClose }: RankingModalProps) => {
                   <div 
                     key={user.user_id}
                     className={`flex items-center gap-4 p-4 rounded-xl transition-all ${
-                      position === 1 ? 'bg-gradient-to-r from-yellow-50 to-yellow-100 border-2 border-yellow-200' :
-                      position === 2 ? 'bg-gradient-to-r from-gray-50 to-gray-100 border-2 border-gray-200' :
-                      position === 3 ? 'bg-gradient-to-r from-amber-50 to-amber-100 border-2 border-amber-200' :
-                      'bg-card border'
+                      position === 1 ? 'bg-gradient-to-r from-yellow-900/40 to-yellow-800/40 border-2 border-yellow-600/50' :
+                      position === 2 ? 'bg-gradient-to-r from-gray-800/40 to-gray-700/40 border-2 border-gray-500/50' :
+                      position === 3 ? 'bg-gradient-to-r from-amber-900/40 to-amber-800/40 border-2 border-amber-600/50' :
+                      'bg-card/50 border border-border/50'
                     }`}
                   >
                     <div className="flex items-center justify-center w-12 h-12">

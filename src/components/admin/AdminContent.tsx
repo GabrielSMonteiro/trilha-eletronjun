@@ -1074,66 +1074,93 @@ export const AdminContent = () => {
               <CardTitle className="text-lg md:text-xl">Questões ({getFilteredQuestions().length})</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="space-y-4">
+              <div className="space-y-6">
                 {getFilteredQuestions().length === 0 ? (
                   <div className="text-center py-8 text-muted-foreground">
                     <p>Nenhuma questão encontrada</p>
                     <p className="text-sm mt-2">Crie questões para as lições cadastradas</p>
                   </div>
                 ) : (
-                  getFilteredQuestions().map((question) => (
-                    <div key={question.id} className="border rounded-lg p-3 md:p-4">
-                      <div className="flex flex-col sm:flex-row gap-3 sm:justify-between sm:items-start mb-3">
-                        <div className="flex-1 min-w-0">
-                          <p className="font-medium break-words">{question.question_text}</p>
-                          <p className="text-xs md:text-sm text-muted-foreground mt-1 truncate">
-                            Lição: {(question.lessons as any)?.title}
-                          </p>
-                        </div>
-                        <div className="flex gap-2 flex-shrink-0">
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() => handleEditQuestion(question)}
-                            className="h-8"
-                          >
-                            <Edit className="h-4 w-4 md:mr-1" />
-                            <span className="hidden md:inline">Editar</span>
-                          </Button>
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() => handleDeleteQuestion(question.id)}
-                            className="h-8 w-8 p-0"
-                          >
-                            <Trash className="h-4 w-4" />
-                          </Button>
-                        </div>
-                      </div>
+                  (() => {
+                    // Group questions by category
+                    const groupedQuestions = getFilteredQuestions().reduce((acc, question) => {
+                      const categoryName = (question.lessons as any)?.categories?.display_name || "Sem categoria";
+                      if (!acc[categoryName]) {
+                        acc[categoryName] = [];
+                      }
+                      acc[categoryName].push(question);
+                      return acc;
+                    }, {} as Record<string, typeof questions>);
 
-                      <div className="grid grid-cols-1 gap-2">
-                        {[
-                          { label: "A", text: question.option_a, isCorrect: question.correct_answer === 0 },
-                          { label: "B", text: question.option_b, isCorrect: question.correct_answer === 1 },
-                          { label: "C", text: question.option_c, isCorrect: question.correct_answer === 2 },
-                          { label: "D", text: question.option_d, isCorrect: question.correct_answer === 3 },
-                          { label: "E", text: question.option_e, isCorrect: question.correct_answer === 4 },
-                        ].map((option) => (
-                          <div 
-                            key={option.label} 
-                            className={`text-sm p-2 rounded border break-words ${
-                              option.isCorrect ? 'bg-green-50 border-green-200 dark:bg-green-900/20 dark:border-green-800' : 'bg-gray-50 dark:bg-gray-800/50'
-                            }`}
-                          >
-                            <span className="font-medium">{option.label}:</span> {option.text}
-                            {option.isCorrect && (
-                              <Badge variant="secondary" className="ml-2 text-xs">Correta</Badge>
-                            )}
-                          </div>
-                        ))}
+                    return Object.entries(groupedQuestions).map(([categoryName, categoryQuestions]) => (
+                      <div key={categoryName} className="space-y-3">
+                        <div className="flex items-center gap-2 pb-2 border-b border-border">
+                          <Badge variant="secondary" className="text-sm">
+                            {categoryName}
+                          </Badge>
+                          <span className="text-sm text-muted-foreground">
+                            ({categoryQuestions.length} {categoryQuestions.length === 1 ? 'questão' : 'questões'})
+                          </span>
+                        </div>
+                        
+                        <div className="space-y-3">
+                          {categoryQuestions.map((question) => (
+                            <div key={question.id} className="border rounded-lg p-3 md:p-4 bg-card/50">
+                              <div className="flex flex-col sm:flex-row gap-3 sm:justify-between sm:items-start mb-3">
+                                <div className="flex-1 min-w-0">
+                                  <p className="font-medium break-words">{question.question_text}</p>
+                                  <p className="text-xs md:text-sm text-muted-foreground mt-1 truncate">
+                                    Lição: {(question.lessons as any)?.title}
+                                  </p>
+                                </div>
+                                <div className="flex gap-2 flex-shrink-0">
+                                  <Button
+                                    variant="outline"
+                                    size="sm"
+                                    onClick={() => handleEditQuestion(question)}
+                                    className="h-8"
+                                  >
+                                    <Edit className="h-4 w-4 md:mr-1" />
+                                    <span className="hidden md:inline">Editar</span>
+                                  </Button>
+                                  <Button
+                                    variant="outline"
+                                    size="sm"
+                                    onClick={() => handleDeleteQuestion(question.id)}
+                                    className="h-8 w-8 p-0"
+                                  >
+                                    <Trash className="h-4 w-4" />
+                                  </Button>
+                                </div>
+                              </div>
+
+                              <div className="grid grid-cols-1 gap-2">
+                                {[
+                                  { label: "A", text: question.option_a, isCorrect: question.correct_answer === 0 },
+                                  { label: "B", text: question.option_b, isCorrect: question.correct_answer === 1 },
+                                  { label: "C", text: question.option_c, isCorrect: question.correct_answer === 2 },
+                                  { label: "D", text: question.option_d, isCorrect: question.correct_answer === 3 },
+                                  { label: "E", text: question.option_e, isCorrect: question.correct_answer === 4 },
+                                ].map((option) => (
+                                  <div 
+                                    key={option.label} 
+                                    className={`text-sm p-2 rounded border break-words ${
+                                      option.isCorrect ? 'bg-green-900/20 border-green-700/50 text-foreground' : 'bg-muted/50 border-border/50'
+                                    }`}
+                                  >
+                                    <span className="font-medium">{option.label}:</span> {option.text}
+                                    {option.isCorrect && (
+                                      <Badge variant="secondary" className="ml-2 text-xs bg-green-800/40">Correta</Badge>
+                                    )}
+                                  </div>
+                                ))}
+                              </div>
+                            </div>
+                          ))}
+                        </div>
                       </div>
-                    </div>
-                  ))
+                    ));
+                  })()
                 )}
               </div>
             </CardContent>
