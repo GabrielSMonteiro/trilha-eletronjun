@@ -223,7 +223,7 @@ export const AdminContent = () => {
     if (error) {
       if (import.meta.env?.DEV) console.error("Error loading questions:", error);
     } else {
-      setQuestions(data || []);
+      setQuestions((data || []).map(q => ({ option_e: '', ...q } as Question)));
     }
   };
 
