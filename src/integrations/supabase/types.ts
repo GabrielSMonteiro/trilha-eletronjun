@@ -14,6 +14,63 @@ export type Database = {
   }
   public: {
     Tables: {
+      cafe_presets: {
+        Row: {
+          created_at: string | null
+          id: string
+          is_default: boolean | null
+          preset_config: Json
+          preset_name: string
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          is_default?: boolean | null
+          preset_config: Json
+          preset_name: string
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          is_default?: boolean | null
+          preset_config?: Json
+          preset_name?: string
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      cafe_sessions: {
+        Row: {
+          created_at: string | null
+          duration_minutes: number
+          id: string
+          points_earned: number | null
+          preset_used: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          duration_minutes?: number
+          id?: string
+          points_earned?: number | null
+          preset_used?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          duration_minutes?: number
+          id?: string
+          points_earned?: number | null
+          preset_used?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       categories: {
         Row: {
           created_at: string
