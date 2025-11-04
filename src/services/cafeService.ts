@@ -22,12 +22,13 @@ export const cafeService = {
       return null;
     }
 
+    const config = data.preset_config as { soundLevels: Record<string, number>; description?: string };
     return {
       id: data.id,
       name: data.preset_name,
-      soundLevels: data.preset_config.soundLevels,
-      description: data.preset_config.description,
-      isDefault: data.is_default,
+      soundLevels: config.soundLevels,
+      description: config.description,
+      isDefault: data.is_default || false,
       userId: data.user_id,
     };
   },
@@ -47,14 +48,17 @@ export const cafeService = {
       return [];
     }
 
-    return data.map(preset => ({
-      id: preset.id,
-      name: preset.preset_name,
-      soundLevels: preset.preset_config.soundLevels,
-      description: preset.preset_config.description,
-      isDefault: preset.is_default,
-      userId: preset.user_id,
-    }));
+    return data.map(preset => {
+      const config = preset.preset_config as { soundLevels: Record<string, number>; description?: string };
+      return {
+        id: preset.id,
+        name: preset.preset_name,
+        soundLevels: config.soundLevels,
+        description: config.description,
+        isDefault: preset.is_default || false,
+        userId: preset.user_id,
+      };
+    });
   },
 
   async deletePreset(presetId: string): Promise<boolean> {

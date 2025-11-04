@@ -146,6 +146,14 @@
   --container-md: 768px;
   --container-lg: 1024px;
   --container-xl: 1280px;
+
+  /* Cafe Theme Colors - Light */
+  --cafe-bg: #F5F1E8;
+  --cafe-card: #FFFFFF;
+  --cafe-text: #3D3226;
+  --cafe-text-muted: #8B7D6B;
+  --cafe-border: #E0D5C7;
+  --cafe-accent: #6B5D4F;
 }
 
 /* Dark mode colors */
@@ -206,6 +214,14 @@
     --color-error-rgb: var(--color-red-400-rgb);
     --color-warning-rgb: var(--color-orange-400-rgb);
     --color-info-rgb: var(--color-gray-300-rgb);
+    
+    /* Cafe Theme Colors - Dark */
+    --cafe-bg: #1A1510;
+    --cafe-card: #2A2118;
+    --cafe-text: #E8DFD0;
+    --cafe-text-muted: #9B8D7D;
+    --cafe-border: #3D342A;
+    --cafe-accent: #A68B6A;
   }
 }
 
@@ -265,6 +281,14 @@
   --color-error-rgb: var(--color-red-400-rgb);
   --color-warning-rgb: var(--color-orange-400-rgb);
   --color-info-rgb: var(--color-gray-300-rgb);
+  
+  /* Cafe Theme Colors - Dark */
+  --cafe-bg: #1A1510;
+  --cafe-card: #2A2118;
+  --cafe-text: #E8DFD0;
+  --cafe-text-muted: #9B8D7D;
+  --cafe-border: #3D342A;
+  --cafe-accent: #A68B6A;
 }
 
 [data-color-scheme="light"] {
@@ -299,6 +323,40 @@
   --color-error-rgb: var(--color-red-500-rgb);
   --color-warning-rgb: var(--color-orange-500-rgb);
   --color-info-rgb: var(--color-slate-500-rgb);
+  
+  /* Cafe Theme Colors - Light */
+  --cafe-bg: #F5F1E8;
+  --cafe-card: #FFFFFF;
+  --cafe-text: #3D3226;
+  --cafe-text-muted: #8B7D6B;
+  --cafe-border: #E0D5C7;
+  --cafe-accent: #6B5D4F;
+}
+
+/* Cafe dark theme override */
+[data-cafe-theme="dark"] {
+  --cafe-bg: #1A1510;
+  --cafe-card: #2A2118;
+  --cafe-text: #E8DFD0;
+  --cafe-text-muted: #9B8D7D;
+  --cafe-border: #3D342A;
+  --cafe-accent: #A68B6A;
+}
+
+[data-cafe-theme="light"] {
+  --cafe-bg: #F5F1E8;
+  --cafe-card: #FFFFFF;
+  --cafe-text: #3D3226;
+  --cafe-text-muted: #8B7D6B;
+  --cafe-border: #E0D5C7;
+  --cafe-accent: #6B5D4F;
+}
+
+/* Cafe page styling */
+.cafe-page {
+  background: var(--cafe-bg);
+  color: var(--cafe-text);
+  transition: background-color 0.3s ease, color 0.3s ease;
 }
 
 /* Base styles */
