@@ -10,6 +10,9 @@ import { CafeIllustration } from '@/components/cafe/CafeIllustration';
 import { SoundPlaceholder } from '@/components/cafe/SoundPlaceholder';
 import { PresetManager } from '@/components/cafe/PresetManager';
 import { StudyTimer } from '@/components/cafe/StudyTimer';
+import { SharedLinks } from '@/components/cafe/SharedLinks';
+import { TodoList } from '@/components/cafe/TodoList';
+import { SpotifyPlayer } from '@/components/cafe/SpotifyPlayer';
 import { AVAILABLE_SOUNDS } from '@/types/cafe';
 import { cafeService } from '@/services/cafeService';
 import { toast } from 'sonner';
@@ -130,7 +133,10 @@ const CafeAmbience = () => {
             Voltar
           </Button>
           
-          <ThemeToggle />
+          <div className="flex items-center gap-2">
+            <SpotifyPlayer />
+            <ThemeToggle />
+          </div>
         </div>
       </header>
 
@@ -206,7 +212,14 @@ const CafeAmbience = () => {
             />
 
             <StudyTimer onComplete={handleTimerComplete} />
+            
+            <TodoList />
           </div>
+        </div>
+
+        {/* Shared Links Section */}
+        <div className="mt-8">
+          <SharedLinks />
         </div>
       </main>
     </div>

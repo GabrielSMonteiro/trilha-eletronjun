@@ -4,8 +4,10 @@ import { Button } from "@/components/ui/button";
 import { LearningPath } from "@/components/LearningPath";
 import { CategorySelector } from "@/components/CategorySelector";
 import { UserProfile } from "@/components/UserProfile";
+import { UserProfileModal } from "@/components/UserProfileModal";
 import { RankingModal } from "@/components/RankingModal";
 import { LessonModal } from "@/components/LessonModal";
+import { CafeTriggerButton } from "@/components/cafe/CafeTriggerButton";
 import { Trophy, User, ArrowLeft, LogOut } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
@@ -54,6 +56,7 @@ const Index = () => {
   const [selectedLesson, setSelectedLesson] = useState<Lesson | null>(null);
   const [showRanking, setShowRanking] = useState(false);
   const [showProfile, setShowProfile] = useState(false);
+  const [showSettings, setShowSettings] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
 
   const navigate = useNavigate();
@@ -439,7 +442,7 @@ const Index = () => {
               }}
               onEditProfile={() => {
                 setShowProfile(false);
-                // TODO: Implement profile editing
+                setShowSettings(true);
               }}
             />
             <Button
@@ -452,6 +455,17 @@ const Index = () => {
           </div>
         </div>
       )}
+
+      {/* Settings Modal */}
+      <UserProfileModal
+        isOpen={showSettings}
+        onClose={() => setShowSettings(false)}
+        userId={user?.id || ''}
+        userEmail={user?.email || ''}
+      />
+
+      {/* Cafe Trigger Button */}
+      <CafeTriggerButton />
     </div>
   );
 };
