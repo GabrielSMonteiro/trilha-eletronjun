@@ -29,6 +29,12 @@ const ScrambledText = ({
   }, [children]);
 
   const scrambleChar = (char, callback) => {
+    // Don't scramble spaces
+    if (char.original === ' ') {
+      callback(' ');
+      return;
+    }
+    
     const chars = scrambleChars.split('');
     let iterations = 0;
     const maxIterations = Math.floor(10 * speed);

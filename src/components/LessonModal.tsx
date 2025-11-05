@@ -13,6 +13,8 @@ import { Play, CheckCircle, X, ExternalLink } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { useEffect } from "react";
+import { LessonNotes } from "./LessonNotes";
+import confetti from "canvas-confetti";
 
 interface Question {
   id: string;
@@ -37,9 +39,10 @@ interface LessonModalProps {
   isOpen: boolean;
   onClose: () => void;
   onComplete: (lessonId: string, passed: boolean) => void;
+  userId?: string;
 }
 
-export const LessonModal = ({ lesson, isOpen, onClose, onComplete }: LessonModalProps) => {
+export const LessonModal = ({ lesson, isOpen, onClose, onComplete, userId }: LessonModalProps) => {
   const [currentPhase, setCurrentPhase] = useState<"content" | "quiz">("content");
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [selectedAnswers, setSelectedAnswers] = useState<number[]>([]);
@@ -192,6 +195,14 @@ export const LessonModal = ({ lesson, isOpen, onClose, onComplete }: LessonModal
       setShowResults(true);
       
       if (passed) {
+        // Celebration animation
+        confetti({
+          particleCount: 150,
+          spread: 100,
+          origin: { y: 0.6 },
+          colors: ["#10b981", "#34d399", "#6ee7b7", "#fbbf24", "#f59e0b"],
+        });
+        
         toast({
           title: "Parabéns! 🎉",
           description: `Você acertou ${correctCount}/${totalQuestions} questões (${score.toFixed(0)}%)`,
@@ -236,8 +247,14 @@ export const LessonModal = ({ lesson, isOpen, onClose, onComplete }: LessonModal
   const externalLink = lesson.external_link || lesson.contentUrl;
 
   return (
-    <Dialog open={isOpen} onOpenChange={handleClose}>
-      <DialogContent className="max-w-2xl mx-auto bg-card border-2 border-border shadow-strong rounded-2xl max-h-[90vh] overflow-y-auto">
+    <>
+      {/* Lesson Notes - Only visible when modal is open and userId is provided */}
+      {isOpen && userId && lesson && (
+        <LessonNotes lessonId={lesson.id} userId={userId} />
+      )}
+      
+      <Dialog open={isOpen} onOpenChange={handleClose}>
+        <DialogContent className="max-w-2xl mx-auto bg-card border-2 border-border shadow-strong rounded-2xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="text-xl font-bold flex items-center justify-between">
             <span>{lesson.title}</span>
@@ -431,7 +448,8 @@ export const LessonModal = ({ lesson, isOpen, onClose, onComplete }: LessonModal
             </div>
           </div>
         )}
-      </DialogContent>
-    </Dialog>
+        </DialogContent>
+      </Dialog>
+    </>
   );
 };
