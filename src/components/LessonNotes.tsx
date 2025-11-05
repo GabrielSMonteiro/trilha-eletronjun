@@ -85,7 +85,7 @@ export const LessonNotes = ({ lessonId, userId }: LessonNotesProps) => {
       {/* Floating Button */}
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="fixed bottom-24 right-4 z-50 w-14 h-14 rounded-full bg-gradient-to-br from-amber-500 to-orange-600 shadow-lg hover:shadow-xl transition-all duration-300 flex items-center justify-center group hover:scale-110"
+        className="fixed bottom-24 right-4 z-[60] w-14 h-14 rounded-full bg-gradient-to-br from-amber-500 to-orange-600 shadow-lg hover:shadow-xl transition-all duration-300 flex items-center justify-center group hover:scale-110"
         aria-label="Anotações"
       >
         <Pencil className="h-6 w-6 text-white" />
@@ -96,7 +96,7 @@ export const LessonNotes = ({ lessonId, userId }: LessonNotesProps) => {
 
       {/* Notes Panel */}
       {isOpen && (
-        <div className="fixed right-4 bottom-40 z-50 w-80 bg-card border-2 border-border rounded-2xl shadow-strong overflow-hidden animate-scale-in">
+        <div className="fixed right-4 bottom-40 z-[60] w-80 bg-card border-2 border-border rounded-2xl shadow-strong overflow-hidden animate-scale-in">
           <div className="bg-gradient-to-br from-amber-500 to-orange-600 p-4 flex items-center justify-between">
             <div className="flex items-center gap-2">
               <Pencil className="h-5 w-5 text-white" />

@@ -9,6 +9,7 @@ import { RankingModal } from "@/components/RankingModal";
 import { LessonModal } from "@/components/LessonModal";
 import { CafeTriggerButton } from "@/components/cafe/CafeTriggerButton";
 import { KanbanBoard } from "@/components/KanbanBoard";
+import { LessonNotes } from "@/components/LessonNotes";
 import { Trophy, User, ArrowLeft, LogOut } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
@@ -469,6 +470,9 @@ const Index = () => {
       {/* Floating Action Buttons */}
       <CafeTriggerButton />
       {user && <KanbanBoard userId={user.id} />}
+      {user && selectedLesson && (
+        <LessonNotes lessonId={selectedLesson.id} userId={user.id} />
+      )}
     </div>
   );
 };

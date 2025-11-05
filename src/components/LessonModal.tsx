@@ -13,7 +13,6 @@ import { Play, CheckCircle, X, ExternalLink } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { useEffect } from "react";
-import { LessonNotes } from "./LessonNotes";
 import confetti from "canvas-confetti";
 
 interface Question {
@@ -247,13 +246,7 @@ export const LessonModal = ({ lesson, isOpen, onClose, onComplete, userId }: Les
   const externalLink = lesson.external_link || lesson.contentUrl;
 
   return (
-    <>
-      {/* Lesson Notes - Only visible when modal is open and userId is provided */}
-      {isOpen && userId && lesson && (
-        <LessonNotes lessonId={lesson.id} userId={userId} />
-      )}
-      
-      <Dialog open={isOpen} onOpenChange={handleClose}>
+    <Dialog open={isOpen} onOpenChange={handleClose}>
         <DialogContent className="max-w-2xl mx-auto bg-card border-2 border-border shadow-strong rounded-2xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="text-xl font-bold flex items-center justify-between">
@@ -450,6 +443,5 @@ export const LessonModal = ({ lesson, isOpen, onClose, onComplete, userId }: Les
         )}
         </DialogContent>
       </Dialog>
-    </>
-  );
-};
+    );
+  };
