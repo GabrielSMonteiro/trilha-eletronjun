@@ -31,7 +31,7 @@ export const KanbanBoard = ({ userId }: KanbanBoardProps) => {
   const loadTasks = async () => {
     try {
       const { data, error } = await supabase
-        .from("kanban_tasks")
+        .from("kanban_tasks" as any)
         .select("*")
         .eq("user_id", userId)
         .order("created_at", { ascending: false });
@@ -39,7 +39,7 @@ export const KanbanBoard = ({ userId }: KanbanBoardProps) => {
       if (error) {
         console.error("Error loading tasks:", error);
       } else {
-        setTasks(data || []);
+        setTasks((data as any) || []);
       }
     } catch (error) {
       console.error("Error loading tasks:", error);
@@ -50,7 +50,7 @@ export const KanbanBoard = ({ userId }: KanbanBoardProps) => {
     if (!newTaskTitle.trim()) return;
 
     try {
-      const { error } = await supabase.from("kanban_tasks").insert({
+      const { error } = await supabase.from("kanban_tasks" as any).insert({
         user_id: userId,
         title: newTaskTitle,
         status: "todo",
@@ -75,7 +75,7 @@ export const KanbanBoard = ({ userId }: KanbanBoardProps) => {
   const updateTaskStatus = async (taskId: string, newStatus: "todo" | "in_progress" | "done") => {
     try {
       const { error } = await supabase
-        .from("kanban_tasks")
+        .from("kanban_tasks" as any)
         .update({ status: newStatus })
         .eq("id", taskId);
 
@@ -105,7 +105,7 @@ export const KanbanBoard = ({ userId }: KanbanBoardProps) => {
   const deleteTask = async (taskId: string) => {
     try {
       const { error } = await supabase
-        .from("kanban_tasks")
+        .from("kanban_tasks" as any)
         .delete()
         .eq("id", taskId);
 

@@ -27,7 +27,7 @@ export const LessonNotes = ({ lessonId, userId }: LessonNotesProps) => {
   const loadNotes = async () => {
     try {
       const { data, error } = await supabase
-        .from("lesson_notes")
+        .from("lesson_notes" as any)
         .select("content")
         .eq("user_id", userId)
         .eq("lesson_id", lessonId)
@@ -36,7 +36,7 @@ export const LessonNotes = ({ lessonId, userId }: LessonNotesProps) => {
       if (error && error.code !== "PGRST116") {
         console.error("Error loading notes:", error);
       } else if (data) {
-        setNotes(data.content || "");
+        setNotes((data as any).content || "");
       }
     } catch (error) {
       console.error("Error loading notes:", error);
@@ -46,7 +46,7 @@ export const LessonNotes = ({ lessonId, userId }: LessonNotesProps) => {
   const saveNotes = async () => {
     setIsSaving(true);
     try {
-      const { error } = await supabase.from("lesson_notes").upsert(
+      const { error } = await supabase.from("lesson_notes" as any).upsert(
         {
           user_id: userId,
           lesson_id: lessonId,
