@@ -10,6 +10,12 @@ import { LessonModal } from "@/components/LessonModal";
 import { CafeTriggerButton } from "@/components/cafe/CafeTriggerButton";
 import { KanbanBoard } from "@/components/KanbanBoard";
 import { LessonNotes } from "@/components/LessonNotes";
+import { XPProgressBar } from "@/components/gamification/XPProgressBar";
+import { BadgesDisplay } from "@/components/gamification/BadgesDisplay";
+import { StreakDisplay } from "@/components/gamification/StreakDisplay";
+import { Leaderboard } from "@/components/gamification/Leaderboard";
+import { GamificationSummary } from "@/components/gamification/GamificationSummary";
+import { useGamification } from "@/hooks/useGamification";
 import { Trophy, User, ArrowLeft, LogOut } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
@@ -63,6 +69,16 @@ const Index = () => {
 
   const navigate = useNavigate();
   const { toast } = useToast();
+  
+  // Gamification hook
+  const {
+    gamificationData,
+    userBadges,
+    loading: gamificationLoading,
+    awardXP,
+    updateStreak,
+    checkAndAwardBadges,
+  } = useGamification(user?.id);
 
   // Authentication setup
   useEffect(() => {
@@ -388,6 +404,16 @@ const Index = () => {
       </div>
 
       <div className="max-w-4xl mx-auto px-4 py-6 space-y-6">
+        {/* Gamification Summary Cards */}
+        {gamificationData && (
+          <GamificationSummary
+            level={gamificationData.current_level}
+            xp={gamificationData.total_xp}
+            streak={gamificationData.current_streak}
+            badgesCount={userBadges.length}
+          />
+        )}
+
         {/* Category Selector */}
         <div className="flex justify-center">
           <CategorySelector
@@ -396,6 +422,29 @@ const Index = () => {
             onCategoryChange={setSelectedCategory}
           />
         </div>
+
+        {/* Gamification Section */}
+        {gamificationData && (
+          <div className="space-y-6 mb-8">
+            {/* XP Progress Bar */}
+            <XPProgressBar
+              currentXP={gamificationData.total_xp}
+              currentLevel={gamificationData.current_level}
+            />
+
+            {/* Streaks */}
+            <StreakDisplay
+              currentStreak={gamificationData.current_streak}
+              longestStreak={gamificationData.longest_streak}
+            />
+
+            {/* Badges and Leaderboard Grid */}
+            <div className="grid lg:grid-cols-2 gap-6">
+              <BadgesDisplay badges={userBadges} />
+              <Leaderboard userId={user?.id} />
+            </div>
+          </div>
+        )}
 
         {/* Learning Path */}
         <LearningPath
@@ -422,6 +471,8 @@ const Index = () => {
         onClose={() => setSelectedLesson(null)}
         onComplete={handleLessonComplete}
         userId={user?.id}
+        awardXP={awardXP}
+        updateStreak={updateStreak}
       />
 
       <RankingModal

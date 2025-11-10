@@ -39,9 +39,11 @@ interface LessonModalProps {
   onClose: () => void;
   onComplete: (lessonId: string, passed: boolean) => void;
   userId?: string;
+  awardXP?: (amount: number, reason: string, lessonId?: string) => Promise<void>;
+  updateStreak?: () => Promise<void>;
 }
 
-export const LessonModal = ({ lesson, isOpen, onClose, onComplete, userId }: LessonModalProps) => {
+export const LessonModal = ({ lesson, isOpen, onClose, onComplete, userId, awardXP, updateStreak }: LessonModalProps) => {
   const [currentPhase, setCurrentPhase] = useState<"content" | "quiz">("content");
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [selectedAnswers, setSelectedAnswers] = useState<number[]>([]);
@@ -201,6 +203,24 @@ export const LessonModal = ({ lesson, isOpen, onClose, onComplete, userId }: Les
           origin: { y: 0.6 },
           colors: ["#10b981", "#34d399", "#6ee7b7", "#fbbf24", "#f59e0b"],
         });
+        
+        // Award XP based on performance
+        if (awardXP) {
+          const baseXP = 50; // Base XP for completing a lesson
+          const perfectBonus = score === 100 ? 50 : 0; // Bonus for perfect score
+          const totalXP = baseXP + perfectBonus;
+          
+          await awardXP(
+            totalXP,
+            score === 100 ? 'Pontuação perfeita na lição!' : 'Lição completada!',
+            lesson.id
+          );
+        }
+        
+        // Update streak
+        if (updateStreak) {
+          await updateStreak();
+        }
         
         toast({
           title: "Parabéns! 🎉",
