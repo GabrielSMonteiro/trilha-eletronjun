@@ -131,17 +131,9 @@ const Landing = () => {
             />
           </h1>
 
-          <div className="mb-8">
-            <ScrambledText
-              radius={100}
-              duration={1.2}
-              speed={0.5}
-              scrambleChars=".:"
-              className="max-w-2xl mx-auto text-muted-foreground"
-            >
-              Desenvolva suas habilidades através de trilhas gamificadas. Assista vídeos, responda questões e compita com seus colegas no ranking mensal.
-            </ScrambledText>
-          </div>
+          <p className="mb-8 max-w-2xl mx-auto text-lg text-muted-foreground">
+            Desenvolva suas habilidades através de trilhas gamificadas. Assista vídeos, responda questões e compita com seus colegas no ranking mensal.
+          </p>
 
           <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
             <MagicButton
