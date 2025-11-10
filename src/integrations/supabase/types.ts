@@ -14,6 +14,64 @@ export type Database = {
   }
   public: {
     Tables: {
+      badges: {
+        Row: {
+          badge_type: string
+          category_id: string | null
+          created_at: string
+          description: string
+          icon_name: string
+          id: string
+          name: string
+          requirement_type: string
+          requirement_value: number
+        }
+        Insert: {
+          badge_type: string
+          category_id?: string | null
+          created_at?: string
+          description: string
+          icon_name: string
+          id?: string
+          name: string
+          requirement_type: string
+          requirement_value: number
+        }
+        Update: {
+          badge_type?: string
+          category_id?: string | null
+          created_at?: string
+          description?: string
+          icon_name?: string
+          id?: string
+          name?: string
+          requirement_type?: string
+          requirement_value?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "badges_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "categories"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "badges_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "category_progress"
+            referencedColumns: ["category_id"]
+          },
+          {
+            foreignKeyName: "badges_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "leaderboard_by_category"
+            referencedColumns: ["category_id"]
+          },
+        ]
+      }
       cafe_presets: {
         Row: {
           created_at: string | null
@@ -203,6 +261,13 @@ export type Database = {
             referencedRelation: "category_progress"
             referencedColumns: ["category_id"]
           },
+          {
+            foreignKeyName: "lessons_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "leaderboard_by_category"
+            referencedColumns: ["category_id"]
+          },
         ]
       }
       profiles: {
@@ -339,6 +404,74 @@ export type Database = {
         }
         Relationships: []
       }
+      user_badges: {
+        Row: {
+          badge_id: string
+          earned_at: string
+          id: string
+          user_id: string
+        }
+        Insert: {
+          badge_id: string
+          earned_at?: string
+          id?: string
+          user_id: string
+        }
+        Update: {
+          badge_id?: string
+          earned_at?: string
+          id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_badges_badge_id_fkey"
+            columns: ["badge_id"]
+            isOneToOne: false
+            referencedRelation: "badges"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      user_gamification: {
+        Row: {
+          created_at: string
+          current_level: number
+          current_streak: number
+          id: string
+          last_activity_date: string | null
+          longest_streak: number
+          total_points: number
+          total_xp: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          current_level?: number
+          current_streak?: number
+          id?: string
+          last_activity_date?: string | null
+          longest_streak?: number
+          total_points?: number
+          total_xp?: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          current_level?: number
+          current_streak?: number
+          id?: string
+          last_activity_date?: string | null
+          longest_streak?: number
+          total_points?: number
+          total_xp?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       user_progress: {
         Row: {
           attempts: number | null
@@ -398,6 +531,41 @@ export type Database = {
         }
         Relationships: []
       }
+      xp_transactions: {
+        Row: {
+          amount: number
+          created_at: string
+          id: string
+          lesson_id: string | null
+          reason: string
+          user_id: string
+        }
+        Insert: {
+          amount: number
+          created_at?: string
+          id?: string
+          lesson_id?: string | null
+          reason: string
+          user_id: string
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          id?: string
+          lesson_id?: string | null
+          reason?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "xp_transactions_lesson_id_fkey"
+            columns: ["lesson_id"]
+            isOneToOne: false
+            referencedRelation: "lessons"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       admin_stats: {
@@ -417,6 +585,37 @@ export type Database = {
           total_completions: number | null
           total_lessons: number | null
           unique_users_completed: number | null
+        }
+        Relationships: []
+      }
+      leaderboard_by_category: {
+        Row: {
+          avatar_url: string | null
+          category_id: string | null
+          category_name: string | null
+          current_level: number | null
+          display_name: string | null
+          lessons_completed: number | null
+          rank: number | null
+          total_points: number | null
+          total_xp: number | null
+          user_id: string | null
+        }
+        Relationships: []
+      }
+      leaderboard_global: {
+        Row: {
+          avatar_url: string | null
+          badges_earned: number | null
+          current_level: number | null
+          current_streak: number | null
+          display_name: string | null
+          lessons_completed: number | null
+          longest_streak: number | null
+          rank: number | null
+          total_points: number | null
+          total_xp: number | null
+          user_id: string | null
         }
         Relationships: []
       }
@@ -486,6 +685,7 @@ export type Database = {
         }
         Returns: Json
       }
+      calculate_level: { Args: { xp: number }; Returns: number }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
@@ -493,6 +693,7 @@ export type Database = {
         }
         Returns: boolean
       }
+      xp_for_next_level: { Args: { current_level: number }; Returns: number }
     }
     Enums: {
       app_role: "admin" | "moderator" | "user"
