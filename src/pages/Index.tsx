@@ -337,73 +337,71 @@ const Index = () => {
     <div className="min-h-screen bg-background">
       {/* Header */}
       <div className="sticky top-0 z-40 bg-card/80 backdrop-blur-sm border-b border-border shadow-soft">
-        <div className="max-w-4xl mx-auto px-4 py-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-4">
+        <div className="max-w-7xl mx-auto px-2 sm:px-4 py-3 sm:py-4">
+          <div className="flex items-center justify-between gap-2">
+            <div className="flex items-center gap-2 sm:gap-4 min-w-0">
               <Button
                 variant="ghost"
                 size="sm"
                 onClick={() => navigate("/")}
-                className="md:flex items-center gap-2 hidden"
+                className="hidden md:flex items-center gap-2 shrink-0"
               >
                 <ArrowLeft className="h-4 w-4" />
                 Início
               </Button>
 
-              <div className="flex items-center gap-3">
-                <div className="bg-gradient-primary rounded-xl p-2">
-                  <span className="text-primary-foreground font-bold text-xl">
-                    <img
-                      src="public/Logo-EletronJun.png"
-                      alt="EletronJun Logo"
-                      className="w-20 h-20 mb-8 mx-auto object-contain"
-                    />
-                  </span>
+              <div className="flex items-center gap-2 sm:gap-3 min-w-0">
+                <div className="bg-gradient-primary rounded-lg sm:rounded-xl p-1.5 sm:p-2 shrink-0">
+                  <img
+                    src="public/Logo-EletronJun.png"
+                    alt="EletronJun Logo"
+                    className="w-6 h-6 sm:w-8 sm:h-8 object-contain"
+                  />
                 </div>
-                <div>
-                  <h1 className="text-xl font-bold text-foreground">
+                <div className="min-w-0">
+                  <h1 className="text-sm sm:text-xl font-bold text-foreground truncate">
                     CapacitaJUN
                   </h1>
-                  <p className="text-xs text-muted-foreground">
+                  <p className="text-[10px] sm:text-xs text-muted-foreground hidden sm:block">
                     Sistema de Capacitações
                   </p>
                 </div>
               </div>
             </div>
 
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-1 sm:gap-2 shrink-0">
               <Button
                 variant="outline"
                 size="sm"
                 onClick={() => setShowRanking(true)}
-                className="border-border hover:border-primary/20"
+                className="border-border hover:border-primary/20 h-8 w-8 sm:h-9 sm:w-9 p-0"
               >
-                <Trophy className="h-4 w-4" />
+                <Trophy className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
               </Button>
 
               <Button
                 variant="outline"
                 size="sm"
                 onClick={() => setShowProfile(true)}
-                className="border-border hover:border-primary/20"
+                className="border-border hover:border-primary/20 h-8 w-8 sm:h-9 sm:w-9 p-0"
               >
-                <User className="h-4 w-4" />
+                <User className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
               </Button>
 
               <Button
                 variant="outline"
                 size="sm"
                 onClick={handleSignOut}
-                className="border-border hover:border-destructive/20 hover:text-destructive"
+                className="border-border hover:border-destructive/20 hover:text-destructive h-8 w-8 sm:h-9 sm:w-9 p-0"
               >
-                <LogOut className="h-4 w-4" />
+                <LogOut className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
               </Button>
             </div>
           </div>
         </div>
       </div>
 
-      <div className="max-w-4xl mx-auto px-4 py-6 space-y-6">
+      <div className="max-w-7xl mx-auto px-4 py-4 sm:py-6 space-y-4 sm:space-y-6">
         {/* Gamification Summary Cards */}
         {gamificationData && (
           <GamificationSummary
@@ -425,7 +423,7 @@ const Index = () => {
 
         {/* Gamification Section */}
         {gamificationData && (
-          <div className="space-y-6 mb-8">
+          <div className="space-y-4 sm:space-y-6 mb-6 sm:mb-8">
             {/* XP Progress Bar */}
             <XPProgressBar
               currentXP={gamificationData.total_xp}
@@ -439,7 +437,7 @@ const Index = () => {
             />
 
             {/* Badges and Leaderboard Grid */}
-            <div className="grid lg:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
               <BadgesDisplay badges={userBadges} />
               <Leaderboard userId={user?.id} />
             </div>

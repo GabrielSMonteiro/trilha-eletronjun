@@ -60,6 +60,13 @@ export type Database = {
             foreignKeyName: "badges_category_id_fkey"
             columns: ["category_id"]
             isOneToOne: false
+            referencedRelation: "category_analytics"
+            referencedColumns: ["category_id"]
+          },
+          {
+            foreignKeyName: "badges_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
             referencedRelation: "category_progress"
             referencedColumns: ["category_id"]
           },
@@ -178,7 +185,15 @@ export type Database = {
           updated_at?: string
           user_id?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "kanban_tasks_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "user_analytics"
+            referencedColumns: ["user_id"]
+          },
+        ]
       }
       lesson_notes: {
         Row: {
@@ -212,6 +227,13 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "lessons"
             referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "lesson_notes_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "user_analytics"
+            referencedColumns: ["user_id"]
           },
         ]
       }
@@ -258,6 +280,13 @@ export type Database = {
             foreignKeyName: "lessons_category_id_fkey"
             columns: ["category_id"]
             isOneToOne: false
+            referencedRelation: "category_analytics"
+            referencedColumns: ["category_id"]
+          },
+          {
+            foreignKeyName: "lessons_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
             referencedRelation: "category_progress"
             referencedColumns: ["category_id"]
           },
@@ -298,7 +327,15 @@ export type Database = {
           updated_at?: string
           user_id?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "profiles_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: true
+            referencedRelation: "user_analytics"
+            referencedColumns: ["user_id"]
+          },
+        ]
       }
       questions: {
         Row: {
@@ -375,7 +412,91 @@ export type Database = {
           url?: string
           user_id?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "shared_links_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "user_analytics"
+            referencedColumns: ["user_id"]
+          },
+        ]
+      }
+      study_sessions: {
+        Row: {
+          category_id: string | null
+          completed: boolean
+          created_at: string
+          duration_minutes: number
+          ended_at: string | null
+          id: string
+          lesson_id: string | null
+          user_id: string
+        }
+        Insert: {
+          category_id?: string | null
+          completed?: boolean
+          created_at?: string
+          duration_minutes?: number
+          ended_at?: string | null
+          id?: string
+          lesson_id?: string | null
+          user_id: string
+        }
+        Update: {
+          category_id?: string | null
+          completed?: boolean
+          created_at?: string
+          duration_minutes?: number
+          ended_at?: string | null
+          id?: string
+          lesson_id?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "study_sessions_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "categories"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "study_sessions_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "category_analytics"
+            referencedColumns: ["category_id"]
+          },
+          {
+            foreignKeyName: "study_sessions_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "category_progress"
+            referencedColumns: ["category_id"]
+          },
+          {
+            foreignKeyName: "study_sessions_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "leaderboard_by_category"
+            referencedColumns: ["category_id"]
+          },
+          {
+            foreignKeyName: "study_sessions_lesson_id_fkey"
+            columns: ["lesson_id"]
+            isOneToOne: false
+            referencedRelation: "lessons"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "study_sessions_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "user_analytics"
+            referencedColumns: ["user_id"]
+          },
+        ]
       }
       todo_items: {
         Row: {
@@ -402,7 +523,15 @@ export type Database = {
           updated_at?: string
           user_id?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "todo_items_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "user_analytics"
+            referencedColumns: ["user_id"]
+          },
+        ]
       }
       user_badges: {
         Row: {
@@ -430,6 +559,13 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "badges"
             referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "user_badges_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "user_analytics"
+            referencedColumns: ["user_id"]
           },
         ]
       }
@@ -470,7 +606,15 @@ export type Database = {
           updated_at?: string
           user_id?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "user_gamification_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: true
+            referencedRelation: "user_analytics"
+            referencedColumns: ["user_id"]
+          },
+        ]
       }
       user_progress: {
         Row: {
@@ -508,6 +652,13 @@ export type Database = {
             referencedRelation: "lessons"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "user_progress_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "user_analytics"
+            referencedColumns: ["user_id"]
+          },
         ]
       }
       user_roles: {
@@ -529,7 +680,15 @@ export type Database = {
           role?: Database["public"]["Enums"]["app_role"]
           user_id?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "user_roles_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "user_analytics"
+            referencedColumns: ["user_id"]
+          },
+        ]
       }
       xp_transactions: {
         Row: {
@@ -564,6 +723,13 @@ export type Database = {
             referencedRelation: "lessons"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "xp_transactions_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "user_analytics"
+            referencedColumns: ["user_id"]
+          },
         ]
       }
     }
@@ -575,6 +741,18 @@ export type Database = {
           total_completed_lessons: number | null
           total_lessons: number | null
           total_users: number | null
+        }
+        Relationships: []
+      }
+      category_analytics: {
+        Row: {
+          avg_score: number | null
+          category_id: string | null
+          category_name: string | null
+          total_completions: number | null
+          total_lessons: number | null
+          total_study_minutes: number | null
+          unique_students: number | null
         }
         Relationships: []
       }
@@ -601,7 +779,15 @@ export type Database = {
           total_xp: number | null
           user_id: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "user_gamification_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: true
+            referencedRelation: "user_analytics"
+            referencedColumns: ["user_id"]
+          },
+        ]
       }
       leaderboard_global: {
         Row: {
@@ -617,7 +803,15 @@ export type Database = {
           total_xp: number | null
           user_id: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "user_gamification_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: true
+            referencedRelation: "user_analytics"
+            referencedColumns: ["user_id"]
+          },
+        ]
       }
       questions_for_users: {
         Row: {
@@ -660,6 +854,20 @@ export type Database = {
           },
         ]
       }
+      user_analytics: {
+        Row: {
+          avg_score: number | null
+          current_level: number | null
+          current_streak: number | null
+          display_name: string | null
+          lessons_completed: number | null
+          total_sessions: number | null
+          total_study_minutes: number | null
+          total_xp: number | null
+          user_id: string | null
+        }
+        Relationships: []
+      }
       user_progress_summary: {
         Row: {
           average_score: number | null
@@ -671,7 +879,15 @@ export type Database = {
           user_created_at: string | null
           user_id: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "profiles_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: true
+            referencedRelation: "user_analytics"
+            referencedColumns: ["user_id"]
+          },
+        ]
       }
     }
     Functions: {
