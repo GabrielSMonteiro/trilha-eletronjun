@@ -16,7 +16,7 @@ import { StreakDisplay } from "@/components/gamification/StreakDisplay";
 import { Leaderboard } from "@/components/gamification/Leaderboard";
 import { GamificationSummary } from "@/components/gamification/GamificationSummary";
 import { useGamification } from "@/hooks/useGamification";
-import { Trophy, User, ArrowLeft, LogOut, Users } from "lucide-react";
+import { Trophy, User, ArrowLeft, LogOut, Users, BarChart3 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import type { User as SupabaseUser, Session } from "@supabase/supabase-js";
@@ -386,6 +386,15 @@ const Index = () => {
                 className="border-border hover:border-primary/20 h-8 w-8 sm:h-9 sm:w-9 p-0"
               >
                 <Users className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
+              </Button>
+
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => navigate("/analytics")}
+                className="border-border hover:border-primary/20 h-8 w-8 sm:h-9 sm:w-9 p-0"
+              >
+                <BarChart3 className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
               </Button>
 
               <Button

@@ -11,6 +11,7 @@ import Admin from "./pages/Admin";
 import Analytics from "./pages/Analytics";
 import CafeAmbience from "./pages/CafeAmbience";
 import Community from "./pages/Community";
+import AIAutomations from "./pages/AIAutomations";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -30,6 +31,7 @@ const App = () => (
           <Route path="/analytics" element={<Analytics />} />
           <Route path="/cafe" element={<CafeAmbience />} />
           <Route path="/community" element={<Community />} />
+          <Route path="/ai" element={<AIAutomations />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
