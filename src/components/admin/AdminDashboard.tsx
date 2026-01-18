@@ -52,7 +52,8 @@ export const AdminDashboard = () => {
       
       let usersQuery = supabase.from('profiles').select('id', { count: 'exact' });
       if (adminUserIds.length > 0) {
-        usersQuery = usersQuery.not('user_id', 'in', `(${adminUserIds.join(',')})`);
+        // Use array directly instead of string interpolation for safer query construction
+        usersQuery = usersQuery.not('user_id', 'in', `(${adminUserIds.map(id => `"${id}"`).join(',')})`);
       }
       
       const [usersResult, lessonsResult, completionsResult, categoriesResult] = await Promise.all([

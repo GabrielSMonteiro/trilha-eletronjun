@@ -1221,6 +1221,36 @@ export type Database = {
           },
         ]
       }
+      shared_links_public: {
+        Row: {
+          created_at: string | null
+          description: string | null
+          id: string | null
+          link_type: string | null
+          title: string | null
+          updated_at: string | null
+          url: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          description?: string | null
+          id?: string | null
+          link_type?: string | null
+          title?: string | null
+          updated_at?: string | null
+          url?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          description?: string | null
+          id?: string | null
+          link_type?: string | null
+          title?: string | null
+          updated_at?: string | null
+          url?: string | null
+        }
+        Relationships: []
+      }
       user_analytics: {
         Row: {
           avg_score: number | null
@@ -1269,6 +1299,16 @@ export type Database = {
         Returns: Json
       }
       calculate_level: { Args: { xp: number }; Returns: number }
+      get_admin_stats: {
+        Args: never
+        Returns: {
+          active_users: number
+          total_categories: number
+          total_completed_lessons: number
+          total_lessons: number
+          total_users: number
+        }[]
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]

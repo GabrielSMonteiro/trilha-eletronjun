@@ -38,30 +38,30 @@ export const SharedLinks = () => {
   }, []);
 
   const loadLinks = async () => {
+    // Use the public view that doesn't expose user_id
     const { data, error } = await supabase
-      .from('shared_links')
+      .from('shared_links_public')
       .select('*')
       .order('created_at', { ascending: false });
 
     if (error) {
+      console.error('Error loading links:', error);
       toast.error('Erro ao carregar links');
       return;
     }
 
-    setLinks(data || []);
-    
-    // Load user profiles
-    const userIds = [...new Set(data?.map(link => link.user_id) || [])];
-    const { data: profiles } = await supabase
-      .from('profiles')
-      .select('user_id, display_name')
-      .in('user_id', userIds);
+    // Map the public view data to our interface (user_id won't be available)
+    const linksWithPlaceholder = (data || []).map(link => ({
+      ...link,
+      user_id: '', // user_id is not exposed in public view
+      description: link.description || null,
+    }));
 
-    const profileMap: Record<string, Profile> = {};
-    profiles?.forEach(profile => {
-      profileMap[profile.user_id] = { display_name: profile.display_name || 'Usuário' };
-    });
-    setUserProfiles(profileMap);
+    setLinks(linksWithPlaceholder);
+    
+    // Since user_id is not exposed in the public view, we can't load profiles
+    // Display "Comunidade" instead of individual usernames for privacy
+    setUserProfiles({});
   };
 
   const handleAddLink = async () => {
@@ -185,7 +185,7 @@ export const SharedLinks = () => {
                       <p className="text-sm text-[var(--cafe-text-muted)] mb-2">{link.description}</p>
                     )}
                     <div className="flex items-center gap-2 text-xs text-[var(--cafe-text-muted)]">
-                      <span>{userProfiles[link.user_id]?.display_name || 'Usuário'}</span>
+                      <span>Compartilhado pela comunidade</span>
                       <span>•</span>
                       <a href={link.url} target="_blank" rel="noopener noreferrer" className="flex items-center gap-1 hover:text-[var(--cafe-accent)]">
                         Abrir <ExternalLink className="h-3 w-3" />

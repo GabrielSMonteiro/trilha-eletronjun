@@ -144,7 +144,8 @@ export const AdminProgress = () => {
         .select("user_id, display_name, position, created_at");
       
       if (adminUserIds.length > 0) {
-        query = query.not("user_id", "in", `(${adminUserIds.join(",")})`);
+        // Use properly quoted UUIDs for safer query construction
+        query = query.not("user_id", "in", `(${adminUserIds.map(id => `"${id}"`).join(",")})`);
       }
       
       const { data: profilesData } = await query;
