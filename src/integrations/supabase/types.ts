@@ -358,15 +358,7 @@ export type Database = {
           updated_at?: string
           user_id?: string
         }
-        Relationships: [
-          {
-            foreignKeyName: "kanban_tasks_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "user_analytics"
-            referencedColumns: ["user_id"]
-          },
-        ]
+        Relationships: []
       }
       lesson_notes: {
         Row: {
@@ -400,13 +392,6 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "lessons"
             referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "lesson_notes_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "user_analytics"
-            referencedColumns: ["user_id"]
           },
         ]
       }
@@ -597,15 +582,7 @@ export type Database = {
           updated_at?: string
           user_id?: string
         }
-        Relationships: [
-          {
-            foreignKeyName: "profiles_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: true
-            referencedRelation: "user_analytics"
-            referencedColumns: ["user_id"]
-          },
-        ]
+        Relationships: []
       }
       questions: {
         Row: {
@@ -682,15 +659,7 @@ export type Database = {
           url?: string
           user_id?: string
         }
-        Relationships: [
-          {
-            foreignKeyName: "shared_links_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "user_analytics"
-            referencedColumns: ["user_id"]
-          },
-        ]
+        Relationships: []
       }
       study_group_members: {
         Row: {
@@ -856,13 +825,6 @@ export type Database = {
             referencedRelation: "lessons"
             referencedColumns: ["id"]
           },
-          {
-            foreignKeyName: "study_sessions_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "user_analytics"
-            referencedColumns: ["user_id"]
-          },
         ]
       }
       todo_items: {
@@ -890,15 +852,7 @@ export type Database = {
           updated_at?: string
           user_id?: string
         }
-        Relationships: [
-          {
-            foreignKeyName: "todo_items_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "user_analytics"
-            referencedColumns: ["user_id"]
-          },
-        ]
+        Relationships: []
       }
       user_badges: {
         Row: {
@@ -926,13 +880,6 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "badges"
             referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "user_badges_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "user_analytics"
-            referencedColumns: ["user_id"]
           },
         ]
       }
@@ -973,15 +920,7 @@ export type Database = {
           updated_at?: string
           user_id?: string
         }
-        Relationships: [
-          {
-            foreignKeyName: "user_gamification_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: true
-            referencedRelation: "user_analytics"
-            referencedColumns: ["user_id"]
-          },
-        ]
+        Relationships: []
       }
       user_progress: {
         Row: {
@@ -1019,13 +958,6 @@ export type Database = {
             referencedRelation: "lessons"
             referencedColumns: ["id"]
           },
-          {
-            foreignKeyName: "user_progress_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "user_analytics"
-            referencedColumns: ["user_id"]
-          },
         ]
       }
       user_roles: {
@@ -1047,15 +979,7 @@ export type Database = {
           role?: Database["public"]["Enums"]["app_role"]
           user_id?: string
         }
-        Relationships: [
-          {
-            foreignKeyName: "user_roles_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "user_analytics"
-            referencedColumns: ["user_id"]
-          },
-        ]
+        Relationships: []
       }
       xp_transactions: {
         Row: {
@@ -1089,13 +1013,6 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "lessons"
             referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "xp_transactions_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "user_analytics"
-            referencedColumns: ["user_id"]
           },
         ]
       }
@@ -1146,15 +1063,7 @@ export type Database = {
           total_xp: number | null
           user_id: string | null
         }
-        Relationships: [
-          {
-            foreignKeyName: "user_gamification_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: true
-            referencedRelation: "user_analytics"
-            referencedColumns: ["user_id"]
-          },
-        ]
+        Relationships: []
       }
       leaderboard_global: {
         Row: {
@@ -1170,15 +1079,7 @@ export type Database = {
           total_xp: number | null
           user_id: string | null
         }
-        Relationships: [
-          {
-            foreignKeyName: "user_gamification_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: true
-            referencedRelation: "user_analytics"
-            referencedColumns: ["user_id"]
-          },
-        ]
+        Relationships: []
       }
       questions_for_users: {
         Row: {
@@ -1276,15 +1177,7 @@ export type Database = {
           user_created_at: string | null
           user_id: string | null
         }
-        Relationships: [
-          {
-            foreignKeyName: "profiles_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: true
-            referencedRelation: "user_analytics"
-            referencedColumns: ["user_id"]
-          },
-        ]
+        Relationships: []
       }
     }
     Functions: {
