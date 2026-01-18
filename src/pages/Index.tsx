@@ -15,8 +15,10 @@ import { BadgesDisplay } from "@/components/gamification/BadgesDisplay";
 import { StreakDisplay } from "@/components/gamification/StreakDisplay";
 import { Leaderboard } from "@/components/gamification/Leaderboard";
 import { GamificationSummary } from "@/components/gamification/GamificationSummary";
-import { useGamification } from "@/hooks/useGamification";
-import { Trophy, User, ArrowLeft, LogOut, Users, BarChart3 } from "lucide-react";
+import { useGamification, setGamificationNotificationCallback } from "@/hooks/useGamification";
+import { useNotifications } from "@/contexts/NotificationContext";
+import { Trophy, User, ArrowLeft, LogOut, Users, BarChart3, Sparkles } from "lucide-react";
+import { NotificationCenter } from "@/components/NotificationCenter";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import type { User as SupabaseUser, Session } from "@supabase/supabase-js";
@@ -69,7 +71,17 @@ const Index = () => {
 
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { addNotification } = useNotifications();
   
+  // Connect gamification notifications to the notification center
+  useEffect(() => {
+    setGamificationNotificationCallback((notification) => {
+      addNotification(notification);
+    });
+    return () => {
+      setGamificationNotificationCallback(null);
+    };
+  }, [addNotification]);
   // Gamification hook
   const {
     gamificationData,
@@ -370,6 +382,20 @@ const Index = () => {
             </div>
 
             <div className="flex items-center gap-1 sm:gap-2 shrink-0">
+              {/* AI Button */}
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => navigate("/ai")}
+                className="border-border hover:border-primary/20 h-8 sm:h-9 px-2 sm:px-3 gap-1"
+              >
+                <Sparkles className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
+                <span className="hidden sm:inline text-xs">IA</span>
+              </Button>
+
+              {/* Notification Center */}
+              <NotificationCenter />
+
               <Button
                 variant="outline"
                 size="sm"

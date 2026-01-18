@@ -3,7 +3,8 @@ import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { MessageSquare, Users, GraduationCap, ArrowLeft } from "lucide-react";
+import { MessageSquare, Users, GraduationCap, ArrowLeft, Sparkles } from "lucide-react";
+import { NotificationCenter } from "@/components/NotificationCenter";
 import ForumsList from "@/components/community/ForumsList";
 import StudyGroupsList from "@/components/community/StudyGroupsList";
 import MentorshipBoard from "@/components/community/MentorshipBoard";
@@ -48,6 +49,19 @@ const Community = () => {
             <ArrowLeft className="h-4 w-4" />
             Voltar
           </Button>
+          
+          <div className="flex items-center gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => navigate("/ai")}
+              className="border-border hover:border-primary/20 h-9 px-3 gap-1"
+            >
+              <Sparkles className="h-4 w-4" />
+              <span className="hidden sm:inline text-xs">IA</span>
+            </Button>
+            <NotificationCenter />
+          </div>
         </div>
 
         <div className="mb-8">

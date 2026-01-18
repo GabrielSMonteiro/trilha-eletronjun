@@ -7,6 +7,7 @@ import { SummaryGenerator } from "@/components/ai/SummaryGenerator";
 import { MindMapGenerator } from "@/components/ai/MindMapGenerator";
 import { PortfolioCertificates } from "@/components/ai/PortfolioCertificates";
 import { ArrowLeft, LogOut, Sparkles, FileText, Network, Award } from "lucide-react";
+import { NotificationCenter } from "@/components/NotificationCenter";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import type { User as SupabaseUser, Session } from "@supabase/supabase-js";
@@ -101,14 +102,18 @@ const AIAutomations = () => {
               </div>
             </div>
 
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={handleSignOut}
-              className="border-border hover:border-destructive/20 hover:text-destructive"
-            >
-              <LogOut className="h-4 w-4" />
-            </Button>
+            <div className="flex items-center gap-2">
+              <NotificationCenter />
+
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handleSignOut}
+                className="border-border hover:border-destructive/20 hover:text-destructive"
+              >
+                <LogOut className="h-4 w-4" />
+              </Button>
+            </div>
           </div>
         </div>
       </div>
