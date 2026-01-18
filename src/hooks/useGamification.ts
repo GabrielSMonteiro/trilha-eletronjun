@@ -1,7 +1,31 @@
 import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
-import { toast } from '@/hooks/use-toast';
 import confetti from 'canvas-confetti';
+
+// We'll use a global notification callback that can be set by the component
+let notificationCallback: ((notification: {
+  title: string;
+  description: string;
+  type: 'info' | 'success' | 'warning' | 'system' | 'achievement';
+  icon?: string;
+}) => void) | null = null;
+
+export const setGamificationNotificationCallback = (
+  callback: typeof notificationCallback
+) => {
+  notificationCallback = callback;
+};
+
+const notify = (notification: {
+  title: string;
+  description: string;
+  type: 'info' | 'success' | 'warning' | 'system' | 'achievement';
+  icon?: string;
+}) => {
+  if (notificationCallback) {
+    notificationCallback(notification);
+  }
+};
 
 interface GamificationData {
   total_xp: number;
@@ -128,10 +152,12 @@ export const useGamification = (userId: string | undefined) => {
         total_points: gamificationData.total_points + amount,
       });
 
-      // Show notification
-      toast({
+      // Show notification via notification center
+      notify({
         title: `+${amount} XP`,
         description: reason,
+        type: 'success',
+        icon: 'zap',
       });
 
       // Level up celebration
@@ -143,9 +169,11 @@ export const useGamification = (userId: string | undefined) => {
           colors: ['#FFD700', '#FFA500', '#FF6347'],
         });
 
-        toast({
+        notify({
           title: `🎉 Nível ${newLevel}!`,
           description: 'Você subiu de nível! Continue assim!',
+          type: 'achievement',
+          icon: 'star',
         });
       }
 
@@ -285,9 +313,11 @@ export const useGamification = (userId: string | undefined) => {
             colors: ['#FFD700', '#C0C0C0', '#CD7F32'],
           });
 
-          toast({
+          notify({
             title: `🏆 Nova Conquista!`,
             description: `Você ganhou: ${badge.name}`,
+            type: 'achievement',
+            icon: 'trophy',
           });
 
           // Award XP for badge

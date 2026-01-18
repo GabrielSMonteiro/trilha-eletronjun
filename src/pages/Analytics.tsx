@@ -2,7 +2,8 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { AnalyticsDashboard } from "@/components/analytics/AnalyticsDashboard";
-import { ArrowLeft, LogOut } from "lucide-react";
+import { ArrowLeft, LogOut, Sparkles } from "lucide-react";
+import { NotificationCenter } from "@/components/NotificationCenter";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import type { User as SupabaseUser, Session } from "@supabase/supabase-js";
@@ -101,14 +102,28 @@ const Analytics = () => {
               </div>
             </div>
 
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={handleSignOut}
-              className="border-border hover:border-destructive/20 hover:text-destructive"
-            >
-              <LogOut className="h-4 w-4" />
-            </Button>
+            <div className="flex items-center gap-2">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => navigate("/ai")}
+                className="border-border hover:border-primary/20 h-9 px-3 gap-1"
+              >
+                <Sparkles className="h-4 w-4" />
+                <span className="hidden sm:inline text-xs">IA</span>
+              </Button>
+
+              <NotificationCenter />
+
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handleSignOut}
+                className="border-border hover:border-destructive/20 hover:text-destructive"
+              >
+                <LogOut className="h-4 w-4" />
+              </Button>
+            </div>
           </div>
         </div>
       </div>
