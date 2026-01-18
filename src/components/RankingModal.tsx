@@ -62,7 +62,8 @@ export const RankingModal = ({ isOpen, onClose }: RankingModalProps) => {
         .select("user_id, display_name, position, avatar_url");
       
       if (adminUserIds.length > 0) {
-        query = query.not("user_id", "in", `(${adminUserIds.join(",")})`);
+        // Use properly quoted UUIDs for safer query construction
+        query = query.not("user_id", "in", `(${adminUserIds.map(id => `"${id}"`).join(",")})`);
       }
       
       const { data: profilesData } = await query;
