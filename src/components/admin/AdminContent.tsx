@@ -21,20 +21,31 @@ import {
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { Plus, Video, FileText, BookOpen, Edit, Trash, Search, Upload, X } from "lucide-react";
+import { Plus, Video, FileText, BookOpen, Edit, Trash, Search, Link as LinkIcon, AlertCircle } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { isValidVideoUrl } from "@/components/VideoPlayer";
 
-// Video upload validation constants
-const ALLOWED_VIDEO_TYPES = ['video/mp4', 'video/webm', 'video/ogg', 'video/quicktime'];
-const ALLOWED_EXTENSIONS = ['mp4', 'webm', 'ogg', 'mov'];
-const MAX_FILE_SIZE = 500 * 1024 * 1024; // 500MB
+// Allowed video domains for URL validation helper text
+const SUPPORTED_PROVIDERS = [
+  'YouTube',
+  'Vimeo',
+  'Google Drive',
+  'Loom',
+  'OneDrive',
+  'URLs diretas de vídeo (mp4, webm)',
+];
 
-// Schemas
+// Schemas - video_url now only accepts external URLs (YouTube, Drive, etc.)
 const lessonSchema = z.object({
   title: z.string().min(5, "Título deve ter pelo menos 5 caracteres"),
   description: z.string().optional(),
-  video_url: z.string().url().optional().or(z.literal("")),
+  video_url: z.string()
+    .refine((val) => !val || val === '' || isValidVideoUrl(val), {
+      message: "URL inválida. Use YouTube, Vimeo, Google Drive, Loom ou URL direta de vídeo.",
+    })
+    .optional()
+    .or(z.literal("")),
   external_link: z.string().url().optional().or(z.literal("")),
   category_id: z.string().min(1, "Selecione uma categoria"),
   order_index: z.number().min(1, "Ordem deve ser maior que 0"),
@@ -95,8 +106,6 @@ export const AdminContent = () => {
   const [isQuestionDialogOpen, setIsQuestionDialogOpen] = useState(false);
   const [editingLesson, setEditingLesson] = useState<Lesson | null>(null);
   const [editingQuestion, setEditingQuestion] = useState<Question | null>(null);
-  const [uploadingVideo, setUploadingVideo] = useState(false);
-  const [videoFile, setVideoFile] = useState<File | null>(null);
   const { toast } = useToast();
 
   const lessonForm = useForm<LessonForm>({
@@ -227,100 +236,11 @@ export const AdminContent = () => {
     }
   };
 
-  const handleVideoUpload = async (file: File): Promise<string | null> => {
-    try {
-      setUploadingVideo(true);
-
-      if (!ALLOWED_VIDEO_TYPES.includes(file.type)) {
-        toast({
-          title: "Tipo de arquivo inválido",
-          description: `Apenas vídeos são permitidos. Tipo recebido: ${file.type}`,
-          variant: "destructive",
-        });
-        return null;
-      }
-
-      const fileExt = file.name.split('.').pop()?.toLowerCase();
-      if (!fileExt || !ALLOWED_EXTENSIONS.includes(fileExt)) {
-        toast({
-          title: "Extensão inválida",
-          description: "Extensões permitidas: mp4, webm, ogg, mov",
-          variant: "destructive",
-        });
-        return null;
-      }
-
-      const mimeToExt: Record<string, string[]> = {
-        'video/mp4': ['mp4'],
-        'video/webm': ['webm'],
-        'video/ogg': ['ogg'],
-        'video/quicktime': ['mov']
-      };
-
-      if (!mimeToExt[file.type]?.includes(fileExt)) {
-        toast({
-          title: "Incompatibilidade detectada",
-          description: "A extensão do arquivo não corresponde ao tipo de vídeo",
-          variant: "destructive",
-        });
-        return null;
-      }
-
-      if (file.size === 0) {
-        toast({
-          title: "Arquivo vazio",
-          description: "O arquivo selecionado está vazio",
-          variant: "destructive",
-        });
-        return null;
-      }
-
-      if (file.size > MAX_FILE_SIZE) {
-        const sizeMB = (file.size / (1024 * 1024)).toFixed(2);
-        toast({
-          title: "Arquivo muito grande",
-          description: `Tamanho: ${sizeMB}MB. Máximo permitido: 500MB`,
-          variant: "destructive",
-        });
-        return null;
-      }
-
-      const fileName = `${Math.random().toString(36).substring(2)}_${Date.now()}.${fileExt}`;
-      const filePath = `${fileName}`;
-
-      const { error: uploadError, data } = await supabase.storage
-        .from('lesson-videos')
-        .upload(filePath, file, {
-          cacheControl: '3600',
-          upsert: false
-        });
-
-      if (uploadError) throw uploadError;
-
-      return filePath;
-    } catch (error) {
-      if (import.meta.env?.DEV) console.error('Error uploading video:', error);
-      toast({
-        title: "Erro",
-        description: "Erro ao fazer upload do vídeo. Tente novamente.",
-        variant: "destructive",
-      });
-      return null;
-    } finally {
-      setUploadingVideo(false);
-    }
-  };
+  // Video upload removed - only external URLs (YouTube, Drive, etc.) are now supported
 
   const onSubmitLesson = async (data: LessonForm) => {
     try {
-      let videoUrl = data.video_url;
-
-      if (videoFile) {
-        const uploadedUrl = await handleVideoUpload(videoFile);
-        if (uploadedUrl) {
-          videoUrl = uploadedUrl;
-        }
-      }
+      const videoUrl = data.video_url;
 
       if (editingLesson) {
         const { error } = await supabase
@@ -358,7 +278,6 @@ export const AdminContent = () => {
       }
 
       lessonForm.reset();
-      setVideoFile(null);
       setIsLessonDialogOpen(false);
       setEditingLesson(null);
       loadLessonsWithQuestionCount();
@@ -425,7 +344,6 @@ export const AdminContent = () => {
 
   const handleEditLesson = (lesson: Lesson) => {
     setEditingLesson(lesson);
-    setVideoFile(null);
     lessonForm.reset({
       title: lesson.title,
       description: lesson.description || "",
@@ -570,7 +488,6 @@ export const AdminContent = () => {
                   className="w-full sm:w-auto"
                   onClick={() => {
                     setEditingLesson(null);
-                    setVideoFile(null);
                     lessonForm.reset({
                       title: "",
                       description: "",
@@ -625,81 +542,38 @@ export const AdminContent = () => {
 
                     <div className="space-y-4">
                       <div className="border-2 border-dashed border-border rounded-lg p-6">
-                        <FormLabel className="block mb-2">Vídeo da Lição</FormLabel>
+                        <div className="flex items-center gap-2 mb-2">
+                          <LinkIcon className="h-4 w-4 text-muted-foreground" />
+                          <FormLabel className="mb-0">URL do Vídeo</FormLabel>
+                        </div>
                         <FormDescription className="mb-4">
-                          Você pode fazer upload de um arquivo de vídeo ou inserir um link do YouTube/Vimeo
+                          Cole aqui o link do vídeo ({SUPPORTED_PROVIDERS.join(', ')})
                         </FormDescription>
                         
-                        <div className="space-y-4">
-                          {/* Video file upload */}
-                          <div>
-                            <Label htmlFor="video-file" className="block text-sm mb-2">
-                              Upload de Arquivo
-                            </Label>
-                            <div className="flex items-center gap-2">
-                              <Input
-                                id="video-file"
-                                type="file"
-                                accept="video/mp4,video/webm,video/ogg,video/quicktime"
-                                onChange={(e) => {
-                                  const file = e.target.files?.[0];
-                                  if (file) {
-                                    setVideoFile(file);
-                                    lessonForm.setValue('video_url', '');
-                                  }
-                                }}
-                                disabled={uploadingVideo}
-                                className="flex-1"
-                              />
-                              {videoFile && (
-                                <Button
-                                  type="button"
-                                  variant="ghost"
-                                  size="icon"
-                                  onClick={() => setVideoFile(null)}
-                                >
-                                  <X className="h-4 w-4" />
-                                </Button>
-                              )}
-                            </div>
-                            {videoFile && (
-                              <p className="text-sm text-muted-foreground mt-2">
-                                Arquivo selecionado: {videoFile.name}
-                              </p>
-                            )}
-                          </div>
-
-                          {/* Or separator */}
-                          <div className="flex items-center gap-4">
-                            <div className="flex-1 h-px bg-border" />
-                            <span className="text-sm text-muted-foreground">OU</span>
-                            <div className="flex-1 h-px bg-border" />
-                          </div>
-
-                          {/* Video URL */}
-                          <FormField
-                            control={lessonForm.control}
-                            name="video_url"
-                            render={({ field }) => (
-                              <FormItem>
-                                <FormLabel>URL do Vídeo (YouTube, Vimeo, etc.)</FormLabel>
-                                <FormControl>
-                                  <Input 
-                                    placeholder="https://youtube.com/watch?v=..." 
-                                    {...field}
-                                    onChange={(e) => {
-                                      field.onChange(e);
-                                      if (e.target.value) {
-                                        setVideoFile(null);
-                                      }
-                                    }}
-                                    disabled={!!videoFile}
-                                  />
-                                </FormControl>
-                                <FormMessage />
-                              </FormItem>
-                            )}
-                          />
+                        <FormField
+                          control={lessonForm.control}
+                          name="video_url"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormControl>
+                                <Input 
+                                  placeholder="https://youtube.com/watch?v=..." 
+                                  {...field}
+                                />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                        
+                        <div className="mt-3 p-3 bg-muted/50 rounded-lg">
+                          <p className="text-xs text-muted-foreground flex items-start gap-2">
+                            <AlertCircle className="h-3.5 w-3.5 mt-0.5 shrink-0" />
+                            <span>
+                              Upload de arquivos locais foi removido. Use YouTube, Google Drive ou outro 
+                              provedor de vídeo para hospedar seu conteúdo.
+                            </span>
+                          </p>
                         </div>
                       </div>
 
@@ -771,22 +645,12 @@ export const AdminContent = () => {
                       <Button 
                         type="button" 
                         variant="outline" 
-                        onClick={() => {
-                          setIsLessonDialogOpen(false);
-                          setVideoFile(null);
-                        }}
+                        onClick={() => setIsLessonDialogOpen(false)}
                       >
                         Cancelar
                       </Button>
-                      <Button type="submit" disabled={uploadingVideo}>
-                        {uploadingVideo ? (
-                          <>
-                            <Upload className="h-4 w-4 mr-2 animate-spin" />
-                            Fazendo upload...
-                          </>
-                        ) : (
-                          <>{editingLesson ? "Atualizar" : "Criar"} Lição</>
-                        )}
+                      <Button type="submit">
+                        {editingLesson ? "Atualizar" : "Criar"} Lição
                       </Button>
                     </div>
                   </form>
