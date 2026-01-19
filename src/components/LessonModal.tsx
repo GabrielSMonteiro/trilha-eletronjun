@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   Dialog,
   DialogContent,
@@ -9,11 +9,11 @@ import {
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Play, CheckCircle, X, ExternalLink } from "lucide-react";
+import { CheckCircle, X } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
-import { useEffect } from "react";
 import confetti from "canvas-confetti";
+import { VideoPlayer } from "@/components/VideoPlayer";
 
 interface Question {
   id: string;
@@ -51,66 +51,13 @@ export const LessonModal = ({ lesson, isOpen, onClose, onComplete, userId, award
   const [questions, setQuestions] = useState<Question[]>([]);
   const [isLoadingQuestions, setIsLoadingQuestions] = useState(false);
   const [quizResult, setQuizResult] = useState<{ score: number; passed: boolean; correctCount: number } | null>(null);
-  const [signedVideoUrl, setSignedVideoUrl] = useState<string | null>(null);
-
-  // Helper function to convert YouTube URLs to embed format
-  const convertToEmbedUrl = (url: string): string => {
-    if (!url) return '';
-    
-    // Handle different YouTube URL formats
-    const regExp = /^.*((youtu.be\/)|(v\/)|(\/u\/\w\/)|(embed\/)|(watch\?))\??v?=?([^#&?]*).*/;
-    const match = url.match(regExp);
-    
-    if (match && match[7] && match[7].length === 11) {
-      return `https://www.youtube.com/embed/${match[7]}`;
-    }
-    
-    // If already an embed URL, return as is
-    if (url.includes('youtube.com/embed/')) {
-      return url;
-    }
-    
-    return url; // Return original if not a YouTube URL
-  };
 
   // Load questions when lesson changes
   useEffect(() => {
-    if (lesson?.id) {
+    if (lesson?.id && isOpen) {
       loadQuestions();
     }
-  }, [lesson?.id]);
-
-  // Generate a signed URL for private storage videos (non-YouTube)
-  useEffect(() => {
-    const setupSignedUrl = async () => {
-      const path = lesson?.video_url || lesson?.videoUrl;
-      if (!path) {
-        setSignedVideoUrl(null);
-        return;
-      }
-      const isYouTube = path.includes('youtube.com') || path.includes('youtu.be');
-      if (isYouTube) {
-        setSignedVideoUrl(null);
-        return;
-      }
-      try {
-        const { data, error } = await supabase.storage
-          .from('lesson-videos')
-          .createSignedUrl(path, 3600);
-        if (error) throw error;
-        setSignedVideoUrl(data?.signedUrl || null);
-      } catch (error) {
-        if (import.meta.env?.DEV) console.error('Error creating signed video URL:', error);
-        setSignedVideoUrl(null);
-        toast({
-          title: 'Erro ao carregar vídeo',
-          description: 'Não foi possível acessar o vídeo desta lição.',
-          variant: 'destructive',
-        });
-      }
-    };
-    setupSignedUrl();
-  }, [lesson?.video_url, lesson?.videoUrl]);
+  }, [lesson?.id, isOpen]);
 
   const loadQuestions = async () => {
     if (!lesson) return;
@@ -255,67 +202,39 @@ export const LessonModal = ({ lesson, isOpen, onClose, onComplete, userId, award
     onClose();
   };
 
+  // Use video_url from lesson data
+  const videoUrl = lesson?.video_url || lesson?.videoUrl;
+  const externalLink = lesson?.external_link || lesson?.contentUrl;
+
   const currentQuestion = questions[currentQuestionIndex];
   const score = quizResult?.score || 0;
   const correctAnswersCount = quizResult?.correctCount || 0;
 
-  // Use video_url from lesson data and prepare playback source
-  const videoUrlPath = lesson.video_url || lesson.videoUrl;
-  const isYouTube = !!videoUrlPath && (videoUrlPath.includes('youtube.com') || videoUrlPath.includes('youtu.be'));
-  const embedUrl = isYouTube && videoUrlPath ? convertToEmbedUrl(videoUrlPath) : null;
-  const externalLink = lesson.external_link || lesson.contentUrl;
-
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>
-        <DialogContent className="max-w-2xl mx-auto bg-card border-2 border-border shadow-strong rounded-2xl max-h-[90vh] overflow-y-auto">
+      <DialogContent className="max-w-2xl mx-auto bg-card border-2 border-border shadow-strong rounded-2xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="text-xl font-bold flex items-center justify-between">
-            <span>{lesson.title}</span>
+            <span>{lesson?.title}</span>
             <Button variant="ghost" size="sm" onClick={handleClose}>
               <X className="h-4 w-4" />
             </Button>
           </DialogTitle>
           <DialogDescription>
-            {lesson.description || "Conteúdo da lição interativa"}
+            {lesson?.description || "Conteúdo da lição interativa"}
           </DialogDescription>
         </DialogHeader>
 
         {currentPhase === "content" && (
           <div className="space-y-6">
-            <div className="aspect-video bg-muted rounded-xl flex items-center justify-center">
-                {isYouTube && embedUrl ? (
-                  <iframe
-                    src={embedUrl}
-                    className="w-full h-full rounded-xl"
-                    allowFullScreen
-                    title={lesson.title}
-                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                  />
-                ) : signedVideoUrl ? (
-                  <video
-                    src={signedVideoUrl}
-                    className="w-full h-full rounded-xl"
-                    controls
-                  />
-                ) : externalLink ? (
-                  <div className="text-center">
-                    <ExternalLink className="h-12 w-12 mx-auto mb-4 text-primary" />
-                    <p className="text-muted-foreground mb-4">Conteúdo externo</p>
-                    <Button asChild className="bg-gradient-primary">
-                      <a href={externalLink} target="_blank" rel="noopener noreferrer">
-                        Acessar Conteúdo
-                      </a>
-                    </Button>
-                  </div>
-                ) : (
-                  <div className="text-center">
-                    <Play className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
-                    <p className="text-muted-foreground">Conteúdo em desenvolvimento</p>
-                  </div>
-                )}
-            </div>
+            {/* Adaptive Video Player */}
+            <VideoPlayer 
+              url={videoUrl} 
+              externalLink={externalLink} 
+              title={lesson?.title} 
+            />
 
-            {lesson.description && (
+            {lesson?.description && (
               <div className="bg-card border border-border rounded-xl p-4">
                 <p className="text-sm text-muted-foreground">{lesson.description}</p>
               </div>
@@ -340,7 +259,7 @@ export const LessonModal = ({ lesson, isOpen, onClose, onComplete, userId, award
                     Esta lição não possui questões. Clique em concluir para prosseguir.
                   </p>
                   <Button 
-                    onClick={() => onComplete(lesson.id, true)} 
+                    onClick={() => lesson && onComplete(lesson.id, true)} 
                     className="bg-gradient-primary"
                   >
                     <CheckCircle className="h-4 w-4 mr-2" />
