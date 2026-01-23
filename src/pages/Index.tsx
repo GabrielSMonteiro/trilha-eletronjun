@@ -7,21 +7,21 @@ import { UserProfile } from "@/components/UserProfile";
 import { UserProfileModal } from "@/components/UserProfileModal";
 import { RankingModal } from "@/components/RankingModal";
 import { LessonModal } from "@/components/LessonModal";
-import { CafeTriggerButton } from "@/components/cafe/CafeTriggerButton";
 import { KanbanBoard } from "@/components/KanbanBoard";
 import { LessonNotes } from "@/components/LessonNotes";
 import { XPProgressBar } from "@/components/gamification/XPProgressBar";
 import { BadgesDisplay } from "@/components/gamification/BadgesDisplay";
 import { StreakDisplay } from "@/components/gamification/StreakDisplay";
 import { Leaderboard } from "@/components/gamification/Leaderboard";
-import { GamificationSummary } from "@/components/gamification/GamificationSummary";
+import { QuickAccessSidebar, QuickAccessMobileTrigger } from "@/components/QuickAccessSidebar";
 import { useGamification, setGamificationNotificationCallback } from "@/hooks/useGamification";
 import { useNotifications } from "@/contexts/NotificationContext";
-import { Trophy, User, ArrowLeft, LogOut, Users, BarChart3, Sparkles } from "lucide-react";
+import { Trophy, User, ArrowLeft, LogOut, Users, BarChart3, Sparkles, Menu } from "lucide-react";
 import { NotificationCenter } from "@/components/NotificationCenter";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import type { User as SupabaseUser, Session } from "@supabase/supabase-js";
+import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 
 interface Profile {
   id: string;
@@ -68,6 +68,9 @@ const Index = () => {
   const [showProfile, setShowProfile] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+  const [isKanbanOpen, setIsKanbanOpen] = useState(false);
+  const [isNotesOpen, setIsNotesOpen] = useState(false);
+  const [showMobileSidebar, setShowMobileSidebar] = useState(false);
 
   const navigate = useNavigate();
   const { toast } = useToast();
@@ -445,17 +448,101 @@ const Index = () => {
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto px-4 py-4 sm:py-6 space-y-4 sm:space-y-6">
-        {/* Gamification Summary Cards */}
-        {gamificationData && (
-          <GamificationSummary
-            level={gamificationData.current_level}
-            xp={gamificationData.total_xp}
-            streak={gamificationData.current_streak}
-            badgesCount={userBadges.length}
-          />
-        )}
+      {/* Quick Access Sidebar - Desktop */}
+      <div className="hidden md:block">
+        <QuickAccessSidebar
+          gamificationData={gamificationData}
+          badgesCount={userBadges.length}
+          userId={user?.id}
+          selectedLessonId={selectedLesson?.id}
+          onOpenKanban={() => setIsKanbanOpen(!isKanbanOpen)}
+          onOpenNotes={() => setIsNotesOpen(!isNotesOpen)}
+          isKanbanOpen={isKanbanOpen}
+          isNotesOpen={isNotesOpen}
+        />
+      </div>
 
+      {/* Mobile Sidebar Trigger */}
+      <Sheet open={showMobileSidebar} onOpenChange={setShowMobileSidebar}>
+        <SheetTrigger asChild>
+          <Button
+            className="fixed bottom-4 left-4 h-12 w-12 rounded-full bg-gradient-primary shadow-strong z-50 md:hidden"
+            size="icon"
+          >
+            <Menu className="h-5 w-5" />
+          </Button>
+        </SheetTrigger>
+        <SheetContent side="left" className="w-72 p-4">
+          <div className="space-y-4">
+            <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">
+              Seu Progresso
+            </h3>
+            
+            {gamificationData && (
+              <div className="grid grid-cols-2 gap-2">
+                <div className="p-3 rounded-lg bg-gradient-to-br from-purple-600 to-purple-800">
+                  <div className="text-white/70 text-[10px] font-medium">Nível</div>
+                  <div className="text-white text-lg font-bold">{gamificationData.current_level}</div>
+                </div>
+                <div className="p-3 rounded-lg bg-gradient-to-br from-amber-500 to-orange-600">
+                  <div className="text-white/70 text-[10px] font-medium">XP</div>
+                  <div className="text-white text-lg font-bold">{gamificationData.total_xp}</div>
+                </div>
+                <div className="p-3 rounded-lg bg-gradient-to-br from-red-500 to-orange-500">
+                  <div className="text-white/70 text-[10px] font-medium">Sequência</div>
+                  <div className="text-white text-lg font-bold">{gamificationData.current_streak} dias</div>
+                </div>
+                <div className="p-3 rounded-lg bg-gradient-to-br from-blue-600 to-indigo-700">
+                  <div className="text-white/70 text-[10px] font-medium">Conquistas</div>
+                  <div className="text-white text-lg font-bold">{userBadges.length}</div>
+                </div>
+              </div>
+            )}
+
+            <div className="border-t border-border my-3" />
+
+            <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">
+              Ferramentas
+            </h3>
+
+            <Button
+              onClick={() => {
+                navigate('/cafe');
+                setShowMobileSidebar(false);
+              }}
+              className="w-full justify-start gap-3 bg-gradient-to-br from-amber-600 to-amber-700 text-white"
+            >
+              ☕ Cafeteria Virtual
+            </Button>
+
+            <Button
+              onClick={() => {
+                setIsKanbanOpen(!isKanbanOpen);
+                setShowMobileSidebar(false);
+              }}
+              variant={isKanbanOpen ? "default" : "outline"}
+              className="w-full justify-start gap-3"
+            >
+              📋 Meu Progresso
+            </Button>
+
+            {selectedLesson && (
+              <Button
+                onClick={() => {
+                  setIsNotesOpen(!isNotesOpen);
+                  setShowMobileSidebar(false);
+                }}
+                variant={isNotesOpen ? "default" : "outline"}
+                className="w-full justify-start gap-3"
+              >
+                ✏️ Anotações
+              </Button>
+            )}
+          </div>
+        </SheetContent>
+      </Sheet>
+
+      <div className="md:ml-64 max-w-7xl mx-auto px-4 py-4 sm:py-6 space-y-4 sm:space-y-6">
         {/* Category Selector */}
         <div className="flex justify-center">
           <CategorySelector
@@ -495,15 +582,6 @@ const Index = () => {
           onLessonClick={handleLessonClick}
         />
 
-        {/* Floating Profile Card - Mobile */}
-        <div className="md:hidden fixed bottom-4 right-4 z-30">
-          <Button
-            onClick={() => setShowProfile(true)}
-            className="bg-gradient-primary shadow-strong rounded-full w-14 h-14"
-          >
-            <User className="h-6 w-6" />
-          </Button>
-        </div>
       </div>
 
       {/* Modals */}
@@ -560,11 +638,18 @@ const Index = () => {
         userEmail={user?.email || ''}
       />
 
-      {/* Floating Action Buttons */}
-      <CafeTriggerButton />
-      {user && <KanbanBoard userId={user.id} />}
-      {user && selectedLesson && (
-        <LessonNotes lessonId={selectedLesson.id} userId={user.id} />
+      {/* Kanban Board Panel */}
+      {user && isKanbanOpen && (
+        <div className="fixed top-[72px] right-0 w-96 h-[calc(100vh-72px)] bg-card border-l border-border shadow-lg z-40 overflow-y-auto">
+          <KanbanBoard userId={user.id} embedded onClose={() => setIsKanbanOpen(false)} />
+        </div>
+      )}
+
+      {/* Lesson Notes Panel */}
+      {user && selectedLesson && isNotesOpen && (
+        <div className="fixed top-[72px] right-0 w-96 h-[calc(100vh-72px)] bg-card border-l border-border shadow-lg z-40 overflow-y-auto">
+          <LessonNotes lessonId={selectedLesson.id} userId={user.id} embedded onClose={() => setIsNotesOpen(false)} />
+        </div>
       )}
     </div>
   );

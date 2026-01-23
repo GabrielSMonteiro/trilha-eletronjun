@@ -14,19 +14,21 @@ interface KanbanTask {
 
 interface KanbanBoardProps {
   userId: string;
+  embedded?: boolean;
+  onClose?: () => void;
 }
 
-export const KanbanBoard = ({ userId }: KanbanBoardProps) => {
-  const [isOpen, setIsOpen] = useState(false);
+export const KanbanBoard = ({ userId, embedded = false, onClose }: KanbanBoardProps) => {
+  const [isOpen, setIsOpen] = useState(embedded);
   const [tasks, setTasks] = useState<KanbanTask[]>([]);
   const [newTaskTitle, setNewTaskTitle] = useState("");
   const { toast } = useToast();
 
   useEffect(() => {
-    if (isOpen) {
+    if (isOpen || embedded) {
       loadTasks();
     }
-  }, [isOpen]);
+  }, [isOpen, embedded]);
 
   const loadTasks = async () => {
     try {
@@ -129,6 +131,92 @@ export const KanbanBoard = ({ userId }: KanbanBoardProps) => {
     { id: "done", title: "Concluído", color: "from-green-500 to-emerald-600" },
   ] as const;
 
+  const handleClose = () => {
+    if (embedded && onClose) {
+      onClose();
+    } else {
+      setIsOpen(false);
+    }
+  };
+
+  // Embedded mode - render content directly
+  if (embedded) {
+    return (
+      <div className="flex flex-col h-full">
+        <div className="bg-gradient-to-br from-purple-500 to-indigo-600 p-4 flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <KanbanSquare className="h-5 w-5 text-white" />
+            <h3 className="font-bold text-white">Meu Progresso</h3>
+          </div>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={handleClose}
+            className="hover:bg-white/20 text-white"
+          >
+            <X className="h-4 w-4" />
+          </Button>
+        </div>
+        <div className="p-4 space-y-4 flex-1 overflow-y-auto">
+          {/* Add Task */}
+          <div className="flex gap-2">
+            <Input
+              value={newTaskTitle}
+              onChange={(e) => setNewTaskTitle(e.target.value)}
+              placeholder="Nova tarefa..."
+              onKeyPress={(e) => e.key === "Enter" && addTask()}
+            />
+            <Button onClick={addTask} size="sm" className="bg-gradient-to-br from-purple-500 to-indigo-600">
+              <Plus className="h-4 w-4" />
+            </Button>
+          </div>
+          {/* Columns */}
+          <div className="grid grid-cols-1 gap-4">
+            {columns.map((column) => (
+              <div key={column.id} className="space-y-2">
+                <div className={`bg-gradient-to-r ${column.color} text-white text-sm font-medium px-3 py-1.5 rounded-lg`}>
+                  {column.title} ({tasks.filter((t) => t.status === column.id).length})
+                </div>
+                <div className="space-y-2 min-h-[60px]">
+                  {tasks
+                    .filter((task) => task.status === column.id)
+                    .map((task) => (
+                      <div
+                        key={task.id}
+                        className="bg-muted p-2 rounded-lg text-sm flex items-center justify-between group"
+                      >
+                        <span className="truncate flex-1">{task.title}</span>
+                        <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                          {column.id !== "done" && (
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              className="h-6 w-6 p-0"
+                              onClick={() => updateTaskStatus(task.id, column.id === "todo" ? "in_progress" : "done")}
+                            >
+                              →
+                            </Button>
+                          )}
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            className="h-6 w-6 p-0 text-destructive"
+                            onClick={() => deleteTask(task.id)}
+                          >
+                            <Trash2 className="h-3 w-3" />
+                          </Button>
+                        </div>
+                      </div>
+                    ))}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <>
       {/* Floating Button */}
@@ -154,7 +242,7 @@ export const KanbanBoard = ({ userId }: KanbanBoardProps) => {
             <Button
               variant="ghost"
               size="sm"
-              onClick={() => setIsOpen(false)}
+              onClick={handleClose}
               className="hover:bg-white/20 text-white"
             >
               <X className="h-4 w-4" />
