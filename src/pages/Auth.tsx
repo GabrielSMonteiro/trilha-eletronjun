@@ -24,6 +24,7 @@ import { z } from "zod";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { ArrowLeft, Eye, EyeOff } from "lucide-react";
+import AuthBackgroundCarousel from "@/components/auth/AuthBackgroundCarousel";
 
 const signUpSchema = z.object({
   displayName: z.string().min(2, "Nome deve ter pelo menos 2 caracteres"),
@@ -209,9 +210,10 @@ const Auth = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background flex flex-col">
+    <div className="min-h-screen flex flex-col relative">
+      <AuthBackgroundCarousel />
       {/* Header */}
-      <div className="sticky top-0 z-40 bg-card/80 backdrop-blur-sm border-b border-border shadow-soft">
+      <div className="sticky top-0 z-40 bg-black/80 backdrop-blur-sm border-b border-white/10 shadow-soft relative">
         <div className="max-w-4xl mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
             <Button
@@ -226,10 +228,10 @@ const Auth = () => {
 
             <div className="flex items-center gap-4">
               <div>
-                <h1 className="text-xl font-bold text-foreground">
+                <h1 className="text-xl font-bold text-white">
                   CapacitaJUN
                 </h1>
-                <p className="text-xs text-muted-foreground">
+                <p className="text-xs text-white/70">
                   Sistema de Capacitações
                 </p>
               </div>
@@ -239,7 +241,7 @@ const Auth = () => {
       </div>
 
       {/* Auth Content */}
-      <div className="flex-1 flex items-center justify-center p-4">
+      <div className="flex-1 flex items-center justify-center p-4 relative z-10">
         <Card className="w-full max-w-md">
           <CardHeader className="text-center">
             <div className="mx-auto mb-4 bg-gradient-primary rounded-xl p-4 w-fit">
