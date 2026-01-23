@@ -9,20 +9,22 @@ import { useIsMobile } from "@/hooks/use-mobile";
 interface LessonNotesProps {
   lessonId: string;
   userId: string;
+  embedded?: boolean;
+  onClose?: () => void;
 }
 
-export const LessonNotes = ({ lessonId, userId }: LessonNotesProps) => {
-  const [isOpen, setIsOpen] = useState(false);
+export const LessonNotes = ({ lessonId, userId, embedded = false, onClose }: LessonNotesProps) => {
+  const [isOpen, setIsOpen] = useState(embedded);
   const [notes, setNotes] = useState("");
   const [isSaving, setIsSaving] = useState(false);
   const isMobile = useIsMobile();
   const { toast } = useToast();
 
   useEffect(() => {
-    if (isOpen) {
+    if (isOpen || embedded) {
       loadNotes();
     }
-  }, [isOpen, lessonId]);
+  }, [isOpen, lessonId, embedded]);
 
   const loadNotes = async () => {
     try {
@@ -77,8 +79,53 @@ export const LessonNotes = ({ lessonId, userId }: LessonNotesProps) => {
     }
   };
 
-  // Don't render on mobile
-  if (isMobile) return null;
+  // Don't render floating button on mobile or when embedded
+  if (isMobile && !embedded) return null;
+
+  const handleClose = () => {
+    if (embedded && onClose) {
+      onClose();
+    } else {
+      setIsOpen(false);
+    }
+  };
+
+  // Embedded mode - render content directly
+  if (embedded) {
+    return (
+      <div className="flex flex-col h-full">
+        <div className="bg-gradient-to-br from-amber-500 to-orange-600 p-4 flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <Pencil className="h-5 w-5 text-white" />
+            <h3 className="font-bold text-white">Minhas Anotações</h3>
+          </div>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={handleClose}
+            className="hover:bg-white/20 text-white"
+          >
+            <X className="h-4 w-4" />
+          </Button>
+        </div>
+        <div className="p-4 space-y-3 flex-1">
+          <Textarea
+            value={notes}
+            onChange={(e) => setNotes(e.target.value)}
+            placeholder="Escreva suas anotações aqui..."
+            className="min-h-[200px] resize-none flex-1"
+          />
+          <Button
+            onClick={saveNotes}
+            disabled={isSaving}
+            className="w-full bg-gradient-to-br from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700"
+          >
+            {isSaving ? "Salvando..." : "Salvar Anotações"}
+          </Button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <>
@@ -105,7 +152,7 @@ export const LessonNotes = ({ lessonId, userId }: LessonNotesProps) => {
             <Button
               variant="ghost"
               size="sm"
-              onClick={() => setIsOpen(false)}
+              onClick={handleClose}
               className="hover:bg-white/20 text-white"
             >
               <X className="h-4 w-4" />
