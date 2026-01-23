@@ -11,7 +11,8 @@ import {
   Menu, 
   X,
   Zap,
-  Folder
+  Folder,
+  Image
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
@@ -20,6 +21,7 @@ import { AdminContent } from "./AdminContent";
 import { AdminUsers } from "./AdminUsers";
 import { AdminProgress } from "./AdminProgress";
 import { AdminCategories } from "./AdminCategories";
+import { AdminBackgroundImages } from "./AdminBackgroundImages";
 
 interface User {
   name: string;
@@ -32,7 +34,7 @@ interface AdminLayoutProps {
   user: User;
 }
 
-type AdminSection = "dashboard" | "users" | "categories" | "content" | "progress";
+type AdminSection = "dashboard" | "users" | "categories" | "content" | "progress" | "backgrounds";
 
 export const AdminLayout = ({ user }: AdminLayoutProps) => {
   const [currentSection, setCurrentSection] = useState<AdminSection>("dashboard");
@@ -59,6 +61,7 @@ export const AdminLayout = ({ user }: AdminLayoutProps) => {
     { id: "categories", name: "Categorias", icon: Folder },
     { id: "content", name: "Conteúdo", icon: BookOpen },
     { id: "progress", name: "Progresso", icon: BarChart },
+    { id: "backgrounds", name: "Imagens de Fundo", icon: Image },
   ];
 
   const renderContent = () => {
@@ -73,6 +76,8 @@ export const AdminLayout = ({ user }: AdminLayoutProps) => {
         return <AdminContent />;
       case "progress":
         return <AdminProgress />;
+      case "backgrounds":
+        return <AdminBackgroundImages />;
       default:
         return <AdminDashboard />;
     }

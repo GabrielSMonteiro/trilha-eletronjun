@@ -200,42 +200,42 @@ const Landing = () => {
           </h2>
 
           <div className="grid md:grid-cols-3 gap-8">
-            <div className="text-center">
-              <div className="bg-gradient-primary rounded-full p-4 w-16 h-16 mx-auto mb-4 flex items-center justify-center">
-                <span className="text-primary-foreground font-bold text-xl">
+            <div className="text-center group">
+              <div className="bg-gradient-primary rounded-full p-4 w-16 h-16 mx-auto mb-4 flex items-center justify-center transition-all duration-300 group-hover:scale-110 group-hover:shadow-lg group-hover:shadow-primary/40">
+                <span className="text-white font-bold text-xl">
                   1
                 </span>
               </div>
-              <h3 className="font-bold text-lg mb-2 text-foreground">
+              <h3 className="font-bold text-lg mb-2 text-white">
                 Assista o Conteúdo
               </h3>
-              <p className="text-muted-foreground">
+              <p className="text-white/80">
                 Vídeos e materiais curados para cada trilha de aprendizado
               </p>
             </div>
 
-            <div className="text-center">
-              <div className="bg-gradient-secondary rounded-full p-4 w-16 h-16 mx-auto mb-4 flex items-center justify-center">
-                <span className="text-secondary-foreground font-bold text-xl">
+            <div className="text-center group">
+              <div className="bg-gradient-primary rounded-full p-4 w-16 h-16 mx-auto mb-4 flex items-center justify-center transition-all duration-300 group-hover:scale-110 group-hover:shadow-lg group-hover:shadow-primary/40">
+                <span className="text-white font-bold text-xl">
                   2
                 </span>
               </div>
-              <h3 className="font-bold text-lg mb-2 text-foreground">
+              <h3 className="font-bold text-lg mb-2 text-white">
                 Responda as Questões
               </h3>
-              <p className="text-muted-foreground">
+              <p className="text-white/80">
                 15 questões para cada lição. Acerte 80% para avançar
               </p>
             </div>
 
-            <div className="text-center">
-              <div className="bg-gradient-to-r from-tertiary to-success rounded-full p-4 w-16 h-16 mx-auto mb-4 flex items-center justify-center">
+            <div className="text-center group">
+              <div className="bg-gradient-primary rounded-full p-4 w-16 h-16 mx-auto mb-4 flex items-center justify-center transition-all duration-300 group-hover:scale-110 group-hover:shadow-lg group-hover:shadow-primary/40">
                 <span className="text-white font-bold text-xl">3</span>
               </div>
-              <h3 className="font-bold text-lg mb-2 text-foreground">
+              <h3 className="font-bold text-lg mb-2 text-white">
                 Avance na Trilha
               </h3>
-              <p className="text-muted-foreground">
+              <p className="text-white/80">
                 Desbloqueie novas lições e suba no ranking mensal
               </p>
             </div>
