@@ -131,7 +131,7 @@ const Landing = () => {
             />
           </h1>
 
-          <p className="mb-8 max-w-2xl mx-auto text-lg text-muted-foreground">
+          <p className="mb-8 max-w-2xl mx-auto text-lg text-white/80">
             Desenvolva suas habilidades através de trilhas gamificadas. Assista vídeos, responda questões e compita com seus colegas no ranking mensal.
           </p>
 
@@ -166,7 +166,7 @@ const Landing = () => {
                 <h3 className="font-bold text-lg mb-2 text-foreground">
                   {feature.title}
                 </h3>
-                <p className="text-sm text-muted-foreground">
+                <p className="text-sm text-white/70">
                   {feature.description}
                 </p>
               </CardContent>
@@ -277,7 +277,7 @@ const Landing = () => {
           <h2 className="text-3xl font-bold text-foreground mb-4">
             Pronto para começar sua jornada?
           </h2>
-          <p className="text-muted-foreground mb-8 max-w-xl mx-auto">
+          <p className="text-white/80 mb-8 max-w-xl mx-auto">
             Junte-se aos seus colegas da EletronJUN e desenvolva novas
             habilidades de forma divertida e eficaz.
           </p>

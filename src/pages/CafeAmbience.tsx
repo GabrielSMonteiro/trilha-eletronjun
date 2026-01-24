@@ -145,7 +145,7 @@ const CafeAmbience = () => {
         {/* Hero Section */}
         <div className="text-center mb-12">
           <h1 className="text-4xl sm:text-5xl font-bold mb-3 text-[var(--cafe-text)]">
-            I Miss My Cafe
+            EletronFé
           </h1>
           <p className="text-lg text-[var(--cafe-text-muted)] mb-8">
             Aproveite e fique um pouco.

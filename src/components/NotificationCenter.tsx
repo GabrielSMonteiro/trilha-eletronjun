@@ -86,7 +86,7 @@ export const NotificationCenter: React.FC<NotificationCenterProps> = ({ classNam
         </Button>
       </PopoverTrigger>
       <PopoverContent 
-        className="w-80 sm:w-96 p-0" 
+        className="w-80 sm:w-96 p-0 bg-card border border-border shadow-lg z-50" 
         align="end"
         sideOffset={8}
       >
