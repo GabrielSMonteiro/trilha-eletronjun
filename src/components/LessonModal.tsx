@@ -405,9 +405,13 @@ export const LessonModal = ({ lesson, isOpen, onClose, onComplete, userId, award
           </div>
         )}
 
-        {/* Notes Panel - Mobile overlay */}
+        {/* Notes Panel - Mobile overlay - renders outside DialogContent via portal */}
         {showNotes && isMobile && currentPhase === "content" && (
-          <div className="fixed inset-0 z-[100] bg-background/95 p-4 animate-fade-in">
+          <div 
+            className="fixed inset-0 bg-background p-4 animate-fade-in"
+            style={{ zIndex: 9999 }}
+            onClick={(e) => e.stopPropagation()}
+          >
             <NotesPanel />
           </div>
         )}
