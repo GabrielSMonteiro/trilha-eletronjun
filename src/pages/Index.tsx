@@ -645,12 +645,6 @@ const Index = () => {
         </div>
       )}
 
-      {/* Lesson Notes Panel */}
-      {user && selectedLesson && isNotesOpen && (
-        <div className="fixed top-[72px] right-0 w-96 h-[calc(100vh-72px)] bg-card border-l border-border shadow-lg z-40 overflow-y-auto">
-          <LessonNotes lessonId={selectedLesson.id} userId={user.id} embedded onClose={() => setIsNotesOpen(false)} />
-        </div>
-      )}
     </div>
   );
 };

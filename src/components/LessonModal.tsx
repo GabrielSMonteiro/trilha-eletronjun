@@ -9,11 +9,13 @@ import {
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { CheckCircle, X } from "lucide-react";
+import { Textarea } from "@/components/ui/textarea";
+import { CheckCircle, X, Pencil, ChevronLeft, ChevronRight } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import confetti from "canvas-confetti";
 import { VideoPlayer } from "@/components/VideoPlayer";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 interface Question {
   id: string;
@@ -51,13 +53,30 @@ export const LessonModal = ({ lesson, isOpen, onClose, onComplete, userId, award
   const [questions, setQuestions] = useState<Question[]>([]);
   const [isLoadingQuestions, setIsLoadingQuestions] = useState(false);
   const [quizResult, setQuizResult] = useState<{ score: number; passed: boolean; correctCount: number } | null>(null);
+  
+  // Notes state
+  const [showNotes, setShowNotes] = useState(false);
+  const [notes, setNotes] = useState("");
+  const [isSavingNotes, setIsSavingNotes] = useState(false);
+  const isMobile = useIsMobile();
 
-  // Load questions when lesson changes
+  // Load questions and notes when lesson changes
   useEffect(() => {
     if (lesson?.id && isOpen) {
       loadQuestions();
+      if (userId) {
+        loadNotes();
+      }
     }
   }, [lesson?.id, isOpen]);
+
+  // Reset notes when modal closes
+  useEffect(() => {
+    if (!isOpen) {
+      setNotes("");
+      setShowNotes(false);
+    }
+  }, [isOpen]);
 
   const loadQuestions = async () => {
     if (!lesson) return;
@@ -88,6 +107,63 @@ export const LessonModal = ({ lesson, isOpen, onClose, onComplete, userId, award
       setQuestions([]);
     } finally {
       setIsLoadingQuestions(false);
+    }
+  };
+
+  const loadNotes = async () => {
+    if (!lesson || !userId) return;
+    
+    try {
+      const { data, error } = await supabase
+        .from("lesson_notes" as any)
+        .select("content")
+        .eq("user_id", userId)
+        .eq("lesson_id", lesson.id)
+        .maybeSingle();
+
+      if (error && error.code !== "PGRST116") {
+        if (import.meta.env?.DEV) console.error("Error loading notes:", error);
+      } else if (data) {
+        setNotes((data as any).content || "");
+      }
+    } catch (error) {
+      if (import.meta.env?.DEV) console.error("Error loading notes:", error);
+    }
+  };
+
+  const saveNotes = async () => {
+    if (!lesson || !userId) return;
+    
+    setIsSavingNotes(true);
+    try {
+      const { error } = await supabase.from("lesson_notes" as any).upsert(
+        {
+          user_id: userId,
+          lesson_id: lesson.id,
+          content: notes,
+        },
+        {
+          onConflict: "user_id,lesson_id",
+        }
+      );
+
+      if (error) {
+        if (import.meta.env?.DEV) console.error("Error saving notes:", error);
+        toast({
+          title: "Erro",
+          description: "Erro ao salvar anotações.",
+          variant: "destructive",
+        });
+      } else {
+        toast({
+          title: "Salvo!",
+          description: "Suas anotações foram salvas.",
+        });
+      }
+    } catch (error) {
+      if (import.meta.env?.DEV) console.error("Error saving notes:", error);
+    } finally {
+      setIsSavingNotes(false);
     }
   };
 
@@ -210,15 +286,64 @@ export const LessonModal = ({ lesson, isOpen, onClose, onComplete, userId, award
   const score = quizResult?.score || 0;
   const correctAnswersCount = quizResult?.correctCount || 0;
 
+  // Notes panel component
+  const NotesPanel = () => (
+    <div className="flex flex-col h-full min-h-[300px]">
+      <div className="bg-gradient-to-br from-amber-500 to-orange-600 p-3 flex items-center justify-between rounded-t-xl">
+        <div className="flex items-center gap-2">
+          <Pencil className="h-4 w-4 text-white" />
+          <h3 className="font-semibold text-white text-sm">Anotações</h3>
+        </div>
+        {isMobile && (
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => setShowNotes(false)}
+            className="hover:bg-white/20 text-white h-7 w-7 p-0"
+          >
+            <X className="h-4 w-4" />
+          </Button>
+        )}
+      </div>
+      <div className="p-3 space-y-3 flex-1 flex flex-col bg-muted/30 rounded-b-xl">
+        <Textarea
+          value={notes}
+          onChange={(e) => setNotes(e.target.value)}
+          placeholder="Escreva suas anotações enquanto assiste..."
+          className="min-h-[150px] flex-1 resize-none text-sm"
+        />
+        <Button
+          onClick={saveNotes}
+          disabled={isSavingNotes}
+          size="sm"
+          className="w-full bg-gradient-to-br from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700"
+        >
+          {isSavingNotes ? "Salvando..." : "Salvar"}
+        </Button>
+      </div>
+    </div>
+  );
+
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>
-      <DialogContent className="max-w-2xl mx-auto bg-card border-2 border-border shadow-strong rounded-2xl max-h-[90vh] overflow-y-auto">
+      <DialogContent className={`mx-auto bg-card border-2 border-border shadow-strong rounded-2xl max-h-[90vh] overflow-y-auto ${showNotes && !isMobile ? 'max-w-5xl' : 'max-w-2xl'}`}>
         <DialogHeader>
-          <DialogTitle className="text-xl font-bold flex items-center justify-between">
-            <span>{lesson?.title}</span>
-            <Button variant="ghost" size="sm" onClick={handleClose}>
-              <X className="h-4 w-4" />
-            </Button>
+          <DialogTitle className="text-xl font-bold flex items-center justify-between pr-8">
+            <span className="truncate">{lesson?.title}</span>
+            <div className="flex items-center gap-2 flex-shrink-0">
+              {userId && currentPhase === "content" && (
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  onClick={() => setShowNotes(!showNotes)}
+                  className={`border-amber-500/50 hover:bg-amber-500/10 ${showNotes ? 'bg-amber-500/10' : ''}`}
+                >
+                  <Pencil className="h-4 w-4 mr-1 text-amber-500" />
+                  <span className="hidden sm:inline">Anotações</span>
+                  {!isMobile && (showNotes ? <ChevronRight className="h-4 w-4 ml-1" /> : <ChevronLeft className="h-4 w-4 ml-1" />)}
+                </Button>
+              )}
+            </div>
           </DialogTitle>
           <DialogDescription>
             {lesson?.description || "Conteúdo da lição interativa"}
@@ -226,48 +351,64 @@ export const LessonModal = ({ lesson, isOpen, onClose, onComplete, userId, award
         </DialogHeader>
 
         {currentPhase === "content" && (
-          <div className="space-y-6">
-            {/* Adaptive Video Player */}
-            <VideoPlayer 
-              url={videoUrl} 
-              externalLink={externalLink} 
-              title={lesson?.title} 
-            />
+          <div className={`${showNotes && !isMobile ? 'grid grid-cols-[1fr_320px] gap-4' : ''}`}>
+            <div className="space-y-6">
+              {/* Adaptive Video Player */}
+              <VideoPlayer 
+                url={videoUrl} 
+                externalLink={externalLink} 
+                title={lesson?.title} 
+              />
 
-            {lesson?.description && (
-              <div className="bg-card border border-border rounded-xl p-4">
-                <p className="text-sm text-muted-foreground">{lesson.description}</p>
+              {lesson?.description && (
+                <div className="bg-card border border-border rounded-xl p-4">
+                  <p className="text-sm text-muted-foreground">{lesson.description}</p>
+                </div>
+              )}
+              
+              <div className="text-center">
+                {isLoadingQuestions ? (
+                  <p className="text-sm text-muted-foreground mb-4">Carregando questões...</p>
+                ) : questions.length > 0 ? (
+                  <>
+                    <p className="text-sm text-muted-foreground mb-4">
+                      Após assistir o conteúdo, responda as {questions.length} questões para continuar
+                    </p>
+                    <Button onClick={handleStartQuiz} className="bg-gradient-primary">
+                      <CheckCircle className="h-4 w-4 mr-2" />
+                      Iniciar Quiz
+                    </Button>
+                  </>
+                ) : (
+                  <>
+                    <p className="text-sm text-muted-foreground mb-4">
+                      Esta lição não possui questões. Clique em concluir para prosseguir.
+                    </p>
+                    <Button 
+                      onClick={() => lesson && onComplete(lesson.id, true)} 
+                      className="bg-gradient-primary"
+                    >
+                      <CheckCircle className="h-4 w-4 mr-2" />
+                      Concluir Lição
+                    </Button>
+                  </>
+                )}
+              </div>
+            </div>
+
+            {/* Notes Panel - Desktop inline */}
+            {showNotes && !isMobile && (
+              <div className="border-l border-border pl-4">
+                <NotesPanel />
               </div>
             )}
-            
-            <div className="text-center">
-              {isLoadingQuestions ? (
-                <p className="text-sm text-muted-foreground mb-4">Carregando questões...</p>
-              ) : questions.length > 0 ? (
-                <>
-                  <p className="text-sm text-muted-foreground mb-4">
-                    Após assistir o conteúdo, responda as {questions.length} questões para continuar
-                  </p>
-                  <Button onClick={handleStartQuiz} className="bg-gradient-primary">
-                    <CheckCircle className="h-4 w-4 mr-2" />
-                    Iniciar Quiz
-                  </Button>
-                </>
-              ) : (
-                <>
-                  <p className="text-sm text-muted-foreground mb-4">
-                    Esta lição não possui questões. Clique em concluir para prosseguir.
-                  </p>
-                  <Button 
-                    onClick={() => lesson && onComplete(lesson.id, true)} 
-                    className="bg-gradient-primary"
-                  >
-                    <CheckCircle className="h-4 w-4 mr-2" />
-                    Concluir Lição
-                  </Button>
-                </>
-              )}
-            </div>
+          </div>
+        )}
+
+        {/* Notes Panel - Mobile overlay */}
+        {showNotes && isMobile && currentPhase === "content" && (
+          <div className="fixed inset-0 z-[100] bg-background/95 p-4 animate-fade-in">
+            <NotesPanel />
           </div>
         )}
 
