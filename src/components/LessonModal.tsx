@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect } from "react";
 import {
   Dialog,
   DialogContent,
@@ -9,13 +9,13 @@ import {
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Textarea } from "@/components/ui/textarea";
 import { CheckCircle, X, Pencil, ChevronLeft, ChevronRight } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import confetti from "canvas-confetti";
 import { VideoPlayer } from "@/components/VideoPlayer";
 import { useIsMobile } from "@/hooks/use-mobile";
-import { LessonNotesPanel } from "@/components/LessonNotesPanel";
 
 interface Question {
   id: string;
@@ -286,14 +286,43 @@ export const LessonModal = ({ lesson, isOpen, onClose, onComplete, userId, award
   const score = quizResult?.score || 0;
   const correctAnswersCount = quizResult?.correctCount || 0;
 
-  // Memoized handlers to prevent re-renders
-  const handleNotesChange = useCallback((value: string) => {
-    setNotes(value);
-  }, []);
-
-  const handleCloseNotes = useCallback(() => {
-    setShowNotes(false);
-  }, []);
+  // Notes panel component
+  const NotesPanel = () => (
+    <div className="flex flex-col h-full min-h-[300px]">
+      <div className="bg-gradient-to-br from-amber-500 to-orange-600 p-3 flex items-center justify-between rounded-t-xl">
+        <div className="flex items-center gap-2">
+          <Pencil className="h-4 w-4 text-white" />
+          <h3 className="font-semibold text-white text-sm">Anotações</h3>
+        </div>
+        {isMobile && (
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => setShowNotes(false)}
+            className="hover:bg-white/20 text-white h-7 w-7 p-0"
+          >
+            <X className="h-4 w-4" />
+          </Button>
+        )}
+      </div>
+      <div className="p-3 space-y-3 flex-1 flex flex-col bg-muted/30 rounded-b-xl">
+        <Textarea
+          value={notes}
+          onChange={(e) => setNotes(e.target.value)}
+          placeholder="Escreva suas anotações enquanto assiste..."
+          className="min-h-[150px] flex-1 resize-none text-sm"
+        />
+        <Button
+          onClick={saveNotes}
+          disabled={isSavingNotes}
+          size="sm"
+          className="w-full bg-gradient-to-br from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700"
+        >
+          {isSavingNotes ? "Salvando..." : "Salvar"}
+        </Button>
+      </div>
+    </div>
+  );
 
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>
@@ -370,13 +399,7 @@ export const LessonModal = ({ lesson, isOpen, onClose, onComplete, userId, award
             {/* Notes Panel - Desktop inline */}
             {showNotes && !isMobile && (
               <div className="border-l border-border pl-4">
-                <LessonNotesPanel
-                  notes={notes}
-                  onNotesChange={handleNotesChange}
-                  onSave={saveNotes}
-                  isSaving={isSavingNotes}
-                  isMobile={false}
-                />
+                <NotesPanel />
               </div>
             )}
           </div>
@@ -389,14 +412,7 @@ export const LessonModal = ({ lesson, isOpen, onClose, onComplete, userId, award
             style={{ zIndex: 9999 }}
             onClick={(e) => e.stopPropagation()}
           >
-            <LessonNotesPanel
-              notes={notes}
-              onNotesChange={handleNotesChange}
-              onSave={saveNotes}
-              isSaving={isSavingNotes}
-              isMobile={true}
-              onClose={handleCloseNotes}
-            />
+            <NotesPanel />
           </div>
         )}
 
