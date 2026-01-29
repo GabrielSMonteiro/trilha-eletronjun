@@ -1,6 +1,20 @@
 import { useState, useRef, useCallback, useEffect } from 'react';
 import { SoundState, PresetConfig, AVAILABLE_SOUNDS } from '@/types/cafe';
 
+const SOUND_FILES: Record<string, string> = {
+  ambiente: '/sounds/cafe/ambiente.mp3',
+  chuva: '/sounds/cafe/chuva_janela.mp3',
+  teclado: '/sounds/cafe/teclado.mp3',
+  lareira: '/sounds/cafe/lareira.mp3',
+  paginas: '/sounds/cafe/paginas.mp3',
+  vento: '/sounds/cafe/vento_noise.mp3',
+  white: '/sounds/cafe/white_noise.mp3',
+  brown: '/sounds/cafe/brown_noise.mp3',
+  natureza: '/sounds/cafe/natureza.mp3',
+  rio: '/sounds/cafe/rio.mp3',
+};
+
+
 export const useCafeAudio = () => {
   const [sounds, setSounds] = useState<Record<string, SoundState>>({});
   const [masterVolume, setMasterVolume] = useState(0.8);
@@ -24,11 +38,20 @@ export const useCafeAudio = () => {
     if (!audioContextRef.current || sounds[soundId]?.audioElement) return;
 
     const soundInfo = AVAILABLE_SOUNDS.find(s => s.id === soundId);
-    if (!soundInfo) return;
+    if (!soundInfo) {
+      console.warn(`Sound info não encontrada para: ${soundId}`);
+      return;
+    }
 
-    const audio = new Audio(`/sounds/cafe/${soundId}.mp3`);
+    const filePath = SOUND_FILES[soundId];
+    if (!filePath) {
+      console.warn(`Arquivo de áudio não mapeado para: ${soundId}`);
+      return;
+    }
+
+    const audio = new Audio(filePath);
     audio.loop = true;
-    audio.volume = 0;
+    audio.volume = 0; // controlado via GainNode
 
     const source = audioContextRef.current.createMediaElementSource(audio);
     const gainNode = audioContextRef.current.createGain();
@@ -55,6 +78,7 @@ export const useCafeAudio = () => {
       },
     }));
   }, [sounds]);
+
 
   const playSound = useCallback((soundId: string) => {
     const sound = sounds[soundId];
