@@ -85,7 +85,7 @@ const Landing = () => {
         <div className="max-w-6xl mx-auto px-4 py-4 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <div className="bg-gradient-primary rounded-xl p-2">
-              <span className="text-primary-foreground font-bold text-xl">
+              <span className="text-white font-bold text-xl">
                 <img
                   src="public/Logo-EletronJun.png"
                   alt="EletronJun Logo"
@@ -93,14 +93,14 @@ const Landing = () => {
                 />
               </span>
             </div>
-            <div className="text-2xl font-bold text-foreground">
+            <div className="text-2xl font-bold text-white">
               CapacitaJun
             </div>
           </div>
 
           <MagicButton
             onClick={handleLogin}
-            className="bg-gradient-primary shadow-medium"
+            className="bg-gradient-primary shadow-medium text-white"
             enableStars={false}
             enableBorderGlow={true}
             enableTilt={false}
@@ -108,7 +108,7 @@ const Landing = () => {
             clickEffect={true}
             glowColor="27, 184, 205"
           >
-            Entrar
+            <span className="text-white">Entrar</span>
           </MagicButton>
         </div>
       </div>
@@ -138,7 +138,7 @@ const Landing = () => {
           <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
             <MagicButton
               onClick={handleLogin}
-              className="bg-gradient-primary shadow-strong text-lg px-8 py-6 h-auto"
+              className="bg-gradient-primary shadow-strong text-lg px-8 py-6 h-auto text-white"
               enableStars={true}
               enableSpotlight={true}
               enableBorderGlow={true}
@@ -148,8 +148,8 @@ const Landing = () => {
               particleCount={12}
               glowColor="27, 184, 205"
             >
-              <BookOpen className="h-5 w-5 mr-2" />
-              Começar Agora
+              <BookOpen className="h-5 w-5 mr-2 text-white" />
+              <span className="text-white">Começar Agora</span>
             </MagicButton>
           </div>
         </div>
@@ -163,7 +163,7 @@ const Landing = () => {
             >
               <CardContent className="p-6 text-center">
                 <div className="mb-4">{feature.icon}</div>
-                <h3 className="font-bold text-lg mb-2 text-foreground">
+                <h3 className="font-bold text-lg mb-2 text-white">
                   {feature.title}
                 </h3>
                 <p className="text-sm text-white/70">
@@ -176,7 +176,7 @@ const Landing = () => {
 
         {/* Categories Preview */}
         <div className="text-center mb-16">
-          <h2 className="text-3xl font-bold text-foreground mb-8">
+          <h2 className="text-3xl font-bold text-white mb-8">
             <span className="mr-3">Capacite-se em</span>
             <RotatingText
               texts={categories}
@@ -195,7 +195,7 @@ const Landing = () => {
 
         {/* How it Works */}
         <div className="bg-gradient-to-br from-purple-900/40 to-purple-950/60 rounded-3xl p-8 shadow-medium border-2 border-purple-700/30 mb-16">
-          <h2 className="text-3xl font-bold text-center text-foreground mb-8">
+          <h2 className="text-3xl font-bold text-center text-white mb-8">
             Como Funciona
           </h2>
 
@@ -254,7 +254,7 @@ const Landing = () => {
 
         {/* Social Media */}
         <div className="mb-16">
-          <h2 className="text-3xl font-bold text-center text-foreground mb-8">
+          <h2 className="text-3xl font-bold text-center text-white mb-8">
             Siga a EletronJun
           </h2>
           <div style={{ height: '120px', position: 'relative', overflow: 'hidden' }}>
@@ -274,7 +274,7 @@ const Landing = () => {
 
         {/* CTA Section */}
         <div className="text-center mt-16">
-          <h2 className="text-3xl font-bold text-foreground mb-4">
+          <h2 className="text-3xl font-bold text-white mb-4">
             Pronto para começar sua jornada?
           </h2>
           <p className="text-white/80 mb-8 max-w-xl mx-auto">
@@ -285,7 +285,7 @@ const Landing = () => {
           <div className="flex justify-center">
             <MagicButton
               onClick={handleLogin}
-              className="bg-gradient-primary shadow-strong text-lg px-8 py-6 h-auto"
+              className="bg-gradient-primary shadow-strong text-lg px-8 py-6 h-auto text-white"
               enableStars={true}
               enableBorderGlow={true}
               enableTilt={true}
@@ -294,8 +294,8 @@ const Landing = () => {
               particleCount={12}
               glowColor="0, 200, 100"
             >
-              <Target className="h-5 w-5 mr-2" />
-              Entrar com Email
+              <Target className="h-5 w-5 mr-2 text-white" />
+              <span className="text-white">Entrar com Email</span>
             </MagicButton>
           </div>
         </div>
