@@ -8,7 +8,7 @@ import { UserProfileModal } from "@/components/UserProfileModal";
 import { RankingModal } from "@/components/RankingModal";
 import { LessonModal } from "@/components/LessonModal";
 import { KanbanBoard } from "@/components/KanbanBoard";
-import { LessonNotes } from "@/components/LessonNotes";
+import { AllNotesPanel } from "@/components/AllNotesPanel";
 import { XPProgressBar } from "@/components/gamification/XPProgressBar";
 import { BadgesDisplay } from "@/components/gamification/BadgesDisplay";
 import { StreakDisplay } from "@/components/gamification/StreakDisplay";
@@ -526,18 +526,16 @@ const Index = () => {
               📋 Meu Progresso
             </Button>
 
-            {selectedLesson && (
-              <Button
-                onClick={() => {
-                  setIsNotesOpen(!isNotesOpen);
-                  setShowMobileSidebar(false);
-                }}
-                variant={isNotesOpen ? "default" : "outline"}
-                className="w-full justify-start gap-3"
-              >
-                ✏️ Anotações
-              </Button>
-            )}
+            <Button
+              onClick={() => {
+                setIsNotesOpen(!isNotesOpen);
+                setShowMobileSidebar(false);
+              }}
+              variant={isNotesOpen ? "default" : "outline"}
+              className="w-full justify-start gap-3"
+            >
+              ✏️ Anotações
+            </Button>
           </div>
         </SheetContent>
       </Sheet>
@@ -642,6 +640,13 @@ const Index = () => {
       {user && isKanbanOpen && (
         <div className="fixed top-[72px] right-0 w-96 h-[calc(100vh-72px)] bg-card border-l border-border shadow-lg z-40 overflow-y-auto">
           <KanbanBoard userId={user.id} embedded onClose={() => setIsKanbanOpen(false)} />
+        </div>
+      )}
+
+      {/* All Notes Panel */}
+      {user && isNotesOpen && (
+        <div className="fixed top-[72px] right-0 w-96 h-[calc(100vh-72px)] bg-card border-l border-border shadow-lg z-40 overflow-hidden">
+          <AllNotesPanel userId={user.id} onClose={() => setIsNotesOpen(false)} />
         </div>
       )}
 
