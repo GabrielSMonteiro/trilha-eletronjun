@@ -1,20 +1,6 @@
 import { useState, useRef, useCallback, useEffect } from 'react';
 import { SoundState, PresetConfig, AVAILABLE_SOUNDS } from '@/types/cafe';
 
-const SOUND_FILES: Record<string, string> = {
-  ambiente: '/sounds/cafe/ambiente.mp3',
-  chuva: '/sounds/cafe/chuva_janela.mp3',
-  teclado: '/sounds/cafe/teclado.mp3',
-  lareira: '/sounds/cafe/lareira.mp3',
-  paginas: '/sounds/cafe/paginas.mp3',
-  vento: '/sounds/cafe/vento_noise.mp3',
-  white: '/sounds/cafe/white_noise.mp3',
-  brown: '/sounds/cafe/brown_noise.mp3',
-  natureza: '/sounds/cafe/natureza.mp3',
-  rio: '/sounds/cafe/rio.mp3',
-};
-
-
 export const useCafeAudio = () => {
   const [sounds, setSounds] = useState<Record<string, SoundState>>({});
   const [masterVolume, setMasterVolume] = useState(0.8);
@@ -43,49 +29,47 @@ export const useCafeAudio = () => {
       return;
     }
 
-    const filePath = SOUND_FILES[soundId];
-    if (!filePath) {
-      console.warn(`Arquivo de áudio não mapeado para: ${soundId}`);
-      return;
-    }
-
-    const audio = new Audio(filePath);
+    // O arquivo agora vem diretamente do soundInfo
+    const audio = new Audio(soundInfo.file);
     audio.loop = true;
     audio.volume = 0; // controlado via GainNode
 
-    const source = audioContextRef.current.createMediaElementSource(audio);
-    const gainNode = audioContextRef.current.createGain();
-    const pannerNode = audioContextRef.current.createStereoPanner();
+    try {
+      const source = audioContextRef.current.createMediaElementSource(audio);
+      const gainNode = audioContextRef.current.createGain();
+      const pannerNode = audioContextRef.current.createStereoPanner();
 
-    gainNode.gain.value = 0.5;
-    pannerNode.pan.value = 0;
+      gainNode.gain.value = 0.5;
+      pannerNode.pan.value = 0;
 
-    source.connect(gainNode);
-    gainNode.connect(pannerNode);
-    pannerNode.connect(masterGainRef.current!);
+      source.connect(gainNode);
+      gainNode.connect(pannerNode);
+      pannerNode.connect(masterGainRef.current!);
 
-    setSounds(prev => ({
-      ...prev,
-      [soundId]: {
-        id: soundId,
-        name: soundInfo.name,
-        volume: 0.5,
-        pan: 0,
-        isPlaying: false,
-        audioElement: audio,
-        gainNode,
-        pannerNode,
-      },
-    }));
+      setSounds(prev => ({
+        ...prev,
+        [soundId]: {
+          id: soundId,
+          name: soundInfo.name,
+          volume: 0.5,
+          pan: 0,
+          isPlaying: false,
+          audioElement: audio,
+          gainNode,
+          pannerNode,
+        },
+      }));
+    } catch (err) {
+      console.error(`Erro ao carregar som ${soundId}:`, err);
+    }
   }, [sounds]);
-
 
   const playSound = useCallback((soundId: string) => {
     const sound = sounds[soundId];
     if (!sound?.audioElement) return;
 
     sound.audioElement.play().catch(err => {
-      if (import.meta.env?.DEV) console.error('Error playing sound:', err);
+      console.error('Error playing sound:', err);
     });
 
     setSounds(prev => ({
