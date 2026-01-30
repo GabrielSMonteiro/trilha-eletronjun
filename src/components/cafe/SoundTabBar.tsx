@@ -16,23 +16,28 @@ export const SoundTabBar = ({ sounds, onVolumeChange, onTogglePlay }: SoundTabBa
     { 
       id: 'cafe', 
       name: 'Cafeteria',
-      soundIds: ['barista', 'coffee-machine', 'coffee-cups', 'customer-chatter']
+      soundIds: ['ambiente', 'maquina', 'copos']
     },
     { 
-      id: 'ambiente', 
-      name: 'Ambiente',
-      soundIds: ['rain', 'fireplace']
+      id: 'natureza', 
+      name: 'Natureza',
+      soundIds: ['chuva', 'natureza', 'rio', 'passaros', 'onda', 'lareira']
+    },
+    { 
+      id: 'ruidos', 
+      name: 'Ruídos',
+      soundIds: ['white', 'brown', 'vento', 'borbulha', 'lava']
     },
     { 
       id: 'estudo', 
       name: 'Estudo',
-      soundIds: ['keyboard-typing', 'pages-turning']
+      soundIds: ['teclado', 'paginas']
     },
   ];
 
   return (
     <Tabs defaultValue="cafe" className="w-full">
-      <TabsList className="w-full bg-[var(--cafe-card)] border border-[var(--cafe-border)] mb-6">
+      <TabsList className="w-full bg-[var(--cafe-card)] border border-[var(--cafe-border)] mb-6 flex-wrap h-auto">
         {categories.map(category => (
           <TabsTrigger 
             key={category.id} 
@@ -50,7 +55,7 @@ export const SoundTabBar = ({ sounds, onVolumeChange, onTogglePlay }: SoundTabBa
             const soundInfo = AVAILABLE_SOUNDS.find(s => s.id === soundId);
             const sound = sounds[soundId];
             
-            if (!sound || !soundInfo) return null;
+            if (!soundInfo) return null;
 
             return (
               <div 
@@ -63,7 +68,7 @@ export const SoundTabBar = ({ sounds, onVolumeChange, onTogglePlay }: SoundTabBa
                   onClick={() => onTogglePlay(soundId)}
                   className="h-10 w-10 rounded-full flex-shrink-0 hover:bg-[var(--cafe-accent)]/20"
                 >
-                  {sound.isPlaying ? (
+                  {sound?.isPlaying ? (
                     <Pause className="h-5 w-5" />
                   ) : (
                     <Play className="h-5 w-5" />
@@ -77,19 +82,19 @@ export const SoundTabBar = ({ sounds, onVolumeChange, onTogglePlay }: SoundTabBa
                   <div className="flex items-center gap-3">
                     <Volume2 className="h-4 w-4 text-[var(--cafe-text-muted)] flex-shrink-0" />
                     <Slider
-                      value={[Math.round(sound.volume * 100)]}
+                      value={[Math.round((sound?.volume || 0.5) * 100)]}
                       onValueChange={(values) => onVolumeChange(soundId, values[0] / 100)}
                       max={100}
                       step={1}
                       className="flex-1"
                     />
                     <span className="text-xs text-[var(--cafe-text-muted)] min-w-[3ch]">
-                      {Math.round(sound.volume * 100)}
+                      {Math.round((sound?.volume || 0.5) * 100)}
                     </span>
                   </div>
                 </div>
 
-                {sound.isPlaying && (
+                {sound?.isPlaying && (
                   <div className="flex gap-1 ml-2">
                     {[...Array(3)].map((_, i) => (
                       <div
