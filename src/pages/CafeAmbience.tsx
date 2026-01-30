@@ -33,22 +33,32 @@ const CafeAmbience = () => {
     pauseAll,
     loadPreset,
     getCurrentConfig,
+    cleanup,
   } = useCafeAudio();
 
   const [isGloballyPlaying, setIsGloballyPlaying] = useState(false);
   const [sessionId, setSessionId] = useState<string | null>(null);
   const [sessionStartTime, setSessionStartTime] = useState<number | null>(null);
+  const [isLoadingSounds, setIsLoadingSounds] = useState(true);
 
   useEffect(() => {
-    initAudioContext();
-    
-    AVAILABLE_SOUNDS.forEach(sound => {
-      loadSound(sound.id);
-    });
+    const initializeSounds = async () => {
+      initAudioContext();
+      
+      // Carregar sons em sequência para evitar problemas
+      for (const sound of AVAILABLE_SOUNDS) {
+        await loadSound(sound.id);
+      }
+      
+      setIsLoadingSounds(false);
+      console.log('Todos os sons carregados');
+    };
 
+    initializeSounds();
     startSession();
 
     return () => {
+      cleanup();
       if (sessionId && sessionStartTime) {
         const durationMinutes = Math.round((Date.now() - sessionStartTime) / 60000);
         cafeService.endSession(sessionId, durationMinutes);
@@ -105,14 +115,16 @@ const CafeAmbience = () => {
     }
   }, [sounds, playSound, pauseSound]);
 
-  if (!isInitialized) {
+  if (!isInitialized || isLoadingSounds) {
     return (
       <div className="cafe-page min-h-screen flex items-center justify-center">
         <div className="text-center">
           <div className="h-16 w-16 rounded-full bg-[var(--cafe-accent)] mx-auto mb-4 animate-pulse flex items-center justify-center">
             <span className="text-2xl">☕</span>
           </div>
-          <p className="text-[var(--cafe-text-muted)]">Preparando sua cafeteria...</p>
+          <p className="text-[var(--cafe-text-muted)]">
+            {isLoadingSounds ? 'Carregando sons...' : 'Preparando sua cafeteria...'}
+          </p>
         </div>
       </div>
     );
