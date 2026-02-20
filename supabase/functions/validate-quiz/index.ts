@@ -86,6 +86,25 @@ serve(async (req) => {
         { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
+
+    // Limit answers array length to prevent DOS
+    if (answers.length > 100) {
+      console.error('[validate-quiz] Too many answers:', answers.length);
+      return new Response(
+        JSON.stringify({ error: 'Too many answers' }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    // Check for duplicate question IDs
+    const questionIds = answers.map((a: { questionId: string }) => a.questionId);
+    if (new Set(questionIds).size !== questionIds.length) {
+      console.error('[validate-quiz] Duplicate question IDs detected');
+      return new Response(
+        JSON.stringify({ error: 'Duplicate questions not allowed' }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
     
     console.log('[validate-quiz] Validating answers:', { userId: user.id, lessonId, answerCount: answers.length });
 
@@ -95,6 +114,11 @@ serve(async (req) => {
         try {
           if (!questionId || typeof questionId !== 'string') {
             throw new Error('Invalid question ID');
+          }
+
+          // Validate answer range
+          if (typeof userAnswer !== 'number' || userAnswer < 0 || userAnswer > 3 || !Number.isInteger(userAnswer)) {
+            throw new Error('Invalid answer value');
           }
           
           const { data, error } = await supabaseAdmin
