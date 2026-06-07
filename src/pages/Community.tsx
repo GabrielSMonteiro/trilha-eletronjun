@@ -8,34 +8,19 @@ import { NotificationCenter } from "@/components/NotificationCenter";
 import ForumsList from "@/components/community/ForumsList";
 import StudyGroupsList from "@/components/community/StudyGroupsList";
 import MentorshipBoard from "@/components/community/MentorshipBoard";
+import { useAuth } from "@/contexts/AuthContext";
 
 const Community = () => {
   const navigate = useNavigate();
-  const [user, setUser] = useState<any>(null);
+  const { user, isLoading: authLoading } = useAuth();
 
   useEffect(() => {
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      if (!session) {
-        navigate("/auth");
-      } else {
-        setUser(session.user);
-      }
-    });
+    if (!authLoading && !user) {
+      navigate("/auth");
+    }
+  }, [user, authLoading, navigate]);
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      (_event, session) => {
-        if (!session) {
-          navigate("/auth");
-        } else {
-          setUser(session.user);
-        }
-      }
-    );
-
-    return () => subscription.unsubscribe();
-  }, [navigate]);
-
-  if (!user) return null;
+  if (authLoading || !user) return null;
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-background to-accent/5">

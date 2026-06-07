@@ -3,7 +3,6 @@
 @tailwind utilities;
 
 :root {
-  /* Primitive Color Tokens */
   --color-white: rgba(255, 255, 255, 1);
   --color-black: rgba(0, 0, 0, 1);
   --color-cream-50: rgb(255, 255, 255);
@@ -27,7 +26,6 @@
   --color-orange-400: rgba(230, 129, 97, 1);
   --color-orange-500: rgba(168, 75, 47, 1);
 
-  /* RGB versions for opacity control */
   --color-brown-600-rgb: 94, 82, 64;
   --color-teal-500-rgb: 33, 128, 141;
   --color-slate-900-rgb: 19, 52, 59;
@@ -37,17 +35,15 @@
   --color-orange-500-rgb: 168, 75, 47;
   --color-orange-400-rgb: 230, 129, 97;
 
-  /* Background color tokens (Light Mode) */
-  --color-bg-1: rgba(59, 130, 246, 0.08); /* Light blue */
-  --color-bg-2: rgba(245, 158, 11, 0.08); /* Light yellow */
-  --color-bg-3: rgba(34, 197, 94, 0.08); /* Light green */
-  --color-bg-4: rgba(239, 68, 68, 0.08); /* Light red */
-  --color-bg-5: rgba(147, 51, 234, 0.08); /* Light purple */
-  --color-bg-6: rgba(249, 115, 22, 0.08); /* Light orange */
-  --color-bg-7: rgba(236, 72, 153, 0.08); /* Light pink */
-  --color-bg-8: rgba(6, 182, 212, 0.08); /* Light cyan */
+  --color-bg-1: rgba(59, 130, 246, 0.08);
+  --color-bg-2: rgba(245, 158, 11, 0.08);
+  --color-bg-3: rgba(34, 197, 94, 0.08);
+  --color-bg-4: rgba(239, 68, 68, 0.08);
+  --color-bg-5: rgba(147, 51, 234, 0.08);
+  --color-bg-6: rgba(249, 115, 22, 0.08);
+  --color-bg-7: rgba(236, 72, 153, 0.08);
+  --color-bg-8: rgba(6, 182, 212, 0.08);
 
-  /* Semantic Color Tokens (Light Mode) */
   --color-background: rgb(15, 15, 20);
   --color-surface: rgb(25, 15, 45);
   --color-text: rgb(240, 240, 245);
@@ -69,7 +65,6 @@
   --color-focus-ring: rgba(0, 200, 100, 0.4);
   --color-select-caret: rgba(240, 240, 245, 0.8);
 
-  /* Common style patterns */
   --focus-ring: 0 0 0 3px var(--color-focus-ring);
   --focus-outline: 2px solid var(--color-primary);
   --status-bg-opacity: 0.15;
@@ -77,13 +72,11 @@
   --select-caret-light: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23134252' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
   --select-caret-dark: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23f5f5f5' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
 
-  /* RGB versions for opacity control */
   --color-success-rgb: 33, 128, 141;
   --color-error-rgb: 192, 21, 47;
   --color-warning-rgb: 168, 75, 47;
   --color-info-rgb: 98, 108, 113;
 
-  /* Typography */
   --font-family-base: "FKGroteskNeue", "Geist", "Inter", -apple-system,
     BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
   --font-family-mono: "Berkeley Mono", ui-monospace, SFMono-Regular, Menlo,
@@ -105,7 +98,6 @@
   --line-height-normal: 1.5;
   --letter-spacing-tight: -0.01em;
 
-  /* Spacing */
   --space-0: 0;
   --space-1: 1px;
   --space-2: 2px;
@@ -119,14 +111,12 @@
   --space-24: 24px;
   --space-32: 32px;
 
-  /* Border Radius */
   --radius-sm: 6px;
   --radius-base: 8px;
   --radius-md: 10px;
   --radius-lg: 12px;
   --radius-full: 9999px;
 
-  /* Shadows */
   --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.02);
   --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.04), 0 1px 2px rgba(0, 0, 0, 0.02);
   --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.04),
@@ -136,18 +126,15 @@
   --shadow-inset-sm: inset 0 1px 0 rgba(255, 255, 255, 0.15),
     inset 0 -1px 0 rgba(0, 0, 0, 0.03);
 
-  /* Animation */
   --duration-fast: 150ms;
   --duration-normal: 250ms;
   --ease-standard: cubic-bezier(0.16, 1, 0.3, 1);
 
-  /* Layout */
   --container-sm: 640px;
   --container-md: 768px;
   --container-lg: 1024px;
   --container-xl: 1280px;
 
-  /* Cafe Theme Colors - Light */
   --cafe-bg: #F5F1E8;
   --cafe-card: #FFFFFF;
   --cafe-text: #3D3226;
@@ -156,26 +143,22 @@
   --cafe-accent: #6B5D4F;
 }
 
-/* Dark mode colors */
 @media (prefers-color-scheme: dark) {
   :root {
-    /* RGB versions for opacity control (Dark Mode) */
     --color-gray-400-rgb: 119, 124, 124;
     --color-teal-300-rgb: 50, 184, 198;
     --color-gray-300-rgb: 167, 169, 169;
     --color-gray-200-rgb: 245, 245, 245;
 
-    /* Background color tokens (Dark Mode) */
-    --color-bg-1: rgba(29, 78, 216, 0.15); /* Dark blue */
-    --color-bg-2: rgba(180, 83, 9, 0.15); /* Dark yellow */
-    --color-bg-3: rgba(21, 128, 61, 0.15); /* Dark green */
-    --color-bg-4: rgba(185, 28, 28, 0.15); /* Dark red */
-    --color-bg-5: rgba(107, 33, 168, 0.15); /* Dark purple */
-    --color-bg-6: rgba(194, 65, 12, 0.15); /* Dark orange */
-    --color-bg-7: rgba(190, 24, 93, 0.15); /* Dark pink */
-    --color-bg-8: rgba(8, 145, 178, 0.15); /* Dark cyan */
+    --color-bg-1: rgba(29, 78, 216, 0.15);
+    --color-bg-2: rgba(180, 83, 9, 0.15);
+    --color-bg-3: rgba(21, 128, 61, 0.15);
+    --color-bg-4: rgba(185, 28, 28, 0.15);
+    --color-bg-5: rgba(107, 33, 168, 0.15);
+    --color-bg-6: rgba(194, 65, 12, 0.15);
+    --color-bg-7: rgba(190, 24, 93, 0.15);
+    --color-bg-8: rgba(8, 145, 178, 0.15);
 
-    /* Semantic Color Tokens (Dark Mode) */
     --color-background: var(--color-charcoal-700);
     --color-surface: var(--color-charcoal-800);
     --color-text: var(--color-gray-200);
@@ -201,7 +184,6 @@
     --color-border-secondary: rgba(var(--color-gray-400-rgb), 0.2);
     --color-select-caret: rgba(var(--color-gray-200-rgb), 0.8);
 
-    /* Common style patterns - updated for dark mode */
     --focus-ring: 0 0 0 3px var(--color-focus-ring);
     --focus-outline: 2px solid var(--color-primary);
     --status-bg-opacity: 0.15;
@@ -209,13 +191,11 @@
     --select-caret-light: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23134252' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
     --select-caret-dark: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23f5f5f5' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
 
-    /* RGB versions for dark mode */
     --color-success-rgb: var(--color-teal-300-rgb);
     --color-error-rgb: var(--color-red-400-rgb);
     --color-warning-rgb: var(--color-orange-400-rgb);
     --color-info-rgb: var(--color-gray-300-rgb);
-    
-    /* Cafe Theme Colors - Dark */
+
     --cafe-bg: #1A1510;
     --cafe-card: #2A2118;
     --cafe-text: #E8DFD0;
@@ -225,25 +205,21 @@
   }
 }
 
-/* Data attribute for manual theme switching */
 [data-color-scheme="dark"] {
-  /* RGB versions for opacity control (dark mode) */
   --color-gray-400-rgb: 119, 124, 124;
   --color-teal-300-rgb: 50, 184, 198;
   --color-gray-300-rgb: 167, 169, 169;
   --color-gray-200-rgb: 245, 245, 245;
 
-  /* Colorful background palette - Dark Mode */
-  --color-bg-1: rgba(29, 78, 216, 0.15); /* Dark blue */
-  --color-bg-2: rgba(180, 83, 9, 0.15); /* Dark yellow */
-  --color-bg-3: rgba(21, 128, 61, 0.15); /* Dark green */
-  --color-bg-4: rgba(185, 28, 28, 0.15); /* Dark red */
-  --color-bg-5: rgba(107, 33, 168, 0.15); /* Dark purple */
-  --color-bg-6: rgba(194, 65, 12, 0.15); /* Dark orange */
-  --color-bg-7: rgba(190, 24, 93, 0.15); /* Dark pink */
-  --color-bg-8: rgba(8, 145, 178, 0.15); /* Dark cyan */
+  --color-bg-1: rgba(29, 78, 216, 0.15);
+  --color-bg-2: rgba(180, 83, 9, 0.15);
+  --color-bg-3: rgba(21, 128, 61, 0.15);
+  --color-bg-4: rgba(185, 28, 28, 0.15);
+  --color-bg-5: rgba(107, 33, 168, 0.15);
+  --color-bg-6: rgba(194, 65, 12, 0.15);
+  --color-bg-7: rgba(190, 24, 93, 0.15);
+  --color-bg-8: rgba(8, 145, 178, 0.15);
 
-  /* Semantic Color Tokens (Dark Mode) */
   --color-background: var(--color-charcoal-700);
   --color-surface: var(--color-charcoal-800);
   --color-text: var(--color-gray-200);
@@ -268,7 +244,6 @@
   --color-border-secondary: rgba(var(--color-gray-400-rgb), 0.2);
   --color-select-caret: rgba(var(--color-gray-200-rgb), 0.8);
 
-  /* Common style patterns - updated for dark mode */
   --focus-ring: 0 0 0 3px var(--color-focus-ring);
   --focus-outline: 2px solid var(--color-primary);
   --status-bg-opacity: 0.15;
@@ -276,13 +251,11 @@
   --select-caret-light: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23134252' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
   --select-caret-dark: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23f5f5f5' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
 
-  /* RGB versions for dark mode */
   --color-success-rgb: var(--color-teal-300-rgb);
   --color-error-rgb: var(--color-red-400-rgb);
   --color-warning-rgb: var(--color-orange-400-rgb);
   --color-info-rgb: var(--color-gray-300-rgb);
-  
-  /* Cafe Theme Colors - Dark */
+
   --cafe-bg: #1A1510;
   --cafe-card: #2A2118;
   --cafe-text: #E8DFD0;
@@ -292,12 +265,9 @@
 }
 
 [data-color-scheme="light"] {
-  /* RGB versions for opacity control (light mode) */
   --color-brown-600-rgb: 94, 82, 64;
   --color-teal-500-rgb: 33, 128, 141;
   --color-slate-900-rgb: 19, 52, 59;
-
-  /* Semantic Color Tokens (Light Mode) */
   --color-background: var(--color-cream-50);
   --color-surface: var(--color-cream-100);
   --color-text: var(--color-slate-900);
@@ -318,13 +288,11 @@
   --color-info: var(--color-slate-500);
   --color-focus-ring: rgba(var(--color-teal-500-rgb), 0.4);
 
-  /* RGB versions for light mode */
   --color-success-rgb: var(--color-teal-500-rgb);
   --color-error-rgb: var(--color-red-500-rgb);
   --color-warning-rgb: var(--color-orange-500-rgb);
   --color-info-rgb: var(--color-slate-500-rgb);
-  
-  /* Cafe Theme Colors - Light */
+
   --cafe-bg: #F5F1E8;
   --cafe-card: #FFFFFF;
   --cafe-text: #3D3226;
@@ -333,7 +301,6 @@
   --cafe-accent: #6B5D4F;
 }
 
-/* Cafe dark theme override */
 [data-cafe-theme="dark"] {
   --cafe-bg: #1A1510;
   --cafe-card: #2A2118;
@@ -352,14 +319,12 @@
   --cafe-accent: #6B5D4F;
 }
 
-/* Cafe page styling */
 .cafe-page {
   background: var(--cafe-bg);
   color: var(--cafe-text);
   transition: background-color 0.3s ease, color 0.3s ease;
 }
 
-/* Base styles */
 html {
   font-size: var(--font-size-base);
   font-family: var(--font-family-base);
@@ -381,7 +346,6 @@ body {
   box-sizing: inherit;
 }
 
-/* Typography */
 h1,
 h2,
 h3,
@@ -398,18 +362,23 @@ h6 {
 h1 {
   font-size: var(--font-size-4xl);
 }
+
 h2 {
   font-size: var(--font-size-3xl);
 }
+
 h3 {
   font-size: var(--font-size-2xl);
 }
+
 h4 {
   font-size: var(--font-size-xl);
 }
+
 h5 {
   font-size: var(--font-size-lg);
 }
+
 h6 {
   font-size: var(--font-size-md);
 }
@@ -452,7 +421,6 @@ pre code {
   padding: 0;
 }
 
-/* Buttons */
 .btn {
   display: inline-flex;
   align-items: center;
@@ -531,7 +499,6 @@ pre code {
   cursor: not-allowed;
 }
 
-/* Form elements */
 .form-control {
   display: block;
   width: 100%;
@@ -563,14 +530,12 @@ select.form-control {
   padding-right: var(--space-32);
 }
 
-/* Add a dark mode specific caret */
 @media (prefers-color-scheme: dark) {
   select.form-control {
     background-image: var(--select-caret-dark);
   }
 }
 
-/* Also handle data-color-scheme */
 [data-color-scheme="dark"] select.form-control {
   background-image: var(--select-caret-dark);
 }
@@ -595,7 +560,6 @@ select.form-control {
   margin-bottom: var(--space-16);
 }
 
-/* Card component */
 .card {
   background-color: var(--color-surface);
   border-radius: var(--radius-lg);
@@ -619,7 +583,6 @@ select.form-control {
   border-bottom: 1px solid var(--color-card-border-inner);
 }
 
-/* Status indicators - simplified with CSS variables */
 .status {
   display: inline-flex;
   align-items: center;
@@ -630,46 +593,33 @@ select.form-control {
 }
 
 .status--success {
-  background-color: rgba(
-    var(--color-success-rgb, 33, 128, 141),
-    var(--status-bg-opacity)
-  );
+  background-color: rgba(var(--color-success-rgb, 33, 128, 141),
+      var(--status-bg-opacity));
   color: var(--color-success);
-  border: 1px solid
-    rgba(var(--color-success-rgb, 33, 128, 141), var(--status-border-opacity));
+  border: 1px solid rgba(var(--color-success-rgb, 33, 128, 141), var(--status-border-opacity));
 }
 
 .status--error {
-  background-color: rgba(
-    var(--color-error-rgb, 192, 21, 47),
-    var(--status-bg-opacity)
-  );
+  background-color: rgba(var(--color-error-rgb, 192, 21, 47),
+      var(--status-bg-opacity));
   color: var(--color-error);
-  border: 1px solid
-    rgba(var(--color-error-rgb, 192, 21, 47), var(--status-border-opacity));
+  border: 1px solid rgba(var(--color-error-rgb, 192, 21, 47), var(--status-border-opacity));
 }
 
 .status--warning {
-  background-color: rgba(
-    var(--color-warning-rgb, 168, 75, 47),
-    var(--status-bg-opacity)
-  );
+  background-color: rgba(var(--color-warning-rgb, 168, 75, 47),
+      var(--status-bg-opacity));
   color: var(--color-warning);
-  border: 1px solid
-    rgba(var(--color-warning-rgb, 168, 75, 47), var(--status-border-opacity));
+  border: 1px solid rgba(var(--color-warning-rgb, 168, 75, 47), var(--status-border-opacity));
 }
 
 .status--info {
-  background-color: rgba(
-    var(--color-info-rgb, 98, 108, 113),
-    var(--status-bg-opacity)
-  );
+  background-color: rgba(var(--color-info-rgb, 98, 108, 113),
+      var(--status-bg-opacity));
   color: var(--color-info);
-  border: 1px solid
-    rgba(var(--color-info-rgb, 98, 108, 113), var(--status-border-opacity));
+  border: 1px solid rgba(var(--color-info-rgb, 98, 108, 113), var(--status-border-opacity));
 }
 
-/* Container layout */
 .container {
   width: 100%;
   margin-right: auto;
@@ -683,44 +633,53 @@ select.form-control {
     max-width: var(--container-sm);
   }
 }
+
 @media (min-width: 768px) {
   .container {
     max-width: var(--container-md);
   }
 }
+
 @media (min-width: 1024px) {
   .container {
     max-width: var(--container-lg);
   }
 }
+
 @media (min-width: 1280px) {
   .container {
     max-width: var(--container-xl);
   }
 }
 
-/* Utility classes */
 .flex {
   display: flex;
 }
+
 .flex-col {
   flex-direction: column;
 }
+
 .items-center {
   align-items: center;
 }
+
 .justify-center {
   justify-content: center;
 }
+
 .justify-between {
   justify-content: space-between;
 }
+
 .gap-4 {
   gap: var(--space-4);
 }
+
 .gap-8 {
   gap: var(--space-8);
 }
+
 .gap-16 {
   gap: var(--space-16);
 }
@@ -728,16 +687,20 @@ select.form-control {
 .m-0 {
   margin: 0;
 }
+
 .mt-8 {
   margin-top: var(--space-8);
 }
+
 .mb-8 {
   margin-bottom: var(--space-8);
 }
+
 .mx-8 {
   margin-left: var(--space-8);
   margin-right: var(--space-8);
 }
+
 .my-8 {
   margin-top: var(--space-8);
   margin-bottom: var(--space-8);
@@ -746,18 +709,22 @@ select.form-control {
 .p-0 {
   padding: 0;
 }
+
 .py-8 {
   padding-top: var(--space-8);
   padding-bottom: var(--space-8);
 }
+
 .px-8 {
   padding-left: var(--space-8);
   padding-right: var(--space-8);
 }
+
 .py-16 {
   padding-top: var(--space-16);
   padding-bottom: var(--space-16);
 }
+
 .px-16 {
   padding-left: var(--space-16);
   padding-right: var(--space-16);
@@ -766,11 +733,11 @@ select.form-control {
 .block {
   display: block;
 }
+
 .hidden {
   display: none;
 }
 
-/* Accessibility */
 .sr-only {
   position: absolute;
   width: 1px;
@@ -788,22 +755,16 @@ select.form-control {
   outline-offset: 2px;
 }
 
-/* Dark mode specifics */
 [data-color-scheme="dark"] .btn--outline {
   border: 1px solid var(--color-border-secondary);
 }
 
 @font-face {
   font-family: "FKGroteskNeue";
-  src: url("https://r2cdn.perplexity.ai/fonts/FKGroteskNeue.woff2")
-    format("woff2");
+  src: url("https://r2cdn.perplexity.ai/fonts/FKGroteskNeue.woff2") format("woff2");
 }
 
-/* END PERPLEXITY DESIGN SYSTEM */
-/* Convert Tailwind-based stylesheet to design system */
-
 :root {
-  /* Mapping original HSL colors to design system variables */
   --background: var(--color-background);
   --foreground: var(--color-text);
 
@@ -840,40 +801,28 @@ select.form-control {
   --warning: var(--color-warning);
   --info: var(--color-info);
 
-  /* Custom gradients using design system colors */
-  --gradient-primary: linear-gradient(
-    135deg,
-    rgba(27, 94, 32, 1) 0%,
-    rgba(76, 175, 80, 1) 100%
-  );
-  --gradient-secondary: linear-gradient(
-    135deg,
-    rgba(27, 94, 32, 1) 0%,
-    rgba(76, 175, 80, 1) 100%
-  );
+  --gradient-primary: linear-gradient(135deg,
+      rgba(27, 94, 32, 1) 0%,
+      rgba(76, 175, 80, 1) 100%);
+  --gradient-secondary: linear-gradient(135deg,
+      rgba(27, 94, 32, 1) 0%,
+      rgba(76, 175, 80, 1) 100%);
 
-  /* Purple gradient using custom purple colors that fit the design system */
-  --gradient-hero: linear-gradient(
-    135deg,
-    rgb(0, 0, 0) 0%,
-    rgba(0, 0, 0, 0.9) 50%,
-    rgb(0, 0, 0) 100%
-  );
-  --gradient-card: linear-gradient(
-    135deg,
-    rgba(107, 33, 168, 1) 0%,
-    rgba(147, 51, 234, 0.9) 50%,
-    rgba(168, 85, 247, 1) 100%
-  );
+  --gradient-hero: linear-gradient(135deg,
+      rgb(0, 0, 0) 0%,
+      rgba(0, 0, 0, 0.9) 50%,
+      rgb(0, 0, 0) 100%);
+  --gradient-card: linear-gradient(135deg,
+      rgba(107, 33, 168, 1) 0%,
+      rgba(147, 51, 234, 0.9) 50%,
+      rgba(168, 85, 247, 1) 100%);
 
-  /* Shadows using design system values */
   --shadow-soft: var(--shadow-sm);
   --shadow-medium: var(--shadow-md);
   --shadow-strong: var(--shadow-lg);
 
   --radius: var(--radius-lg);
 
-  /* Sidebar colors */
   --sidebar-background: var(--color-surface);
   --sidebar-foreground: var(--color-text);
   --sidebar-primary: var(--color-primary);
@@ -884,7 +833,6 @@ select.form-control {
   --sidebar-ring: var(--color-focus-ring);
 }
 
-/* Base styles */
 * {
   border-color: var(--border);
 }
@@ -896,7 +844,6 @@ body {
   line-height: var(--line-height-normal);
 }
 
-/* Component classes */
 .header-dark {
   background: var(--color-surface) !important;
   color: var(--color-text) !important;
@@ -921,15 +868,12 @@ body {
 }
 
 .bg-modern-dark {
-  background: linear-gradient(
-    135deg,
-    var(--color-background) 0%,
-    var(--color-surface) 50%,
-    var(--color-charcoal-800) 100%
-  ) !important;
+  background: linear-gradient(135deg,
+      var(--color-background) 0%,
+      var(--color-surface) 50%,
+      var(--color-charcoal-800) 100%) !important;
 }
 
-/* Utility classes for original design intent */
 .bg-background {
   background-color: black;
 }
@@ -990,7 +934,6 @@ body {
   border-radius: var(--radius);
 }
 
-/* Status indicator variants */
 .status-success {
   background-color: rgba(var(--color-success-rgb), 0.15);
   color: var(--success);
@@ -1021,7 +964,6 @@ body {
   font-weight: var(--font-weight-medium);
 }
 
-/* Sidebar component styles */
 .sidebar {
   background-color: var(--sidebar-background);
   color: var(--sidebar-foreground);
@@ -1052,7 +994,6 @@ body {
   color: var(--sidebar-primary-foreground);
 }
 
-/* Responsive styles for mobile (480px breakpoint) */
 @media (max-width: 480px) {
   .header-dark {
     padding: var(--space-12);
@@ -1088,7 +1029,6 @@ body {
     font-size: var(--font-size-base);
   }
 
-  /* Mobile utility classes */
   .mobile-full-width {
     width: 100%;
   }
@@ -1101,16 +1041,12 @@ body {
     display: none;
   }
 
-  /* Adjust gradient cards for mobile */
   .card-gradient {
-    background: linear-gradient(
-      180deg,
-      rgba(107, 33, 168, 0.9) 0%,
-      rgba(147, 51, 234, 0.8) 100%
-    ) !important;
+    background: linear-gradient(180deg,
+        rgba(107, 33, 168, 0.9) 0%,
+        rgba(147, 51, 234, 0.8) 100%) !important;
   }
 
-  /* Stack layout adjustments */
   .flex-row-mobile {
     flex-direction: column;
     gap: var(--space-12);
@@ -1122,7 +1058,6 @@ body {
   }
 }
 
-/* Additional mobile portrait optimizations */
 @media (max-width: 480px) and (orientation: portrait) {
   .card-gradient {
     min-height: auto;
@@ -1135,7 +1070,6 @@ body {
     z-index: 100;
   }
 
-  /* Ensure text remains readable in gradients on small screens */
   .card-gradient h1,
   .card-gradient h2,
   .card-gradient h3,

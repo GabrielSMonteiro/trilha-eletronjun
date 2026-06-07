@@ -57,7 +57,6 @@ export const UserProfileModal = ({ isOpen, onClose, userId, userEmail }: UserPro
   const handleSave = async () => {
     setLoading(true);
 
-    // Update profile
     const { error: profileError } = await supabase
       .from('profiles')
       .update({
@@ -73,7 +72,6 @@ export const UserProfileModal = ({ isOpen, onClose, userId, userEmail }: UserPro
       return;
     }
 
-    // Update email if changed
     if (newEmail !== userEmail) {
       const { error: emailError } = await supabase.auth.updateUser({
         email: newEmail
@@ -111,7 +109,7 @@ export const UserProfileModal = ({ isOpen, onClose, userId, userEmail }: UserPro
               </Button>
             </DialogTitle>
           </DialogHeader>
-          
+
           <div className="space-y-4">
             <div className="flex items-center gap-3">
               <div className="h-16 w-16 rounded-full bg-primary/10 flex items-center justify-center">
@@ -122,7 +120,7 @@ export const UserProfileModal = ({ isOpen, onClose, userId, userEmail }: UserPro
                 <p className="text-sm text-muted-foreground">{profile.position || 'Sem cargo'}</p>
               </div>
             </div>
-            
+
             <div className="space-y-2">
               <div className="flex items-center gap-2 text-sm">
                 <Mail className="h-4 w-4 text-muted-foreground" />
@@ -151,7 +149,7 @@ export const UserProfileModal = ({ isOpen, onClose, userId, userEmail }: UserPro
             </Button>
           </DialogTitle>
         </DialogHeader>
-        
+
         <div className="space-y-4">
           <div className="space-y-2">
             <Label htmlFor="display_name">Nome</Label>

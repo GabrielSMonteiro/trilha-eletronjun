@@ -41,21 +41,18 @@ export const AdminDashboard = () => {
   const loadDashboardData = async () => {
     setIsLoading(true);
     try {
-      // Load basic stats
-      // Get admin user IDs
       const { data: adminRoles } = await supabase
         .from('user_roles')
         .select('user_id')
         .eq('role', 'admin');
-      
+
       const adminUserIds = adminRoles?.map(r => r.user_id) || [];
-      
+
       let usersQuery = supabase.from('profiles').select('id', { count: 'exact' });
       if (adminUserIds.length > 0) {
-        // Use array directly instead of string interpolation for safer query construction
         usersQuery = usersQuery.not('user_id', 'in', `(${adminUserIds.map(id => `"${id}"`).join(',')})`);
       }
-      
+
       const [usersResult, lessonsResult, completionsResult, categoriesResult] = await Promise.all([
         usersQuery,
         supabase.from('lessons').select('id', { count: 'exact' }),
@@ -63,10 +60,9 @@ export const AdminDashboard = () => {
         supabase.from('categories').select('id', { count: 'exact' }),
       ]);
 
-      // Active users (users with progress in last 30 days)
       const thirtyDaysAgo = new Date();
       thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
-      
+
       const { data: activeUsersData } = await supabase
         .from('user_progress')
         .select('user_id', { count: 'exact' })
@@ -82,7 +78,6 @@ export const AdminDashboard = () => {
         totalCategories: categoriesResult.count || 0,
       });
 
-      // Load recent activity
       const { data: recentData } = await supabase
         .from('user_progress')
         .select(`
@@ -106,7 +101,6 @@ export const AdminDashboard = () => {
 
       setRecentActivity(formattedActivity);
 
-      // Load category stats
       const { data: categoryData } = await supabase
         .from('category_progress')
         .select('*');
@@ -115,7 +109,7 @@ export const AdminDashboard = () => {
         category_name: cat.category_name || 'Categoria',
         total_lessons: Number(cat.total_lessons) || 0,
         total_completions: Number(cat.total_completions) || 0,
-        completion_rate: cat.total_lessons ? 
+        completion_rate: cat.total_lessons ?
           Math.round((Number(cat.total_completions) / Number(cat.total_lessons)) * 100) : 0,
       })) || [];
 
@@ -170,7 +164,6 @@ export const AdminDashboard = () => {
         <p className="text-muted-foreground">Visão geral do sistema EletronJun</p>
       </div>
 
-      {/* Stats Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
@@ -226,7 +219,6 @@ export const AdminDashboard = () => {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Recent Activity */}
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
@@ -264,7 +256,6 @@ export const AdminDashboard = () => {
           </CardContent>
         </Card>
 
-        {/* Category Statistics */}
         <Card>
           <CardHeader>
             <CardTitle>Estatísticas por Categoria</CardTitle>

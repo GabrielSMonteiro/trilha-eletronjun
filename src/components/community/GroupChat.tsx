@@ -23,8 +23,7 @@ const GroupChat = ({ group, userId, onBack }: GroupChatProps) => {
 
   useEffect(() => {
     fetchMessages();
-    
-    // Subscribe to real-time messages
+
     const channel = supabase
       .channel(`group_${group.id}`)
       .on(
@@ -89,7 +88,7 @@ const GroupChat = ({ group, userId, onBack }: GroupChatProps) => {
 
   const fetchProfile = async (userId: string) => {
     if (profiles[userId]) return;
-    
+
     const { data } = await supabase
       .from("profiles")
       .select("*")
@@ -169,11 +168,10 @@ const GroupChat = ({ group, userId, onBack }: GroupChatProps) => {
                         </span>
                       </div>
                       <div
-                        className={`rounded-lg px-3 py-2 ${
-                          isOwn
+                        className={`rounded-lg px-3 py-2 ${isOwn
                             ? 'bg-primary text-primary-foreground'
                             : 'bg-muted'
-                        }`}
+                          }`}
                       >
                         <p className="text-sm whitespace-pre-wrap">{message.content}</p>
                       </div>

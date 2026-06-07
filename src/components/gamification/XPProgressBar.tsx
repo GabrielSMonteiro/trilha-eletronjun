@@ -8,11 +8,9 @@ interface XPProgressBarProps {
 }
 
 export const XPProgressBar = ({ currentXP, currentLevel, className = "" }: XPProgressBarProps) => {
-  // Calculate XP for current and next level
   const xpForCurrentLevel = Math.pow(currentLevel - 1, 2) * 100;
   const xpForNextLevel = Math.pow(currentLevel, 2) * 100;
-  
-  // Calculate progress percentage
+
   const xpInCurrentLevel = currentXP - xpForCurrentLevel;
   const xpNeededForNextLevel = xpForNextLevel - xpForCurrentLevel;
   const progressPercentage = Math.min(100, (xpInCurrentLevel / xpNeededForNextLevel) * 100);
@@ -29,7 +27,7 @@ export const XPProgressBar = ({ currentXP, currentLevel, className = "" }: XPPro
             <div className="text-xs text-muted-foreground">{currentXP} XP Total</div>
           </div>
         </div>
-        
+
         <div className="flex items-center gap-1 text-warning">
           <Zap className="h-4 w-4" />
           <span className="text-sm font-bold">{xpInCurrentLevel}/{xpNeededForNextLevel} XP</span>
@@ -37,7 +35,7 @@ export const XPProgressBar = ({ currentXP, currentLevel, className = "" }: XPPro
       </div>
 
       <Progress value={progressPercentage} className="h-3" />
-      
+
       <div className="mt-2 text-center text-xs text-muted-foreground">
         {xpNeededForNextLevel - xpInCurrentLevel} XP para o próximo nível
       </div>

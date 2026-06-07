@@ -35,35 +35,31 @@ const FallingText = ({
 
   useEffect(() => {
     if (!textRef.current) return;
-    
+
     const words = text.split(' ');
     const fragment = document.createDocumentFragment();
-    
+
     words.forEach((word, index) => {
       const span = document.createElement('span');
       span.className = 'word';
-      
-      // Check if word should be highlighted
+
       if (highlightWords.some(hw => word.startsWith(hw))) {
-        // Sanitize class name to alphanumeric and hyphens only
         const safeClass = highlightClass.replace(/[^a-zA-Z0-9-_]/g, '');
         if (safeClass) {
           span.classList.add(safeClass);
         }
       }
-      
-      // textContent auto-escapes - safe from XSS
+
       span.textContent = word;
       fragment.appendChild(span);
-      
-      // Add space between words
+
       if (index < words.length - 1) {
         fragment.appendChild(document.createTextNode(' '));
       }
     });
-    
-    textRef.current.innerHTML = ''; // Clear
-    textRef.current.appendChild(fragment); // Safe insertion
+
+    textRef.current.innerHTML = '';
+    textRef.current.appendChild(fragment);
   }, [text, highlightWords, highlightClass]);
 
   useEffect(() => {

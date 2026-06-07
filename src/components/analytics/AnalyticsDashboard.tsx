@@ -37,7 +37,6 @@ export const AnalyticsDashboard = ({ userId }: AnalyticsDashboardProps) => {
   const [positionFilter, setPositionFilter] = useState("all");
   const [positions, setPositions] = useState<string[]>([]);
 
-  // Check if user is admin
   useEffect(() => {
     const checkAdmin = async () => {
       const { data, error } = await supabase
@@ -55,7 +54,6 @@ export const AnalyticsDashboard = ({ userId }: AnalyticsDashboardProps) => {
     checkAdmin();
   }, [userId]);
 
-  // Load all users for admin
   const loadAllUsers = async () => {
     const { data, error } = await supabase
       .from('user_analytics')
@@ -63,7 +61,6 @@ export const AnalyticsDashboard = ({ userId }: AnalyticsDashboardProps) => {
       .order('total_xp', { ascending: false });
 
     if (!error && data) {
-      // Get profiles to get positions
       const { data: profiles } = await supabase
         .from('profiles')
         .select('user_id, position');
@@ -79,13 +76,11 @@ export const AnalyticsDashboard = ({ userId }: AnalyticsDashboardProps) => {
       setAllUsers(usersWithPositions);
       setFilteredUsers(usersWithPositions);
 
-      // Extract unique positions
       const uniquePositions = Array.from(new Set(usersWithPositions.map(u => u.position)));
       setPositions(uniquePositions);
     }
   };
 
-  // Filter users based on search and position
   useEffect(() => {
     let filtered = allUsers;
 
@@ -128,7 +123,6 @@ export const AnalyticsDashboard = ({ userId }: AnalyticsDashboardProps) => {
     });
   };
 
-  // Prepare pie chart data
   const pieData = categoryAnalytics.map(cat => ({
     name: cat.category_name,
     value: cat.total_completions,
@@ -149,7 +143,6 @@ export const AnalyticsDashboard = ({ userId }: AnalyticsDashboardProps) => {
 
   return (
     <div className="space-y-6">
-      {/* Header */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
           <h2 className="text-2xl sm:text-3xl font-bold">Dashboard Analítico</h2>
@@ -208,13 +201,11 @@ export const AnalyticsDashboard = ({ userId }: AnalyticsDashboardProps) => {
         </Card>
       </div>
 
-      {/* Charts */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <ProgressChart data={progressData} />
         <StudyTimeChart data={studyTimeData} />
       </div>
 
-      {/* Pie Chart */}
       <Card>
         <CardHeader>
           <CardTitle>Distribuição Geral por Categoria</CardTitle>
@@ -235,7 +226,7 @@ export const AnalyticsDashboard = ({ userId }: AnalyticsDashboardProps) => {
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <CompletionRateChart completed={userAnalytics?.lessons_completed || 0} total={categoryAnalytics.reduce((acc, cat) => acc + cat.total_lessons, 0)} />
-        
+
         <Card>
           <CardHeader>
             <CardTitle>Desempenho por Categoria</CardTitle>

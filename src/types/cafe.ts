@@ -1,8 +1,8 @@
 export interface SoundState {
   id: string;
   name: string;
-  volume: number; // 0-1
-  pan: number; // -1 a 1
+  volume: number;
+  pan: number;
   isPlaying: boolean;
   audioElement?: HTMLAudioElement;
   gainNode?: GainNode;

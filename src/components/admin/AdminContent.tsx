@@ -26,7 +26,6 @@ import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { isValidVideoUrl } from "@/components/VideoPlayer";
 
-// Allowed video domains for URL validation helper text
 const SUPPORTED_PROVIDERS = [
   'YouTube',
   'Vimeo',
@@ -36,7 +35,6 @@ const SUPPORTED_PROVIDERS = [
   'URLs diretas de vídeo (mp4, webm)',
 ];
 
-// Schemas - video_url now only accepts external URLs (YouTube, Drive, etc.)
 const lessonSchema = z.object({
   title: z.string().min(5, "Título deve ter pelo menos 5 caracteres"),
   description: z.string().optional(),
@@ -236,8 +234,6 @@ export const AdminContent = () => {
     }
   };
 
-  // Video upload removed - only external URLs (YouTube, Drive, etc.) are now supported
-
   const onSubmitLesson = async (data: LessonForm) => {
     try {
       const videoUrl = data.video_url;
@@ -420,7 +416,7 @@ export const AdminContent = () => {
   const getFilteredLessons = () => {
     return lessons.filter(lesson => {
       const matchesCategory = selectedCategory === "all" || lesson.category_id === selectedCategory;
-      const matchesSearch = !searchTerm || 
+      const matchesSearch = !searchTerm ||
         lesson.title.toLowerCase().includes(searchTerm.toLowerCase());
       return matchesCategory && matchesSearch;
     });
@@ -428,7 +424,7 @@ export const AdminContent = () => {
 
   const getFilteredQuestions = () => {
     return questions.filter(question => {
-      const matchesSearch = !searchTerm || 
+      const matchesSearch = !searchTerm ||
         question.question_text.toLowerCase().includes(searchTerm.toLowerCase()) ||
         (question.lessons as any)?.title?.toLowerCase().includes(searchTerm.toLowerCase());
       return matchesSearch;
@@ -484,7 +480,7 @@ export const AdminContent = () => {
 
             <Dialog open={isLessonDialogOpen} onOpenChange={setIsLessonDialogOpen}>
               <DialogTrigger asChild>
-                <Button 
+                <Button
                   className="w-full sm:w-auto"
                   onClick={() => {
                     setEditingLesson(null);
@@ -549,15 +545,15 @@ export const AdminContent = () => {
                         <FormDescription className="mb-4">
                           Cole aqui o link do vídeo ({SUPPORTED_PROVIDERS.join(', ')})
                         </FormDescription>
-                        
+
                         <FormField
                           control={lessonForm.control}
                           name="video_url"
                           render={({ field }) => (
                             <FormItem>
                               <FormControl>
-                                <Input 
-                                  placeholder="https://youtube.com/watch?v=..." 
+                                <Input
+                                  placeholder="https://youtube.com/watch?v=..."
                                   {...field}
                                 />
                               </FormControl>
@@ -565,12 +561,12 @@ export const AdminContent = () => {
                             </FormItem>
                           )}
                         />
-                        
+
                         <div className="mt-3 p-3 bg-muted/50 rounded-lg">
                           <p className="text-xs text-muted-foreground flex items-start gap-2">
                             <AlertCircle className="h-3.5 w-3.5 mt-0.5 shrink-0" />
                             <span>
-                              Upload de arquivos locais foi removido. Use YouTube, Google Drive ou outro 
+                              Upload de arquivos locais foi removido. Use YouTube, Google Drive ou outro
                               provedor de vídeo para hospedar seu conteúdo.
                             </span>
                           </p>
@@ -642,9 +638,9 @@ export const AdminContent = () => {
                     </div>
 
                     <div className="flex justify-end gap-2">
-                      <Button 
-                        type="button" 
-                        variant="outline" 
+                      <Button
+                        type="button"
+                        variant="outline"
                         onClick={() => setIsLessonDialogOpen(false)}
                       >
                         Cancelar
@@ -759,7 +755,7 @@ export const AdminContent = () => {
 
             <Dialog open={isQuestionDialogOpen} onOpenChange={setIsQuestionDialogOpen}>
               <DialogTrigger asChild>
-                <Button 
+                <Button
                   className="w-full sm:w-auto"
                   onClick={() => {
                     setEditingQuestion(null);
@@ -916,9 +912,9 @@ export const AdminContent = () => {
                     />
 
                     <div className="flex justify-end gap-2">
-                      <Button 
-                        type="button" 
-                        variant="outline" 
+                      <Button
+                        type="button"
+                        variant="outline"
                         onClick={() => setIsQuestionDialogOpen(false)}
                       >
                         Cancelar
@@ -946,7 +942,6 @@ export const AdminContent = () => {
                   </div>
                 ) : (
                   (() => {
-                    // Group questions by category
                     const groupedQuestions = getFilteredQuestions().reduce((acc, question) => {
                       const categoryName = (question.lessons as any)?.categories?.display_name || "Sem categoria";
                       if (!acc[categoryName]) {
@@ -966,7 +961,7 @@ export const AdminContent = () => {
                             ({categoryQuestions.length} {categoryQuestions.length === 1 ? 'questão' : 'questões'})
                           </span>
                         </div>
-                        
+
                         <div className="space-y-3">
                           {categoryQuestions.map((question) => (
                             <div key={question.id} className="border rounded-lg p-3 md:p-4 bg-card/50">
@@ -1006,11 +1001,10 @@ export const AdminContent = () => {
                                   { label: "D", text: question.option_d, isCorrect: question.correct_answer === 3 },
                                   { label: "E", text: question.option_e, isCorrect: question.correct_answer === 4 },
                                 ].map((option) => (
-                                  <div 
-                                    key={option.label} 
-                                    className={`text-sm p-2 rounded border break-words ${
-                                      option.isCorrect ? 'bg-green-900/20 border-green-700/50 text-foreground' : 'bg-muted/50 border-border/50'
-                                    }`}
+                                  <div
+                                    key={option.label}
+                                    className={`text-sm p-2 rounded border break-words ${option.isCorrect ? 'bg-green-900/20 border-green-700/50 text-foreground' : 'bg-muted/50 border-border/50'
+                                      }`}
                                   >
                                     <span className="font-medium">{option.label}:</span> {option.text}
                                     {option.isCorrect && (

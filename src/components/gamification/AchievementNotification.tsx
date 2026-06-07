@@ -22,10 +22,8 @@ export const AchievementNotification = ({
   const [isVisible, setIsVisible] = useState(false);
 
   useEffect(() => {
-    // Animate in
     setTimeout(() => setIsVisible(true), 100);
 
-    // Auto close after 5 seconds
     const timer = setTimeout(() => {
       setIsVisible(false);
       setTimeout(onClose, 500);
@@ -58,21 +56,18 @@ export const AchievementNotification = ({
 
   return (
     <div
-      className={`fixed top-20 right-4 z-[100] transition-all duration-500 transform ${
-        isVisible ? 'translate-x-0 opacity-100' : 'translate-x-full opacity-0'
-      }`}
+      className={`fixed top-20 right-4 z-[100] transition-all duration-500 transform ${isVisible ? 'translate-x-0 opacity-100' : 'translate-x-full opacity-0'
+        }`}
     >
       <Card
         className={`bg-gradient-to-br ${getBadgeColor(badge_type)} border-2 shadow-strong p-6 max-w-sm cursor-pointer hover:scale-105 transition-transform`}
         onClick={onClose}
       >
         <div className="flex items-center gap-4">
-          {/* Icon */}
           <div className="bg-white/20 backdrop-blur-sm rounded-full p-4 animate-pulse">
             <Icon className="h-10 w-10 text-white" />
           </div>
 
-          {/* Content */}
           <div className="flex-1">
             <div className="text-white/80 text-xs font-semibold uppercase tracking-wider mb-1">
               🏆 Nova Conquista!

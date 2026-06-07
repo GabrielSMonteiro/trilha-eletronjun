@@ -132,14 +132,12 @@ export const MindMapGenerator = () => {
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
-              {/* Central Node */}
               <div className="flex justify-center mb-6">
                 <div className="px-6 py-3 rounded-lg bg-primary text-primary-foreground font-bold text-lg border-4 border-primary">
                   {mindmap.title}
                 </div>
               </div>
 
-              {/* Children Nodes */}
               <div className="space-y-4">
                 {mindmap.children.map(child => renderNode(child, 0))}
               </div>

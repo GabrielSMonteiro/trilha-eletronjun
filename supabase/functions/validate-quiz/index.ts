@@ -1,35 +1,24 @@
 import { serve } from 'https://deno.land/std@0.168.0/http/server.ts';
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 
-// Allowed origins for CORS
-const allowedOrigins = [
-  'https://capacitajun.lovable.app',
-  'https://id-preview--49237a54-d6b9-46c3-8832-ee93741bf305.lovable.app',
-  'http://localhost:5173',
-  'http://localhost:8080'
-];
+const corsHeaders = {
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+  'Access-Control-Allow-Methods': 'POST, OPTIONS',
+};
 
-function getCorsHeaders(req: Request) {
-  const origin = req.headers.get('Origin') || '';
-  const allowedOrigin = allowedOrigins.includes(origin) ? origin : allowedOrigins[0];
-  
-  return {
-    'Access-Control-Allow-Origin': allowedOrigin,
-    'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
-    'Access-Control-Allow-Methods': 'POST, OPTIONS',
-  };
+function getCorsHeaders(_req: Request) {
+  return corsHeaders;
 }
 
 serve(async (req) => {
   const corsHeaders = getCorsHeaders(req);
-  
-  // Handle CORS preflight requests
+
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
   }
 
   try {
-    // Extract and verify authorization
     const authHeader = req.headers.get('Authorization');
     if (!authHeader) {
       console.error('[validate-quiz] Missing authorization header');
@@ -51,15 +40,12 @@ serve(async (req) => {
       );
     }
 
-    // Create admin client for data access
     const supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey);
 
-    // Create user client to verify auth
     const supabaseUser = createClient(supabaseUrl, supabaseAnonKey, {
       global: { headers: { Authorization: authHeader } }
     });
 
-    // Verify authenticated user
     const { data: { user }, error: authError } = await supabaseUser.auth.getUser();
     if (authError || !user) {
       console.error('[validate-quiz] Authentication failed:', authError?.message);
@@ -70,7 +56,7 @@ serve(async (req) => {
     }
 
     const { answers, lessonId } = await req.json();
-    
+
     if (!lessonId || typeof lessonId !== 'string') {
       console.error('[validate-quiz] Missing or invalid lessonId');
       return new Response(
@@ -87,7 +73,6 @@ serve(async (req) => {
       );
     }
 
-    // Limit answers array length to prevent DOS
     if (answers.length > 100) {
       console.error('[validate-quiz] Too many answers:', answers.length);
       return new Response(
@@ -96,7 +81,6 @@ serve(async (req) => {
       );
     }
 
-    // Check for duplicate question IDs
     const questionIds = answers.map((a: { questionId: string }) => a.questionId);
     if (new Set(questionIds).size !== questionIds.length) {
       console.error('[validate-quiz] Duplicate question IDs detected');
@@ -105,10 +89,9 @@ serve(async (req) => {
         { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
-    
+
     console.log('[validate-quiz] Validating answers:', { userId: user.id, lessonId, answerCount: answers.length });
 
-    // Validate all answers in parallel
     const validationResults = await Promise.all(
       answers.map(async ({ questionId, userAnswer }: { questionId: string; userAnswer: number }) => {
         try {
@@ -116,11 +99,10 @@ serve(async (req) => {
             throw new Error('Invalid question ID');
           }
 
-          // Validate answer range
           if (typeof userAnswer !== 'number' || userAnswer < 0 || userAnswer > 3 || !Number.isInteger(userAnswer)) {
             throw new Error('Invalid answer value');
           }
-          
+
           const { data, error } = await supabaseAdmin
             .from('questions')
             .select('correct_answer, lesson_id')
@@ -132,7 +114,6 @@ serve(async (req) => {
             throw new Error('Question not found');
           }
 
-          // Verify question belongs to lesson (prevents ID guessing)
           if (data.lesson_id !== lessonId) {
             console.error('[validate-quiz] Question-lesson mismatch:', { questionId, lessonId });
             throw new Error('Invalid question');
@@ -140,7 +121,7 @@ serve(async (req) => {
 
           const isCorrect = userAnswer === data.correct_answer;
           console.log('[validate-quiz] Validated answer:', { questionId, isCorrect });
-          
+
           return { questionId, isCorrect };
         } catch (err) {
           console.error('[validate-quiz] Validation error for question:', { questionId, error: err });
@@ -156,7 +137,6 @@ serve(async (req) => {
 
     console.log('[validate-quiz] Complete:', { userId: user.id, correctCount, totalQuestions, score, passed });
 
-    // Save authenticated user progress
     const { error: progressError } = await supabaseAdmin
       .from('user_progress')
       .upsert({
@@ -168,16 +148,15 @@ serve(async (req) => {
 
     if (progressError) {
       console.error('[validate-quiz] Error saving user progress:', progressError.message);
-      // Don't fail the request if progress save fails
     }
 
     return new Response(
-      JSON.stringify({ 
-        correctCount, 
-        totalQuestions, 
-        score, 
+      JSON.stringify({
+        correctCount,
+        totalQuestions,
+        score,
         passed,
-        results: validationResults 
+        results: validationResults
       }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );

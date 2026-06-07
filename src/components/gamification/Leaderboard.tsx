@@ -95,25 +95,21 @@ export const Leaderboard = ({ userId, className = "" }: LeaderboardProps) => {
               globalLeaderboard.map((entry) => (
                 <div
                   key={entry.user_id}
-                  className={`flex items-center gap-3 p-3 rounded-lg border-2 transition-all duration-300 hover:shadow-medium ${
-                    entry.user_id === userId
+                  className={`flex items-center gap-3 p-3 rounded-lg border-2 transition-all duration-300 hover:shadow-medium ${entry.user_id === userId
                       ? 'bg-primary/10 border-primary'
                       : 'bg-card border-border'
-                  }`}
+                    }`}
                 >
-                  {/* Rank */}
                   <div className={`flex items-center justify-center w-12 h-12 rounded-full ${getRankBadgeColor(entry.rank)}`}>
                     {getRankIcon(entry.rank)}
                   </div>
 
-                  {/* Avatar */}
                   <Avatar className="h-10 w-10 border-2 border-border">
                     <AvatarFallback className="bg-gradient-secondary text-secondary-foreground">
                       {entry.display_name?.charAt(0) || '?'}
                     </AvatarFallback>
                   </Avatar>
 
-                  {/* User Info */}
                   <div className="flex-1 min-w-0">
                     <div className="font-semibold text-foreground truncate">
                       {entry.display_name || 'Usuário'}
@@ -125,8 +121,6 @@ export const Leaderboard = ({ userId, className = "" }: LeaderboardProps) => {
                       {entry.lessons_completed} lições • {entry.badges_earned} conquistas
                     </div>
                   </div>
-
-                  {/* Stats */}
                   <div className="text-right">
                     <div className="text-sm font-bold text-foreground">
                       Nível {entry.current_level}

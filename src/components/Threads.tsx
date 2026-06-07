@@ -137,17 +137,16 @@ const Threads: React.FC<ThreadsProps> = ({ color = [1, 1, 1], amplitude = 1, dis
 
     let renderer;
     let gl;
-    
+
     try {
       renderer = new Renderer({ alpha: true });
       gl = renderer.gl;
-      
-      // Check if WebGL context was created successfully
+
       if (!gl || !gl.canvas) {
         console.warn('WebGL context creation failed. Threads component will not render.');
         return;
       }
-      
+
       gl.clearColor(0, 0, 0, 0);
       gl.enable(gl.BLEND);
       gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);

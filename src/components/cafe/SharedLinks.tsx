@@ -38,7 +38,6 @@ export const SharedLinks = () => {
   }, []);
 
   const loadLinks = async () => {
-    // Use the public view that doesn't expose user_id
     const { data, error } = await supabase
       .from('shared_links_public')
       .select('*')
@@ -50,17 +49,14 @@ export const SharedLinks = () => {
       return;
     }
 
-    // Map the public view data to our interface (user_id won't be available)
     const linksWithPlaceholder = (data || []).map(link => ({
       ...link,
-      user_id: '', // user_id is not exposed in public view
+      user_id: '',
       description: link.description || null,
     }));
 
     setLinks(linksWithPlaceholder);
-    
-    // Since user_id is not exposed in the public view, we can't load profiles
-    // Display "Comunidade" instead of individual usernames for privacy
+
     setUserProfiles({});
   };
 

@@ -1,13 +1,13 @@
 import { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
-import { 
-  Menu, 
-  X, 
-  Home, 
-  BookOpen, 
-  Sparkles, 
-  BarChart3, 
-  Users, 
+import {
+  Menu,
+  X,
+  Home,
+  BookOpen,
+  Sparkles,
+  BarChart3,
+  Users,
   Coffee,
   Settings,
   LogOut
@@ -30,39 +30,39 @@ interface MobileNavProps {
 }
 
 const navItems: NavItem[] = [
-  { 
-    label: "Início", 
-    href: "/", 
+  {
+    label: "Início",
+    href: "/",
     icon: <Home className="h-5 w-5" />,
     description: "Página inicial"
   },
-  { 
-    label: "Trilhas", 
-    href: "/app", 
+  {
+    label: "Trilhas",
+    href: "/app",
     icon: <BookOpen className="h-5 w-5" />,
     description: "Suas trilhas de aprendizado"
   },
-  { 
-    label: "Assistente IA", 
-    href: "/ai", 
+  {
+    label: "Assistente IA",
+    href: "/ai",
     icon: <Sparkles className="h-5 w-5" />,
     description: "Ferramentas de inteligência artificial"
   },
-  { 
-    label: "Estatísticas", 
-    href: "/analytics", 
+  {
+    label: "Estatísticas",
+    href: "/analytics",
     icon: <BarChart3 className="h-5 w-5" />,
     description: "Seu progresso e métricas"
   },
-  { 
-    label: "Comunidade", 
-    href: "/community", 
+  {
+    label: "Comunidade",
+    href: "/community",
     icon: <Users className="h-5 w-5" />,
     description: "Fóruns e grupos de estudo"
   },
-  { 
-    label: "Café de Estudos", 
-    href: "/cafe", 
+  {
+    label: "Café de Estudos",
+    href: "/cafe",
     icon: <Coffee className="h-5 w-5" />,
     description: "Ambiente de foco com som ambiente"
   },
@@ -71,7 +71,7 @@ const navItems: NavItem[] = [
 export const MobileNav = ({ onSignOut, userEmail, userName }: MobileNavProps) => {
   const [open, setOpen] = useState(false);
   const location = useLocation();
-  
+
   const isActive = (href: string) => {
     if (href === '/') {
       return location.pathname === '/';
@@ -82,16 +82,16 @@ export const MobileNav = ({ onSignOut, userEmail, userName }: MobileNavProps) =>
   return (
     <Sheet open={open} onOpenChange={setOpen}>
       <SheetTrigger asChild>
-        <Button 
-          variant="ghost" 
-          size="sm" 
+        <Button
+          variant="ghost"
+          size="sm"
           className="md:hidden h-9 w-9 p-0"
           aria-label="Abrir menu de navegação"
         >
           <Menu className="h-5 w-5" />
         </Button>
       </SheetTrigger>
-      
+
       <SheetContent side="left" className="w-[300px] sm:w-[350px] p-0">
         <SheetHeader className="p-4 border-b border-border">
           <SheetTitle className="flex items-center gap-3">
@@ -110,7 +110,7 @@ export const MobileNav = ({ onSignOut, userEmail, userName }: MobileNavProps) =>
             </div>
           </SheetTitle>
         </SheetHeader>
-        
+
         <nav className="flex-1 p-4">
           <ul className="space-y-1">
             {navItems.map((item) => (
@@ -145,8 +145,7 @@ export const MobileNav = ({ onSignOut, userEmail, userName }: MobileNavProps) =>
             ))}
           </ul>
         </nav>
-        
-        {/* User section */}
+
         <div className="mt-auto p-4 border-t border-border">
           {(userName || userEmail) && (
             <div className="mb-4 px-3">
@@ -158,7 +157,7 @@ export const MobileNav = ({ onSignOut, userEmail, userName }: MobileNavProps) =>
               )}
             </div>
           )}
-          
+
           {onSignOut && (
             <Button
               variant="outline"

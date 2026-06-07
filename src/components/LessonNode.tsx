@@ -46,11 +46,10 @@ export const LessonNode = ({ title, status, position, onClick }: LessonNodeProps
 
   return (
     <div className={cn("flex flex-col items-center gap-2 relative", getPositionStyles())}>
-      {/* Pulse ring animation for available lessons */}
       {status === "available" && (
         <div className="absolute inset-0 rounded-full bg-secondary/30 animate-pulse-ring"></div>
       )}
-      
+
       <Button
         onClick={onClick}
         disabled={status === "locked"}
@@ -61,7 +60,7 @@ export const LessonNode = ({ title, status, position, onClick }: LessonNodeProps
       >
         {getStatusIcon()}
       </Button>
-      
+
       <span className={cn(
         "text-xs font-medium text-center max-w-20 leading-tight",
         status === "locked" ? "text-muted-foreground" : "text-foreground"

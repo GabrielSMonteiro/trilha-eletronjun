@@ -18,7 +18,6 @@ export const GamificationSummary = ({
 }: GamificationSummaryProps) => {
   return (
     <div className={`grid grid-cols-2 md:grid-cols-4 gap-4 ${className}`}>
-      {/* Level */}
       <Card className="p-4 bg-gradient-to-br from-purple-600 to-purple-800 border-2 border-purple-500/50 shadow-medium hover:shadow-strong transition-all duration-300">
         <div className="flex items-center gap-3">
           <div className="bg-white/20 backdrop-blur-sm rounded-full p-2">
@@ -31,7 +30,6 @@ export const GamificationSummary = ({
         </div>
       </Card>
 
-      {/* XP */}
       <Card className="p-4 bg-gradient-to-br from-amber-500 to-orange-600 border-2 border-amber-500/50 shadow-medium hover:shadow-strong transition-all duration-300">
         <div className="flex items-center gap-3">
           <div className="bg-white/20 backdrop-blur-sm rounded-full p-2">
@@ -44,7 +42,6 @@ export const GamificationSummary = ({
         </div>
       </Card>
 
-      {/* Streak */}
       <Card className="p-4 bg-gradient-to-br from-red-500 to-orange-500 border-2 border-red-500/50 shadow-medium hover:shadow-strong transition-all duration-300">
         <div className="flex items-center gap-3">
           <div className="bg-white/20 backdrop-blur-sm rounded-full p-2">
@@ -57,7 +54,6 @@ export const GamificationSummary = ({
         </div>
       </Card>
 
-      {/* Badges */}
       <Card className="p-4 bg-gradient-to-br from-blue-600 to-indigo-700 border-2 border-blue-500/50 shadow-medium hover:shadow-strong transition-all duration-300">
         <div className="flex items-center gap-3">
           <div className="bg-white/20 backdrop-blur-sm rounded-full p-2">

@@ -46,7 +46,7 @@ const ResetPassword = () => {
   });
 
   useEffect(() => {
-    // Check if user has valid recovery session
+    // Verifica sessão de recuperação
     const checkSession = async () => {
       const { data: { session } } = await supabase.auth.getSession();
       if (!session) {
@@ -93,7 +93,6 @@ const ResetPassword = () => {
 
   return (
     <div className="min-h-screen bg-background flex flex-col">
-      {/* Header */}
       <div className="sticky top-0 z-40 bg-card/80 backdrop-blur-sm border-b border-border shadow-soft">
         <div className="max-w-4xl mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
@@ -121,14 +120,13 @@ const ResetPassword = () => {
         </div>
       </div>
 
-      {/* Reset Password Content */}
       <div className="flex-1 flex items-center justify-center p-4">
         <Card className="w-full max-w-md">
           <CardHeader className="text-center">
             <div className="mx-auto mb-4 bg-gradient-primary rounded-xl p-4 w-fit">
               <span className="text-primary-foreground font-bold text-2xl">
                 <img
-                  src="public/Logo-EletronJun.png"
+                  src="/Logo-EletronJun.png"
                   alt="EletronJun Logo"
                   className="w-20 h-20 mb-8 mx-auto object-contain"
                 />

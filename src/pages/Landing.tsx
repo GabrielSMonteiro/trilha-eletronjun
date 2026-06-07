@@ -80,14 +80,13 @@ const Landing = () => {
   return (
     <div className="min-h-screen relative bg-gradient-to-b from-black via-purple-950 to-black">
       <HyperspeedBackground />
-      {/* Header */}
       <div className="bg-card/80 backdrop-blur-sm border-b border-border shadow-soft">
         <div className="max-w-6xl mx-auto px-4 py-4 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <div className="bg-gradient-primary rounded-xl p-2">
               <span className="text-white font-bold text-xl">
                 <img
-                  src="public/Logo-EletronJun.png"
+                  src="/Logo-EletronJun.png"
                   alt="EletronJun Logo"
                   className="w-20 h-20 mb-8 mx-auto object-contain"
                 />
@@ -114,7 +113,6 @@ const Landing = () => {
       </div>
 
       <div className="max-w-6xl mx-auto px-4 py-12">
-        {/* Hero Section */}
         <div className="text-center mb-16">
           <Badge variant="secondary" className="mb-6 bg-gradient-secondary">
             🚀 <ShinyText text="Sistema de Capacitações EletronJUN" speed={3} />
@@ -154,7 +152,6 @@ const Landing = () => {
           </div>
         </div>
 
-        {/* Features Grid */}
         <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 mb-16">
           {features.map((feature, index) => (
             <Card
@@ -174,7 +171,6 @@ const Landing = () => {
           ))}
         </div>
 
-        {/* Categories Preview */}
         <div className="text-center mb-16">
           <h2 className="text-3xl font-bold text-white mb-8">
             <span className="mr-3">Capacite-se em</span>
@@ -193,7 +189,6 @@ const Landing = () => {
           </h2>
         </div>
 
-        {/* How it Works */}
         <div className="bg-gradient-to-br from-purple-900/40 to-purple-950/60 rounded-3xl p-8 shadow-medium border-2 border-purple-700/30 mb-16">
           <h2 className="text-3xl font-bold text-center text-white mb-8">
             Como Funciona
@@ -242,7 +237,6 @@ const Landing = () => {
           </div>
         </div>
 
-        {/* Threads Effect */}
         <div style={{ width: '100%', height: '400px', position: 'relative', marginBottom: '4rem' }}>
           <Threads
             color={[0, 0.8, 0.4]}
@@ -252,7 +246,6 @@ const Landing = () => {
           />
         </div>
 
-        {/* Social Media */}
         <div className="mb-16">
           <h2 className="text-3xl font-bold text-center text-white mb-8">
             Siga a EletronJun
@@ -272,7 +265,6 @@ const Landing = () => {
           </div>
         </div>
 
-        {/* CTA Section */}
         <div className="text-center mt-16">
           <h2 className="text-3xl font-bold text-white mb-4">
             Pronto para começar sua jornada?

@@ -16,7 +16,6 @@ export const StreakDisplay = ({ currentStreak, longestStreak, className = "" }: 
 
   return (
     <div className={`flex gap-4 ${className}`}>
-      {/* Current Streak */}
       <div className={`flex-1 bg-gradient-to-br ${getStreakColor(currentStreak)} rounded-xl p-4 shadow-medium border-2 border-white/20`}>
         <div className="flex items-center justify-between">
           <div>
@@ -35,7 +34,6 @@ export const StreakDisplay = ({ currentStreak, longestStreak, className = "" }: 
         </div>
       </div>
 
-      {/* Longest Streak */}
       <div className="flex-1 bg-gradient-to-br from-purple-600 to-indigo-700 rounded-xl p-4 shadow-medium border-2 border-white/20">
         <div className="flex items-center justify-between">
           <div>

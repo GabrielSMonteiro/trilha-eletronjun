@@ -2,11 +2,11 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { 
-  Coffee, 
-  KanbanSquare, 
-  Pencil, 
-  ChevronLeft, 
+import {
+  Coffee,
+  KanbanSquare,
+  Pencil,
+  ChevronLeft,
   ChevronRight,
   Trophy,
   Zap,
@@ -53,7 +53,6 @@ export const QuickAccessSidebar = ({
         isExpanded ? "w-64" : "w-14"
       )}
     >
-      {/* Toggle Button */}
       <Button
         variant="ghost"
         size="sm"
@@ -68,14 +67,12 @@ export const QuickAccessSidebar = ({
       </Button>
 
       <div className="flex-1 overflow-y-auto p-3 space-y-3">
-        {/* Gamification Summary - Compact */}
         {gamificationData && (
           <div className={cn("space-y-2", !isExpanded && "hidden")}>
             <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider px-1">
               Seu Progresso
             </h3>
-            
-            {/* Level Card */}
+
             <Card className="p-3 bg-gradient-to-br from-purple-600 to-purple-800 border-purple-500/50">
               <div className="flex items-center gap-2">
                 <div className="bg-white/20 rounded-full p-1.5">
@@ -90,7 +87,6 @@ export const QuickAccessSidebar = ({
               </div>
             </Card>
 
-            {/* XP Card */}
             <Card className="p-3 bg-gradient-to-br from-amber-500 to-orange-600 border-amber-500/50">
               <div className="flex items-center gap-2">
                 <div className="bg-white/20 rounded-full p-1.5">
@@ -105,7 +101,6 @@ export const QuickAccessSidebar = ({
               </div>
             </Card>
 
-            {/* Streak Card */}
             <Card className="p-3 bg-gradient-to-br from-red-500 to-orange-500 border-red-500/50">
               <div className="flex items-center gap-2">
                 <div className="bg-white/20 rounded-full p-1.5">
@@ -120,7 +115,6 @@ export const QuickAccessSidebar = ({
               </div>
             </Card>
 
-            {/* Badges Card */}
             <Card className="p-3 bg-gradient-to-br from-blue-600 to-indigo-700 border-blue-500/50">
               <div className="flex items-center gap-2">
                 <div className="bg-white/20 rounded-full p-1.5">
@@ -137,7 +131,6 @@ export const QuickAccessSidebar = ({
           </div>
         )}
 
-        {/* Collapsed state - show icons only */}
         {!isExpanded && gamificationData && (
           <div className="space-y-2">
             <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-purple-600 to-purple-800 flex items-center justify-center mx-auto" title={`Nível ${gamificationData.current_level}`}>
@@ -155,17 +148,14 @@ export const QuickAccessSidebar = ({
           </div>
         )}
 
-        {/* Divider */}
         <div className={cn("border-t border-border my-3", !isExpanded && "mx-1")} />
 
-        {/* Quick Access Buttons */}
         <div className={cn("space-y-2", !isExpanded && "hidden")}>
           <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider px-1">
             Ferramentas
           </h3>
         </div>
 
-        {/* Café Button */}
         <Button
           onClick={() => navigate('/cafe')}
           className={cn(
@@ -178,14 +168,13 @@ export const QuickAccessSidebar = ({
           {isExpanded && <span>Cafeteria Virtual</span>}
         </Button>
 
-        {/* Kanban Button */}
         <Button
           onClick={onOpenKanban}
           variant={isKanbanOpen ? "default" : "outline"}
           className={cn(
             "transition-all duration-300",
-            isKanbanOpen 
-              ? "bg-gradient-to-br from-purple-500 to-indigo-600 text-white" 
+            isKanbanOpen
+              ? "bg-gradient-to-br from-purple-500 to-indigo-600 text-white"
               : "hover:border-purple-500/50",
             isExpanded ? "w-full justify-start gap-3" : "w-8 h-8 p-0 mx-auto"
           )}
@@ -195,14 +184,13 @@ export const QuickAccessSidebar = ({
           {isExpanded && <span>Meu Progresso</span>}
         </Button>
 
-        {/* Notes Button */}
         <Button
           onClick={onOpenNotes}
           variant={isNotesOpen ? "default" : "outline"}
           className={cn(
             "transition-all duration-300",
-            isNotesOpen 
-              ? "bg-gradient-to-br from-amber-500 to-orange-600 text-white" 
+            isNotesOpen
+              ? "bg-gradient-to-br from-amber-500 to-orange-600 text-white"
               : "hover:border-orange-500/50",
             isExpanded ? "w-full justify-start gap-3" : "w-8 h-8 p-0 mx-auto"
           )}
@@ -216,7 +204,6 @@ export const QuickAccessSidebar = ({
   );
 };
 
-// Mobile version - bottom sheet trigger
 export const QuickAccessMobileTrigger = ({
   onOpenSidebar,
 }: {

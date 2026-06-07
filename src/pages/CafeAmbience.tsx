@@ -44,12 +44,12 @@ const CafeAmbience = () => {
   useEffect(() => {
     const initializeSounds = async () => {
       initAudioContext();
-      
+
       // Carregar sons em sequência para evitar problemas
       for (const sound of AVAILABLE_SOUNDS) {
         await loadSound(sound.id);
       }
-      
+
       setIsLoadingSounds(false);
       console.log('Todos os sons carregados');
     };
@@ -79,7 +79,7 @@ const CafeAmbience = () => {
       await cafeService.endSession(sessionId, durationMinutes);
       const points = Math.floor(durationMinutes / 5);
       toast.success(`Você ganhou ${points} pontos! 🎉`);
-      
+
       startSession();
     }
   };
@@ -144,7 +144,7 @@ const CafeAmbience = () => {
             <ArrowLeft className="h-4 w-4" />
             Voltar
           </Button>
-          
+
           <div className="flex items-center gap-2">
             <SpotifyPlayer />
             <ThemeToggle />
@@ -152,9 +152,7 @@ const CafeAmbience = () => {
         </div>
       </header>
 
-      {/* Main Content */}
       <main className="max-w-6xl mx-auto px-4 sm:px-6 py-8">
-        {/* Hero Section */}
         <div className="text-center mb-12">
           <h1 className="text-4xl sm:text-5xl font-bold mb-3 text-[var(--cafe-text)]">
             EletronFé
@@ -162,18 +160,14 @@ const CafeAmbience = () => {
           <p className="text-lg text-[var(--cafe-text-muted)] mb-8">
             Aproveite e fique um pouco.
           </p>
-          
+
           <CafeIllustration />
         </div>
 
-        {/* Sound Placeholder Alert */}
         <SoundPlaceholder />
 
-        {/* Controls Grid */}
         <div className="grid lg:grid-cols-[1fr,400px] gap-8 items-start">
-          {/* Sound Controls */}
           <div className="space-y-6">
-            {/* Master Controls */}
             <div className="bg-[var(--cafe-card)] rounded-xl p-6 border border-[var(--cafe-border)]">
               <div className="flex items-center justify-between mb-4">
                 <h2 className="text-xl font-semibold text-[var(--cafe-text)]">Controles</h2>
@@ -206,7 +200,6 @@ const CafeAmbience = () => {
               </div>
             </div>
 
-            {/* Sound Tab Bar */}
             <div className="bg-[var(--cafe-card)] rounded-xl p-6 border border-[var(--cafe-border)]">
               <SoundTabBar
                 sounds={sounds}
@@ -216,7 +209,6 @@ const CafeAmbience = () => {
             </div>
           </div>
 
-          {/* Sidebar */}
           <div className="space-y-6">
             <PresetManager
               onLoadPreset={loadPreset}
@@ -224,12 +216,11 @@ const CafeAmbience = () => {
             />
 
             <StudyTimer onComplete={handleTimerComplete} />
-            
+
             <TodoList />
           </div>
         </div>
 
-        {/* Shared Links Section */}
         <div className="mt-8">
           <SharedLinks />
         </div>

@@ -2,13 +2,13 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { 
-  Home, 
-  Users, 
-  BookOpen, 
-  BarChart, 
-  LogOut, 
-  Menu, 
+import {
+  Home,
+  Users,
+  BookOpen,
+  BarChart,
+  LogOut,
+  Menu,
   X,
   Zap,
   Folder,
@@ -85,10 +85,8 @@ export const AdminLayout = ({ user }: AdminLayoutProps) => {
 
   return (
     <div className="min-h-screen bg-background flex w-full">
-      {/* Desktop Sidebar */}
       <div className="hidden lg:flex lg:w-80 lg:flex-col lg:fixed lg:inset-y-0">
         <div className="flex-1 flex flex-col min-h-0 bg-card border-r border-border">
-          {/* Header */}
           <div className="flex items-center h-16 px-6 border-b border-border">
             <div className="flex items-center gap-3">
               <div className="bg-gradient-primary rounded-xl p-2">
@@ -101,7 +99,6 @@ export const AdminLayout = ({ user }: AdminLayoutProps) => {
             </div>
           </div>
 
-          {/* Navigation */}
           <nav className="flex-1 px-4 py-6 space-y-2">
             {navigation.map((item) => {
               const Icon = item.icon;
@@ -119,7 +116,6 @@ export const AdminLayout = ({ user }: AdminLayoutProps) => {
             })}
           </nav>
 
-          {/* User Profile */}
           <div className="p-4 border-t border-border">
             <div className="flex items-center gap-3 mb-3">
               <Avatar className="h-10 w-10">
@@ -148,7 +144,6 @@ export const AdminLayout = ({ user }: AdminLayoutProps) => {
         </div>
       </div>
 
-      {/* Mobile Sidebar */}
       {sidebarOpen && (
         <div className="lg:hidden fixed inset-0 z-50 flex">
           <div className="fixed inset-0 bg-black/50" onClick={() => setSidebarOpen(false)} />
@@ -164,7 +159,6 @@ export const AdminLayout = ({ user }: AdminLayoutProps) => {
               </Button>
             </div>
 
-            {/* Header */}
             <div className="flex items-center h-16 px-6 border-b border-border">
               <div className="flex items-center gap-3">
                 <div className="bg-gradient-primary rounded-xl p-2">
@@ -177,7 +171,6 @@ export const AdminLayout = ({ user }: AdminLayoutProps) => {
               </div>
             </div>
 
-            {/* Navigation */}
             <nav className="flex-1 px-4 py-6 space-y-2">
               {navigation.map((item) => {
                 const Icon = item.icon;
@@ -198,7 +191,6 @@ export const AdminLayout = ({ user }: AdminLayoutProps) => {
               })}
             </nav>
 
-            {/* User Profile */}
             <div className="p-4 border-t border-border">
               <div className="flex items-center gap-3 mb-3">
                 <Avatar className="h-10 w-10">
@@ -228,9 +220,7 @@ export const AdminLayout = ({ user }: AdminLayoutProps) => {
         </div>
       )}
 
-      {/* Main Content */}
       <div className="lg:pl-80 flex flex-col flex-1">
-        {/* Mobile Header */}
         <div className="lg:hidden sticky top-0 z-40 bg-card/80 backdrop-blur-sm border-b border-border">
           <div className="flex items-center justify-between h-16 px-4">
             <Button
@@ -240,7 +230,7 @@ export const AdminLayout = ({ user }: AdminLayoutProps) => {
             >
               <Menu className="h-6 w-6" />
             </Button>
-            
+
             <div className="flex items-center gap-3">
               <div className="bg-gradient-primary rounded-xl p-2">
                 <Zap className="h-5 w-5 text-primary-foreground" />
@@ -257,7 +247,6 @@ export const AdminLayout = ({ user }: AdminLayoutProps) => {
           </div>
         </div>
 
-        {/* Content Area */}
         <main className="flex-1 p-6">
           {renderContent()}
         </main>

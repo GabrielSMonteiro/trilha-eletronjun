@@ -2,20 +2,9 @@ import "https://deno.land/x/xhr@0.1.0/mod.ts";
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 
-// Allowed origins for CORS
-const allowedOrigins = [
-  'https://capacitajun.lovable.app',
-  'https://id-preview--49237a54-d6b9-46c3-8832-ee93741bf305.lovable.app',
-  'http://localhost:5173',
-  'http://localhost:8080'
-];
-
 function getCorsHeaders(req: Request) {
-  const origin = req.headers.get('Origin') || '';
-  const allowedOrigin = allowedOrigins.includes(origin) ? origin : allowedOrigins[0];
-  
   return {
-    'Access-Control-Allow-Origin': allowedOrigin,
+    'Access-Control-Allow-Origin': '*',
     'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
     'Access-Control-Allow-Methods': 'POST, OPTIONS',
   };
@@ -77,8 +66,8 @@ serve(async (req) => {
     // Validate count
     const validCount = Math.min(Math.max(1, Number(count) || 5), 20);
 
-    const LOVABLE_API_KEY = Deno.env.get('LOVABLE_API_KEY');
-    if (!LOVABLE_API_KEY) {
+    const GEMINI_API_KEY = Deno.env.get('GEMINI_API_KEY');
+    if (!GEMINI_API_KEY) {
       console.error('[generate-flashcards] Missing API key configuration');
       return new Response(
         JSON.stringify({ error: 'Service temporarily unavailable' }),
@@ -86,14 +75,14 @@ serve(async (req) => {
       );
     }
 
-    const response = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
+    const response = await fetch('https://generativelanguage.googleapis.com/v1beta/openai/chat/completions', {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer ${LOVABLE_API_KEY}`,
+        'Authorization': `Bearer ${GEMINI_API_KEY}`,
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: 'google/gemini-2.5-flash',
+        model: 'gemini-2.5-flash',
         messages: [
           {
             role: 'system',

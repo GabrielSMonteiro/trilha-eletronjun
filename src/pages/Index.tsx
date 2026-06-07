@@ -20,7 +20,7 @@ import { Trophy, User, ArrowLeft, LogOut, Users, BarChart3, Sparkles, Menu } fro
 import { NotificationCenter } from "@/components/NotificationCenter";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
-import type { User as SupabaseUser, Session } from "@supabase/supabase-js";
+import { useAuth } from "@/contexts/AuthContext";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 
 interface Profile {
@@ -56,8 +56,7 @@ interface UserProgress {
 }
 
 const Index = () => {
-  const [user, setUser] = useState<SupabaseUser | null>(null);
-  const [session, setSession] = useState<Session | null>(null);
+  const { user, session, isLoading: authLoading } = useAuth();
   const [profile, setProfile] = useState<Profile | null>(null);
   const [categories, setCategories] = useState<Category[]>([]);
   const [lessons, setLessons] = useState<Lesson[]>([]);
@@ -75,8 +74,7 @@ const Index = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const { addNotification } = useNotifications();
-  
-  // Connect gamification notifications to the notification center
+
   useEffect(() => {
     setGamificationNotificationCallback((notification) => {
       addNotification(notification);
@@ -85,7 +83,6 @@ const Index = () => {
       setGamificationNotificationCallback(null);
     };
   }, [addNotification]);
-  // Gamification hook
   const {
     gamificationData,
     userBadges,
@@ -95,53 +92,29 @@ const Index = () => {
     checkAndAwardBadges,
   } = useGamification(user?.id);
 
-  // Authentication setup
   useEffect(() => {
-    // Set up auth state listener
-    const {
-      data: { subscription },
-    } = supabase.auth.onAuthStateChange((event, session) => {
-      setSession(session);
-      setUser(session?.user ?? null);
+    if (!authLoading && !user) {
+      navigate("/auth");
+    }
+  }, [user, authLoading, navigate]);
 
-      if (!session?.user) {
-        navigate("/auth");
-      }
-    });
-
-    // Check for existing session
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setSession(session);
-      setUser(session?.user ?? null);
-
-      if (!session?.user) {
-        navigate("/auth");
-      }
-    });
-
-    return () => subscription.unsubscribe();
-  }, [navigate]);
-
-  // Load user profile
   useEffect(() => {
     if (user) {
       loadProfile();
     }
   }, [user]);
 
-  // Load categories
   useEffect(() => {
     loadCategories();
   }, []);
 
-  // Set first category as default when categories load
+  // Define primeira categoria como padrão
   useEffect(() => {
     if (categories.length > 0 && !selectedCategory) {
       setSelectedCategory(categories[0].name);
     }
   }, [categories, selectedCategory]);
 
-  // Load lessons and progress when category changes
   useEffect(() => {
     if (selectedCategory && user) {
       loadLessonsAndProgress();
@@ -190,7 +163,6 @@ const Index = () => {
 
     setIsLoading(true);
     try {
-      // Load lessons for selected category
       const { data: lessonsData, error: lessonsError } = await supabase
         .from("lessons")
         .select(
@@ -213,7 +185,6 @@ const Index = () => {
         return;
       }
 
-      // Load user progress
       const { data: progressData, error: progressError } = await supabase
         .from("user_progress")
         .select("lesson_id, completed_at, score")
@@ -226,7 +197,7 @@ const Index = () => {
         setUserProgress(progressData || []);
       }
 
-      // Process lessons with status based on progress
+      // Define status das lições com base no progresso
       const processedLessons = (lessonsData || []).map((lesson, index) => {
         const progress = progressData?.find((p) => p.lesson_id === lesson.id);
 
@@ -235,10 +206,10 @@ const Index = () => {
         if (progress?.completed_at) {
           status = "completed";
         } else if (index === 0) {
-          // First lesson is always available
+          // A primeira lição sempre fica disponível
           status = "available";
         } else {
-          // Check if previous lesson is completed
+          // Libera se a lição anterior foi concluída
           const prevLesson = lessonsData[index - 1];
           const prevProgress = progressData?.find(
             (p) => p.lesson_id === prevLesson.id
@@ -251,7 +222,7 @@ const Index = () => {
         return {
           ...lesson,
           status,
-          questions: [], // Will be loaded when lesson is opened
+          questions: [], // Carregado sob demanda
         };
       });
 
@@ -270,46 +241,19 @@ const Index = () => {
   };
 
   const handleLessonComplete = async (lessonId: string, passed: boolean) => {
-    if (!user || !passed) {
+    if (!passed) {
       setSelectedLesson(null);
       return;
     }
 
-    try {
-      // Update or insert progress
-      const { error } = await supabase.from("user_progress").upsert(
-        {
-          user_id: user.id,
-          lesson_id: lessonId,
-          completed_at: new Date().toISOString(),
-          score: 80, // Assuming 80% as passing score
-          attempts: 1,
-        },
-        {
-          onConflict: "user_id,lesson_id",
-        }
-      );
+    // Progress already saved by validate-quiz edge function with the real score.
+    // Just show the toast and reload lessons.
+    toast({
+      title: "Parabéns! 🎉",
+      description: "Lição concluída com sucesso!",
+    });
 
-      if (error) {
-        console.error("Error updating progress:", error);
-        toast({
-          title: "Erro",
-          description: "Erro ao salvar progresso. Tente novamente.",
-          variant: "destructive",
-        });
-      } else {
-        toast({
-          title: "Parabéns! 🎉",
-          description: "Lição concluída com sucesso!",
-        });
-
-        // Reload lessons and progress
-        loadLessonsAndProgress();
-      }
-    } catch (error) {
-      console.error("Error updating progress:", error);
-    }
-
+    loadLessonsAndProgress();
     setSelectedLesson(null);
   };
 
@@ -329,14 +273,14 @@ const Index = () => {
   const completedLessons = userProgress.filter((p) => p.completed_at).length;
   const currentLevel = Math.floor(completedLessons / 3) + 1;
 
-  if (isLoading) {
+  if (isLoading || authLoading) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="text-center">
           <div className="bg-gradient-primary rounded-xl p-4 w-16 h-16 mx-auto mb-4 flex items-center justify-center">
             <span className="text-primary-foreground font-bold text-2xl">
               <img
-                src="public/Logo-EletronJun.png"
+                src="/Logo-EletronJun.png"
                 alt="EletronJun Logo"
                 className="w-20 h-20 mb-8 mx-auto object-contain"
               />
@@ -368,7 +312,7 @@ const Index = () => {
               <div className="flex items-center gap-2 sm:gap-3 min-w-0">
                 <div className="bg-gradient-primary rounded-lg sm:rounded-xl p-1.5 sm:p-2 shrink-0">
                   <img
-                    src="public/Logo-EletronJun.png"
+                    src="/Logo-EletronJun.png"
                     alt="EletronJun Logo"
                     className="w-6 h-6 sm:w-8 sm:h-8 object-contain"
                   />
@@ -385,7 +329,6 @@ const Index = () => {
             </div>
 
             <div className="flex items-center gap-1 sm:gap-2 shrink-0">
-              {/* AI Button */}
               <Button
                 variant="outline"
                 size="sm"
@@ -396,7 +339,6 @@ const Index = () => {
                 <span className="hidden sm:inline text-xs">IA</span>
               </Button>
 
-              {/* Notification Center */}
               <NotificationCenter />
 
               <Button
@@ -448,7 +390,6 @@ const Index = () => {
         </div>
       </div>
 
-      {/* Quick Access Sidebar - Desktop */}
       <div className="hidden md:block">
         <QuickAccessSidebar
           gamificationData={gamificationData}
@@ -462,7 +403,6 @@ const Index = () => {
         />
       </div>
 
-      {/* Mobile Sidebar Trigger */}
       <Sheet open={showMobileSidebar} onOpenChange={setShowMobileSidebar}>
         <SheetTrigger asChild>
           <Button
@@ -477,7 +417,7 @@ const Index = () => {
             <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">
               Seu Progresso
             </h3>
-            
+
             {gamificationData && (
               <div className="grid grid-cols-2 gap-2">
                 <div className="p-3 rounded-lg bg-gradient-to-br from-purple-600 to-purple-800">
@@ -541,7 +481,6 @@ const Index = () => {
       </Sheet>
 
       <div className="md:ml-64 max-w-7xl mx-auto px-4 py-4 sm:py-6 space-y-4 sm:space-y-6">
-        {/* Category Selector */}
         <div className="flex justify-center">
           <CategorySelector
             categories={categories}
@@ -550,22 +489,18 @@ const Index = () => {
           />
         </div>
 
-        {/* Gamification Section */}
         {gamificationData && (
           <div className="space-y-4 sm:space-y-6 mb-6 sm:mb-8">
-            {/* XP Progress Bar */}
             <XPProgressBar
               currentXP={gamificationData.total_xp}
               currentLevel={gamificationData.current_level}
             />
 
-            {/* Streaks */}
             <StreakDisplay
               currentStreak={gamificationData.current_streak}
               longestStreak={gamificationData.longest_streak}
             />
 
-            {/* Badges and Leaderboard Grid */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
               <BadgesDisplay badges={userBadges} />
               <Leaderboard userId={user?.id} />
@@ -573,7 +508,6 @@ const Index = () => {
           </div>
         )}
 
-        {/* Learning Path */}
         <LearningPath
           lessons={lessons}
           currentLevel={currentLevel}
@@ -582,7 +516,6 @@ const Index = () => {
 
       </div>
 
-      {/* Modals */}
       <LessonModal
         lesson={selectedLesson}
         isOpen={!!selectedLesson}
@@ -598,7 +531,6 @@ const Index = () => {
         onClose={() => setShowRanking(false)}
       />
 
-      {/* Profile Modal/Sidebar */}
       {showProfile && (
         <div className="fixed inset-0 bg-black/50 z-50 flex items-end md:items-center justify-center p-4">
           <div className="w-full max-w-md">
@@ -610,7 +542,7 @@ const Index = () => {
                 position: profile?.position || "Membro",
                 completedLessons,
                 level: currentLevel,
-                currentStreak: 0, // Will be calculated based on progress
+                currentStreak: 0,
               }}
               onEditProfile={() => {
                 setShowProfile(false);
@@ -628,7 +560,6 @@ const Index = () => {
         </div>
       )}
 
-      {/* Settings Modal */}
       <UserProfileModal
         isOpen={showSettings}
         onClose={() => setShowSettings(false)}
@@ -636,14 +567,12 @@ const Index = () => {
         userEmail={user?.email || ''}
       />
 
-      {/* Kanban Board Panel */}
       {user && isKanbanOpen && (
         <div className="fixed top-[72px] right-0 w-96 h-[calc(100vh-72px)] bg-card border-l border-border shadow-lg z-40 overflow-y-auto">
           <KanbanBoard userId={user.id} embedded onClose={() => setIsKanbanOpen(false)} />
         </div>
       )}
 
-      {/* All Notes Panel */}
       {user && isNotesOpen && (
         <div className="fixed top-[72px] right-0 w-96 h-[calc(100vh-72px)] bg-card border-l border-border shadow-lg z-40 overflow-hidden">
           <AllNotesPanel userId={user.id} onClose={() => setIsNotesOpen(false)} />

@@ -95,8 +95,8 @@ export const AdminBackgroundImages = () => {
       const publicUrl = `${SUPABASE_URL}/storage/v1/object/public/auth-backgrounds/${filePath}`;
 
       // Calcular próxima ordem
-      const maxOrder = images.length > 0 
-        ? Math.max(...images.map(img => img.display_order)) 
+      const maxOrder = images.length > 0
+        ? Math.max(...images.map(img => img.display_order))
         : -1;
 
       // Inserir registro no banco
@@ -152,7 +152,6 @@ export const AdminBackgroundImages = () => {
         throw error;
       }
 
-      // Se tiver path do storage, tentar deletar o arquivo também
       if (filePath) {
         await supabase.storage.from('auth-backgrounds').remove([filePath]);
       }
@@ -233,7 +232,6 @@ export const AdminBackgroundImages = () => {
         </p>
       </div>
 
-      {/* Add New Image */}
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
@@ -260,7 +258,7 @@ export const AdminBackgroundImages = () => {
                 onChange={handleFileSelect}
                 className="hidden"
               />
-              <Button 
+              <Button
                 onClick={() => fileInputRef.current?.click()}
                 disabled={isUploading}
                 className="w-full"

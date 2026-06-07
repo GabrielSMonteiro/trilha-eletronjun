@@ -41,31 +41,27 @@ export const RankingModal = ({ isOpen, onClose }: RankingModalProps) => {
     setIsLoading(true);
     try {
       const now = new Date();
-      const monthName = now.toLocaleDateString("pt-BR", { 
-        month: "long", 
-        year: "numeric" 
+      const monthName = now.toLocaleDateString("pt-BR", {
+        month: "long",
+        year: "numeric"
       });
       setCurrentMonth(monthName);
 
-      // Get ranking for current month with score >= 80%
-      // First get admin user IDs
       const { data: adminRoles } = await supabase
         .from("user_roles")
         .select("user_id")
         .eq("role", "admin");
-      
+
       const adminUserIds = adminRoles?.map(r => r.user_id) || [];
-      
-      // Get non-admin profiles
+
       let query = supabase
         .from("profiles")
         .select("user_id, display_name, position, avatar_url");
-      
+
       if (adminUserIds.length > 0) {
-        // Use properly quoted UUIDs for safer query construction
         query = query.not("user_id", "in", `(${adminUserIds.map(id => `"${id}"`).join(",")})`);
       }
-      
+
       const { data: profilesData } = await query;
 
       if (!profilesData) {
@@ -79,7 +75,7 @@ export const RankingModal = ({ isOpen, onClose }: RankingModalProps) => {
           .select("lesson_id, completed_at, score")
           .eq("user_id", profile.user_id)
           .not("completed_at", "is", null)
-          .gte("score", 80) // Only successful completions
+          .gte("score", 80)
           .gte("completed_at", `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-01`)
           .lt("completed_at", `${now.getFullYear()}-${String(now.getMonth() + 2).padStart(2, '0')}-01`);
 
@@ -95,14 +91,12 @@ export const RankingModal = ({ isOpen, onClose }: RankingModalProps) => {
           avatar_url: profile.avatar_url,
           lessons_completed: lessonsCompleted,
           average_score: Number(averageScore.toFixed(1)),
-          ranking: 0, // Will be set after sorting
+          ranking: 0,
         };
       });
 
       const rankingData = await Promise.all(rankingPromises);
-      
-      // Sort by lessons completed (desc) then by average score (desc)
-      // Only include users with at least 1 completed lesson
+
       const sortedRankings = rankingData
         .filter(user => user.lessons_completed > 0)
         .sort((a, b) => {
@@ -163,10 +157,9 @@ export const RankingModal = ({ isOpen, onClose }: RankingModalProps) => {
             {currentMonth}
           </p>
         </DialogHeader>
-        
+
         <div className="space-y-4 mt-6">
           {isLoading ? (
-            // Loading skeletons
             [...Array(3)].map((_, index) => (
               <div key={index} className="flex items-center gap-4 p-4 rounded-xl border">
                 <Skeleton className="w-12 h-12 rounded-full" />
@@ -193,33 +186,32 @@ export const RankingModal = ({ isOpen, onClose }: RankingModalProps) => {
               {rankings.map((user) => {
                 const position = user.ranking;
                 const initials = user.display_name.split(' ').map(n => n[0]).join('').toUpperCase();
-                
+
                 return (
-                  <div 
+                  <div
                     key={user.user_id}
-                    className={`flex items-center gap-4 p-4 rounded-xl transition-all ${
-                      position === 1 ? 'bg-gradient-to-r from-yellow-900/40 to-yellow-800/40 border-2 border-yellow-600/50' :
-                      position === 2 ? 'bg-gradient-to-r from-gray-800/40 to-gray-700/40 border-2 border-gray-500/50' :
-                      position === 3 ? 'bg-gradient-to-r from-amber-900/40 to-amber-800/40 border-2 border-amber-600/50' :
-                      'bg-card/50 border border-border/50'
-                    }`}
+                    className={`flex items-center gap-4 p-4 rounded-xl transition-all ${position === 1 ? 'bg-gradient-to-r from-yellow-900/40 to-yellow-800/40 border-2 border-yellow-600/50' :
+                        position === 2 ? 'bg-gradient-to-r from-gray-800/40 to-gray-700/40 border-2 border-gray-500/50' :
+                          position === 3 ? 'bg-gradient-to-r from-amber-900/40 to-amber-800/40 border-2 border-amber-600/50' :
+                            'bg-card/50 border border-border/50'
+                      }`}
                   >
                     <div className="flex items-center justify-center w-12 h-12">
                       {getPositionIcon(position)}
                     </div>
-                    
+
                     <Avatar className="h-12 w-12 border-2 border-white shadow-soft">
                       <AvatarImage src={user.avatar_url} alt={user.display_name} />
                       <AvatarFallback className="bg-gradient-primary text-primary-foreground font-bold">
                         {initials}
                       </AvatarFallback>
                     </Avatar>
-                    
+
                     <div className="flex-1">
                       <h4 className="font-semibold text-foreground">{user.display_name}</h4>
                       <p className="text-xs text-muted-foreground">{user.position || "Membro"}</p>
                     </div>
-                    
+
                     <div className="text-right space-y-1">
                       <Badge className={`${getPositionBadge(position)} font-bold text-xs`}>
                         {user.lessons_completed} lições
@@ -231,8 +223,7 @@ export const RankingModal = ({ isOpen, onClose }: RankingModalProps) => {
                   </div>
                 );
               })}
-              
-              {/* Message for users not in ranking */}
+
               <div className="text-center py-4 border-t">
                 <p className="text-sm text-muted-foreground">
                   Continue se capacitando para aparecer no próximo ranking! 🚀

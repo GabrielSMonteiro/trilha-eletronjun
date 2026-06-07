@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { AdminLayout } from "@/components/admin/AdminLayout";
-import type { User as SupabaseUser, Session } from "@supabase/supabase-js";
+import { useAuth } from "@/contexts/AuthContext";
 
 interface Profile {
   id: string;
@@ -15,41 +15,19 @@ interface Profile {
 }
 
 const Admin = () => {
-  const [user, setUser] = useState<SupabaseUser | null>(null);
-  const [session, setSession] = useState<Session | null>(null);
+  const { user, session, isLoading: authLoading } = useAuth();
   const [profile, setProfile] = useState<Profile | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isAuthorized, setIsAuthorized] = useState(false);
   const navigate = useNavigate();
   const { toast } = useToast();
 
-  // Authentication setup
   useEffect(() => {
-    const {
-      data: { subscription },
-    } = supabase.auth.onAuthStateChange((event, session) => {
-      setSession(session);
-      setUser(session?.user ?? null);
+    if (!authLoading && !user) {
+      navigate("/auth");
+    }
+  }, [user, authLoading, navigate]);
 
-      if (!session?.user) {
-        navigate("/auth");
-      }
-    });
-
-    // Check for existing session
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setSession(session);
-      setUser(session?.user ?? null);
-
-      if (!session?.user) {
-        navigate("/auth");
-      }
-    });
-
-    return () => subscription.unsubscribe();
-  }, [navigate]);
-
-  // Load profile and check admin access
   useEffect(() => {
     if (user) {
       checkAdminAccess();
@@ -60,7 +38,7 @@ const Admin = () => {
     if (!user) return;
 
     try {
-      // Check if user has admin role
+      // Verifica permissão
       const { data: userRole, error: roleError } = await supabase
         .from("user_roles")
         .select("role")
@@ -92,7 +70,6 @@ const Admin = () => {
       }
 
       setIsAuthorized(true);
-      // Load profile data
       const { data: profile, error: profileError } = await supabase
         .from("profiles")
         .select("*")
@@ -117,7 +94,7 @@ const Admin = () => {
     }
   };
 
-  if (isLoading || !isAuthorized) {
+  if (isLoading || authLoading || !isAuthorized) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="text-center">

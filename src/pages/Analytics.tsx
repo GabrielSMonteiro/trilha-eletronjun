@@ -6,41 +6,19 @@ import { ArrowLeft, LogOut, Sparkles } from "lucide-react";
 import { NotificationCenter } from "@/components/NotificationCenter";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
-import type { User as SupabaseUser, Session } from "@supabase/supabase-js";
+import { useAuth } from "@/contexts/AuthContext";
 
 const Analytics = () => {
-  const [user, setUser] = useState<SupabaseUser | null>(null);
-  const [session, setSession] = useState<Session | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
+  const { user, session, isLoading: authLoading } = useAuth();
 
   const navigate = useNavigate();
   const { toast } = useToast();
 
-  // Authentication setup
   useEffect(() => {
-    const {
-      data: { subscription },
-    } = supabase.auth.onAuthStateChange((event, session) => {
-      setSession(session);
-      setUser(session?.user ?? null);
-
-      if (!session?.user) {
-        navigate("/auth");
-      }
-    });
-
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setSession(session);
-      setUser(session?.user ?? null);
-
-      if (!session?.user) {
-        navigate("/auth");
-      }
-      setIsLoading(false);
-    });
-
-    return () => subscription.unsubscribe();
-  }, [navigate]);
+    if (!authLoading && !user) {
+      navigate("/auth");
+    }
+  }, [user, authLoading, navigate]);
 
   const handleSignOut = async () => {
     const { error } = await supabase.auth.signOut();
@@ -55,7 +33,7 @@ const Analytics = () => {
     }
   };
 
-  if (isLoading) {
+  if (authLoading) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="text-center">
@@ -90,7 +68,7 @@ const Analytics = () => {
               <div className="flex items-center gap-3">
                 <div className="bg-gradient-primary rounded-xl p-2">
                   <img
-                    src="public/Logo-EletronJun.png"
+                    src="/Logo-EletronJun.png"
                     alt="EletronJun Logo"
                     className="w-8 h-8 object-contain"
                   />

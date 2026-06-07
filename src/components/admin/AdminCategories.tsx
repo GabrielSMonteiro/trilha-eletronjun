@@ -87,7 +87,6 @@ export const AdminCategories = () => {
   const loadCategories = async () => {
     setIsLoading(true);
     try {
-      // Load categories with lesson count
       const { data: categoriesData, error } = await supabase
         .from("categories")
         .select("*")
@@ -103,7 +102,6 @@ export const AdminCategories = () => {
         return;
       }
 
-      // Get lesson counts for each category
       const categoriesWithCounts = await Promise.all(
         (categoriesData || []).map(async (category) => {
           const { data: lessonsData } = await supabase
@@ -133,7 +131,6 @@ export const AdminCategories = () => {
 
   const handleCreateCategory = async (data: CategoryForm) => {
     try {
-      // Check if name already exists
       const { data: existingCategory } = await supabase
         .from("categories")
         .select("name")
@@ -187,7 +184,6 @@ export const AdminCategories = () => {
     if (!editingCategory) return;
 
     try {
-      // Check if name already exists (excluding current category)
       const { data: existingCategory } = await supabase
         .from("categories")
         .select("name")
@@ -242,7 +238,6 @@ export const AdminCategories = () => {
     if (!deleteCategory) return;
 
     try {
-      // Check if category has lessons
       if (deleteCategory.lessons_count! > 0) {
         toast({
           title: "Erro",
@@ -501,7 +496,6 @@ export const AdminCategories = () => {
         </div>
       )}
 
-      {/* Delete Confirmation Dialog */}
       <AlertDialog
         open={!!deleteCategory}
         onOpenChange={() => setDeleteCategory(null)}

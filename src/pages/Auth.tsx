@@ -76,7 +76,7 @@ const Auth = () => {
         data: { user },
       } = await supabase.auth.getUser();
       if (user) {
-        // Check if user has admin role
+        // Verifica permissão de admin
         const { data: userRole } = await supabase
           .from("user_roles")
           .select("role")
@@ -156,7 +156,7 @@ const Auth = () => {
           variant: "destructive",
         });
       } else if (authData.user) {
-        // Check if user has admin role
+        // Verifica permissão de admin
         const { data: userRole } = await supabase
           .from("user_roles")
           .select("role")
@@ -212,7 +212,6 @@ const Auth = () => {
   return (
     <div className="min-h-screen flex flex-col relative">
       <AuthBackgroundCarousel />
-      {/* Header */}
       <div className="sticky top-0 z-40 bg-black/80 backdrop-blur-sm border-b border-white/10 shadow-soft relative">
         <div className="max-w-4xl mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
@@ -240,14 +239,13 @@ const Auth = () => {
         </div>
       </div>
 
-      {/* Auth Content */}
       <div className="flex-1 flex items-center justify-center p-4 relative z-10">
         <Card className="w-full max-w-md">
           <CardHeader className="text-center">
             <div className="mx-auto mb-4 bg-gradient-primary rounded-xl p-4 w-fit">
               <span className="text-primary-foreground font-bold text-2xl">
                 <img
-                  src="public/Logo-EletronJun.png"
+                  src="/Logo-EletronJun.png"
                   alt="EletronJun Logo"
                   className="w-20 h-20 mb-8 mx-auto object-contain"
                 />

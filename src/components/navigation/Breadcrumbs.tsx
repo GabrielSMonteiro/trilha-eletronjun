@@ -14,7 +14,6 @@ interface BreadcrumbsProps {
   showHome?: boolean;
 }
 
-// Route to label mapping
 const routeLabels: Record<string, string> = {
   '': 'Início',
   'app': 'Trilhas',
@@ -26,57 +25,51 @@ const routeLabels: Record<string, string> = {
   'auth': 'Login',
 };
 
-/**
- * Auto-generates breadcrumb items from current route
- */
 const generateBreadcrumbsFromRoute = (pathname: string): BreadcrumbItem[] => {
   const segments = pathname.split('/').filter(Boolean);
-  
+
   if (segments.length === 0) {
     return [];
   }
-  
+
   const items: BreadcrumbItem[] = [];
   let currentPath = '';
-  
+
   segments.forEach((segment, index) => {
     currentPath += `/${segment}`;
     const isLast = index === segments.length - 1;
-    
+
     items.push({
       label: routeLabels[segment] || segment.charAt(0).toUpperCase() + segment.slice(1),
       href: isLast ? undefined : currentPath,
     });
   });
-  
+
   return items;
 };
 
 export const Breadcrumbs = ({ items, className, showHome = true }: BreadcrumbsProps) => {
   const location = useLocation();
-  
-  // Use provided items or auto-generate from route
+
   const breadcrumbItems = items || generateBreadcrumbsFromRoute(location.pathname);
-  
-  // Don't render if we're at the root or have no items
+
   if (breadcrumbItems.length === 0) {
     return null;
   }
-  
+
   return (
-    <nav 
-      aria-label="Navegação de breadcrumb" 
+    <nav
+      aria-label="Navegação de breadcrumb"
       className={cn(
         "flex items-center text-sm text-muted-foreground overflow-x-auto scrollbar-hide",
         className
       )}
     >
       <ol className="flex items-center gap-1 sm:gap-1.5 flex-nowrap min-w-0">
-        {/* Home link */}
         {showHome && (
           <>
             <li className="flex items-center shrink-0">
-              <Link 
+              <Link
                 to="/"
                 className="flex items-center gap-1 hover:text-foreground transition-colors p-1 -m-1 rounded-md hover:bg-muted/50"
                 aria-label="Ir para página inicial"
@@ -90,19 +83,18 @@ export const Breadcrumbs = ({ items, className, showHome = true }: BreadcrumbsPr
             </li>
           </>
         )}
-        
-        {/* Breadcrumb items */}
+
         {breadcrumbItems.map((item, index) => {
           const isLast = index === breadcrumbItems.length - 1;
-          
+
           return (
             <li key={index} className="flex items-center shrink-0 min-w-0">
               {index > 0 && (
                 <ChevronRight className="h-3 w-3 sm:h-3.5 sm:w-3.5 text-muted-foreground/50 mr-1 sm:mr-1.5 shrink-0" />
               )}
-              
+
               {isLast || !item.href ? (
-                <span 
+                <span
                   className={cn(
                     "truncate max-w-[120px] sm:max-w-none",
                     isLast && "text-foreground font-medium"

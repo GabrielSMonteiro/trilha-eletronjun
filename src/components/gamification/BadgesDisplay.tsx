@@ -72,8 +72,7 @@ export const BadgesDisplay = ({ badges, className = "" }: BadgesDisplayProps) =>
                       </Badge>
                     </div>
                   </div>
-                  
-                  {/* Tooltip on hover */}
+
                   <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 hidden group-hover:block z-10">
                     <div className="bg-popover text-popover-foreground text-xs rounded-lg p-2 shadow-strong border border-border whitespace-nowrap">
                       {badge.description}

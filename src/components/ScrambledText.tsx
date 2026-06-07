@@ -18,7 +18,6 @@ const ScrambledText = ({
   useEffect(() => {
     if (!rootRef.current || !children) return;
 
-    // Split text into characters manually
     const text = typeof children === 'string' ? children : children.toString();
     const charElements = text.split('').map((char, i) => ({
       id: i,
@@ -29,16 +28,15 @@ const ScrambledText = ({
   }, [children]);
 
   const scrambleChar = (char, callback) => {
-    // Don't scramble spaces
     if (char.original === ' ') {
       callback(' ');
       return;
     }
-    
+
     const chars = scrambleChars.split('');
     let iterations = 0;
     const maxIterations = Math.floor(10 * speed);
-    
+
     const interval = setInterval(() => {
       if (iterations >= maxIterations) {
         clearInterval(interval);
@@ -70,9 +68,9 @@ const ScrambledText = ({
   };
 
   return (
-    <div 
-      ref={rootRef} 
-      className={`text-block ${className}`} 
+    <div
+      ref={rootRef}
+      className={`text-block ${className}`}
       style={style}
       onPointerMove={handleMove}
     >

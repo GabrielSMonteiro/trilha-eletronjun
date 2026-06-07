@@ -18,10 +18,9 @@ interface LearningPathProps {
 
 export const LearningPath = ({ lessons, currentLevel, onLessonClick }: LearningPathProps) => {
   const positions = ["center", "left", "right", "center", "right", "left"] as const;
-  
+
   return (
     <div className="w-full max-w-2xl mx-auto px-2 sm:px-6">
-      {/* Progress Header */}
       <div className="flex items-center justify-between mb-6 sm:mb-8 bg-card rounded-xl sm:rounded-2xl p-3 sm:p-4 shadow-soft">
         <div className="flex items-center gap-2">
           <Target className="h-4 w-4 sm:h-5 sm:w-5 text-primary" />
@@ -33,11 +32,9 @@ export const LearningPath = ({ lessons, currentLevel, onLessonClick }: LearningP
         </Badge>
       </div>
 
-      {/* Learning Path */}
       <div className="space-y-8 sm:space-y-12 relative">
-        {/* Path line */}
         <div className="absolute left-1/2 top-8 bottom-8 w-0.5 sm:w-1 bg-gradient-primary rounded-full transform -translate-x-1/2 opacity-20"></div>
-        
+
         {lessons.map((lesson, index) => (
           <div key={lesson.id} className="relative">
             <LessonNode
@@ -50,7 +47,6 @@ export const LearningPath = ({ lessons, currentLevel, onLessonClick }: LearningP
           </div>
         ))}
 
-        {/* Empty state or congratulations */}
         {lessons.length === 0 ? (
           <div className="text-center py-8">
             <div className="bg-card border-2 border-border rounded-2xl p-6 shadow-soft">

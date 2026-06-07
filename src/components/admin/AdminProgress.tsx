@@ -83,7 +83,6 @@ export const AdminProgress = () => {
   const loadProgressData = async () => {
     setIsLoading(true);
     try {
-      // Load categories
       const { data: categoriesData, error: categoriesError } = await supabase
         .from("categories")
         .select("*")
@@ -97,15 +96,12 @@ export const AdminProgress = () => {
 
       setCategories(categoriesData || []);
 
-      // Calculate category progress manually from existing tables
       const categoryProgressPromises = (categoriesData || []).map(async (category) => {
-        // Get lessons count for this category
         const { data: lessonsData } = await supabase
           .from("lessons")
           .select("id")
           .eq("category_id", category.id);
 
-        // Get progress for this category's lessons
         const { data: progressData } = await supabase
           .from("user_progress")
           .select("user_id, lesson_id, completed_at")
@@ -129,25 +125,21 @@ export const AdminProgress = () => {
       const categoryProgressData = await Promise.all(categoryProgressPromises);
       setCategoryProgress(categoryProgressData);
 
-      // Calculate user progress manually
-      // Get admin user IDs
       const { data: adminRoles } = await supabase
         .from("user_roles")
         .select("user_id")
         .eq("role", "admin");
-      
+
       const adminUserIds = adminRoles?.map(r => r.user_id) || [];
-      
-      // Get non-admin profiles
+
       let query = supabase
         .from("profiles")
         .select("user_id, display_name, position, created_at");
-      
+
       if (adminUserIds.length > 0) {
-        // Use properly quoted UUIDs for safer query construction
         query = query.not("user_id", "in", `(${adminUserIds.map(id => `"${id}"`).join(",")})`);
       }
-      
+
       const { data: profilesData } = await query;
 
       const userProgressPromises = (profilesData || []).map(async (profile) => {
@@ -159,11 +151,10 @@ export const AdminProgress = () => {
         const totalStarted = progressData?.length || 0;
         const completedProgress = progressData?.filter(p => p.completed_at) || [];
         const totalCompleted = completedProgress.length;
-        const avgScore = completedProgress.length > 0 
-          ? completedProgress.reduce((sum, p) => sum + (p.score || 0), 0) / completedProgress.length 
+        const avgScore = completedProgress.length > 0
+          ? completedProgress.reduce((sum, p) => sum + (p.score || 0), 0) / completedProgress.length
           : 0;
 
-        // Get total lessons available to calculate completion percentage
         const { data: totalLessonsData } = await supabase
           .from("lessons")
           .select("id");
@@ -185,16 +176,15 @@ export const AdminProgress = () => {
       const userProgressData = await Promise.all(userProgressPromises);
       setUserProgress(userProgressData);
 
-      // Calculate overall stats
       const totalUsers = userProgressData.length;
       const activeUsers = userProgressData.filter(u => u.total_lessons_started > 0).length;
-      const averageCompletionRate = totalUsers > 0 
-        ? userProgressData.reduce((sum, u) => sum + u.completion_percentage, 0) / totalUsers 
+      const averageCompletionRate = totalUsers > 0
+        ? userProgressData.reduce((sum, u) => sum + u.completion_percentage, 0) / totalUsers
         : 0;
-      const averageScore = totalUsers > 0 
-        ? userProgressData.reduce((sum, u) => sum + u.average_score, 0) / totalUsers 
+      const averageScore = totalUsers > 0
+        ? userProgressData.reduce((sum, u) => sum + u.average_score, 0) / totalUsers
         : 0;
-      const totalLessonsInProgress = userProgressData.reduce((sum, u) => 
+      const totalLessonsInProgress = userProgressData.reduce((sum, u) =>
         sum + (u.total_lessons_started - u.total_lessons_completed), 0);
 
       setOverallStats({
@@ -215,10 +205,10 @@ export const AdminProgress = () => {
       const name = user.display_name?.toLowerCase() || "";
       const position = user.position?.toLowerCase() || "";
       const search = searchTerm.toLowerCase();
-      
+
       return name.includes(search) || position.includes(search);
     });
-    
+
     setFilteredUserProgress(filtered);
   };
 
@@ -230,7 +220,6 @@ export const AdminProgress = () => {
   const loadUserCategoryProgress = async (userId: string) => {
     setIsLoadingModal(true);
     try {
-      // Pegar todas as categorias
       const { data: categoriesData } = await supabase
         .from("categories")
         .select("id, display_name")
@@ -241,9 +230,7 @@ export const AdminProgress = () => {
         return;
       }
 
-      // Para cada categoria, calcular o progresso do usuário
       const progressPromises = categoriesData.map(async (category) => {
-        // Pegar todas as lições da categoria
         const { data: lessonsData } = await supabase
           .from("lessons")
           .select("id")
@@ -263,7 +250,6 @@ export const AdminProgress = () => {
           };
         }
 
-        // Pegar progresso do usuário nessas lições
         const { data: progressData } = await supabase
           .from("user_progress")
           .select("lesson_id, completed_at, score")
@@ -340,7 +326,6 @@ export const AdminProgress = () => {
         </p>
       </div>
 
-      {/* Overall Stats */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
@@ -396,7 +381,6 @@ export const AdminProgress = () => {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Category Progress */}
         <Card>
           <CardHeader>
             <div className="flex items-center justify-between">
@@ -404,7 +388,7 @@ export const AdminProgress = () => {
                 <BarChart className="h-5 w-5" />
                 Progresso por Categoria
               </CardTitle>
-              
+
               <Select value={selectedCategory} onValueChange={setSelectedCategory}>
                 <SelectTrigger className="w-48">
                   <SelectValue placeholder="Todas as categorias" />
@@ -446,12 +430,11 @@ export const AdminProgress = () => {
           </CardContent>
         </Card>
 
-        {/* User Progress List */}
         <Card>
           <CardHeader>
             <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
               <CardTitle>Progresso Individual</CardTitle>
-              
+
               <div className="relative">
                 <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
                 <Input
@@ -514,7 +497,7 @@ export const AdminProgress = () => {
               Progresso de {userProgress.find(u => u.user_id === selectedUserId)?.display_name}
             </DialogTitle>
           </DialogHeader>
-          
+
           {isLoadingModal ? (
             <div className="space-y-4 py-4">
               {[...Array(4)].map((_, i) => (

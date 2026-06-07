@@ -10,7 +10,6 @@ interface VideoPlayerProps {
   className?: string;
 }
 
-// Allowed video domains for validation
 const ALLOWED_DOMAINS = [
   'youtube.com',
   'youtu.be',
@@ -27,7 +26,7 @@ const ALLOWED_DOMAINS = [
   'www.loom.com',
 ];
 
-type VideoSource = 
+type VideoSource =
   | { type: 'youtube'; embedUrl: string }
   | { type: 'vimeo'; embedUrl: string }
   | { type: 'google-drive'; embedUrl: string }
@@ -37,24 +36,19 @@ type VideoSource =
   | { type: 'invalid'; message: string }
   | { type: 'empty' };
 
-/**
- * Validates if a URL is from an allowed domain
- */
 export const isValidVideoUrl = (url: string): boolean => {
   if (!url) return false;
-  
+
   try {
     const urlObj = new URL(url);
     const hostname = urlObj.hostname.toLowerCase();
-    
-    // Check if it's a direct video file URL (mp4, webm, etc.)
+
     const path = urlObj.pathname.toLowerCase();
     if (path.endsWith('.mp4') || path.endsWith('.webm') || path.endsWith('.ogg') || path.endsWith('.mov')) {
       return true;
     }
-    
-    // Check against allowed domains
-    return ALLOWED_DOMAINS.some(domain => 
+
+    return ALLOWED_DOMAINS.some(domain =>
       hostname === domain || hostname.endsWith('.' + domain)
     );
   } catch {
@@ -62,9 +56,6 @@ export const isValidVideoUrl = (url: string): boolean => {
   }
 };
 
-/**
- * Parses a video URL and returns the appropriate embed/playback source
- */
 const parseVideoUrl = (url?: string, externalLink?: string): VideoSource => {
   if (!url && !externalLink) {
     return { type: 'empty' };
@@ -76,15 +67,14 @@ const parseVideoUrl = (url?: string, externalLink?: string): VideoSource => {
   if (videoUrl.includes('youtube.com') || videoUrl.includes('youtu.be')) {
     const regExp = /^.*((youtu.be\/)|(v\/)|(\/u\/\w\/)|(embed\/)|(watch\?))\??v?=?([^#&?]*).*/;
     const match = videoUrl.match(regExp);
-    
+
     if (match && match[7] && match[7].length === 11) {
-      return { 
-        type: 'youtube', 
-        embedUrl: `https://www.youtube.com/embed/${match[7]}?rel=0&modestbranding=1` 
+      return {
+        type: 'youtube',
+        embedUrl: `https://www.youtube.com/embed/${match[7]}?rel=0&modestbranding=1`
       };
     }
-    
-    // Already an embed URL
+
     if (videoUrl.includes('youtube.com/embed/')) {
       return { type: 'youtube', embedUrl: videoUrl };
     }
@@ -94,15 +84,14 @@ const parseVideoUrl = (url?: string, externalLink?: string): VideoSource => {
   if (videoUrl.includes('vimeo.com')) {
     const vimeoRegex = /vimeo\.com\/(?:video\/)?(\d+)/;
     const match = videoUrl.match(vimeoRegex);
-    
+
     if (match && match[1]) {
-      return { 
-        type: 'vimeo', 
-        embedUrl: `https://player.vimeo.com/video/${match[1]}?dnt=1` 
+      return {
+        type: 'vimeo',
+        embedUrl: `https://player.vimeo.com/video/${match[1]}?dnt=1`
       };
     }
-    
-    // Already a player URL
+
     if (videoUrl.includes('player.vimeo.com')) {
       return { type: 'vimeo', embedUrl: videoUrl };
     }
@@ -110,14 +99,13 @@ const parseVideoUrl = (url?: string, externalLink?: string): VideoSource => {
 
   // Google Drive
   if (videoUrl.includes('drive.google.com') || videoUrl.includes('docs.google.com')) {
-    // Extract file ID from various Google Drive URL formats
     const driveRegex = /\/d\/([a-zA-Z0-9_-]+)/;
     const match = videoUrl.match(driveRegex);
-    
+
     if (match && match[1]) {
-      return { 
-        type: 'google-drive', 
-        embedUrl: `https://drive.google.com/file/d/${match[1]}/preview` 
+      return {
+        type: 'google-drive',
+        embedUrl: `https://drive.google.com/file/d/${match[1]}/preview`
       };
     }
   }
@@ -126,27 +114,23 @@ const parseVideoUrl = (url?: string, externalLink?: string): VideoSource => {
   if (videoUrl.includes('loom.com')) {
     const loomRegex = /loom\.com\/share\/([a-zA-Z0-9]+)/;
     const match = videoUrl.match(loomRegex);
-    
+
     if (match && match[1]) {
-      return { 
-        type: 'loom', 
-        embedUrl: `https://www.loom.com/embed/${match[1]}` 
+      return {
+        type: 'loom',
+        embedUrl: `https://www.loom.com/embed/${match[1]}`
       };
     }
   }
 
-  // Direct video file (mp4, webm, etc.)
   const isDirectVideo = /\.(mp4|webm|ogg|mov)(\?.*)?$/i.test(videoUrl);
   if (isDirectVideo) {
     return { type: 'direct', url: videoUrl };
   }
-
-  // HTTPS URL but not recognized provider - try as direct video
   if (videoUrl.startsWith('https://')) {
     return { type: 'direct', url: videoUrl };
   }
 
-  // Fall back to external link if provided
   if (externalLink) {
     return { type: 'external', url: externalLink };
   }
@@ -178,7 +162,6 @@ export const VideoPlayer = ({ url, externalLink, title, className }: VideoPlayer
     className
   );
 
-  // Empty state
   if (source.type === 'empty') {
     return (
       <div className={containerClasses}>
@@ -190,7 +173,6 @@ export const VideoPlayer = ({ url, externalLink, title, className }: VideoPlayer
     );
   }
 
-  // Invalid URL
   if (source.type === 'invalid') {
     return (
       <div className={containerClasses}>
@@ -202,7 +184,6 @@ export const VideoPlayer = ({ url, externalLink, title, className }: VideoPlayer
     );
   }
 
-  // External link (non-video content)
   if (source.type === 'external') {
     return (
       <div className={containerClasses}>
@@ -219,7 +200,6 @@ export const VideoPlayer = ({ url, externalLink, title, className }: VideoPlayer
     );
   }
 
-  // Direct video file
   if (source.type === 'direct') {
     return (
       <div className={containerClasses}>
@@ -248,9 +228,8 @@ export const VideoPlayer = ({ url, externalLink, title, className }: VideoPlayer
     );
   }
 
-  // Embedded video (YouTube, Vimeo, Google Drive, Loom)
   const embedUrl = source.embedUrl;
-  
+
   return (
     <div className={containerClasses}>
       {loading && (
@@ -261,7 +240,7 @@ export const VideoPlayer = ({ url, externalLink, title, className }: VideoPlayer
           </div>
         </div>
       )}
-      
+
       {error ? (
         <div className="text-center p-4">
           <AlertCircle className="h-12 w-12 mx-auto mb-4 text-destructive" />

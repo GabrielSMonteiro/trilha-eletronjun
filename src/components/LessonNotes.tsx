@@ -79,7 +79,6 @@ export const LessonNotes = ({ lessonId, userId, embedded = false, onClose }: Les
     }
   };
 
-  // Don't render floating button on mobile or when embedded
   if (isMobile && !embedded) return null;
 
   const handleClose = () => {
@@ -90,7 +89,6 @@ export const LessonNotes = ({ lessonId, userId, embedded = false, onClose }: Les
     }
   };
 
-  // Embedded mode - render content directly
   if (embedded) {
     return (
       <div className="flex flex-col h-full">
@@ -129,7 +127,6 @@ export const LessonNotes = ({ lessonId, userId, embedded = false, onClose }: Les
 
   return (
     <>
-      {/* Floating Button */}
       <button
         onClick={() => setIsOpen(!isOpen)}
         className="fixed bottom-24 right-4 z-[60] w-14 h-14 rounded-full bg-gradient-to-br from-amber-500 to-orange-600 shadow-lg hover:shadow-xl transition-all duration-300 flex items-center justify-center group hover:scale-110"
@@ -141,7 +138,6 @@ export const LessonNotes = ({ lessonId, userId, embedded = false, onClose }: Les
         </span>
       </button>
 
-      {/* Notes Panel */}
       {isOpen && (
         <div className="fixed right-4 bottom-40 z-[60] w-80 bg-card border-2 border-border rounded-2xl shadow-strong overflow-hidden animate-scale-in">
           <div className="bg-gradient-to-br from-amber-500 to-orange-600 p-4 flex items-center justify-between">

@@ -2,20 +2,16 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Definition of the design system. All colors, gradients, fonts, etc should be defined here. 
-All colors MUST be HSL.
-*/
 
 @layer base {
   :root {
     --background: 240 10% 98%;
-    --foreground: 0 0% 100%; /* Mudado para branco */
-
-    --card: 0 0% 0% / 0.1; /* Mudado para transparente */
-    --card-foreground: 0 0% 100%; /* Mudado para branco */
+    --foreground: 0 0% 100%;
+    --card: 0 0% 0% / 0.1;
+    --card-foreground: 0 0% 100%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 0 0% 100%; /* Mudado para branco */
+    --popover-foreground: 0 0% 100%;
 
     --primary: 120 60% 50%;
     --primary-foreground: 0 0% 100%;
@@ -28,10 +24,10 @@ All colors MUST be HSL.
     --tertiary-foreground: 0 0% 100%;
 
     --muted: 240 10% 96%;
-    --muted-foreground: 0 0% 80%; /* Mudado para um cinza mais claro para contraste */
+    --muted-foreground: 0 0% 80%;
 
     --accent: 220 15% 95%;
-    --accent-foreground: 0 0% 100%; /* Mudado para branco */
+    --accent-foreground: 0 0% 100%;
 
     --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 100%;
@@ -44,22 +40,16 @@ All colors MUST be HSL.
     --warning: 38 90% 55%;
     --info: 200 90% 55%;
 
-    --gradient-primary: linear-gradient(
-      135deg,
-      hsl(98, 90%, 16%) 0%,
-      hsl(123, 90%, 35%) 100%
-    );
-    --gradient-secondary: linear-gradient(
-      135deg,
-      hsl(0, 0%, 0%) 0%,
-      hsl(270, 16%, 15%) 100%
-    );
-    --gradient-hero: linear-gradient(
-      135deg,
-      hsl(288, 85%, 32%) 0%,
-      hsl(318, 65%, 26%) 50%,
-      hsl(325, 82%, 51%) 100%
-    );
+    --gradient-primary: linear-gradient(135deg,
+        hsl(98, 90%, 16%) 0%,
+        hsl(123, 90%, 35%) 100%);
+    --gradient-secondary: linear-gradient(135deg,
+        hsl(0, 0%, 0%) 0%,
+        hsl(270, 16%, 15%) 100%);
+    --gradient-hero: linear-gradient(135deg,
+        hsl(288, 85%, 32%) 0%,
+        hsl(318, 65%, 26%) 50%,
+        hsl(325, 82%, 51%) 100%);
 
     --shadow-soft: 0 2px 8px rgba(0, 0, 0, 0.04);
     --shadow-medium: 0 4px 16px rgba(0, 0, 0, 0.08);
@@ -69,7 +59,7 @@ All colors MUST be HSL.
 
     --sidebar-background: 0 0% 98%;
 
-    --sidebar-foreground: 0 0% 100%; /* Mudado para branco */
+    --sidebar-foreground: 0 0% 100%;
 
     --sidebar-primary: 240 5.9% 10%;
 
@@ -77,14 +67,13 @@ All colors MUST be HSL.
 
     --sidebar-accent: 240 4.8% 95.9%;
 
-    --sidebar-accent-foreground: 0 0% 100%; /* Mudado para branco */
+    --sidebar-accent-foreground: 0 0% 100%;
 
     --sidebar-border: 220 13% 91%;
 
     --sidebar-ring: 217.2 91.2% 59.8%;
 
-    /* Nova variável para header preto */
-    --header-background: 0 0% 0%; /* Preto para o header */
+    --header-background: 0 0% 0%;
   }
 
   .dark {
@@ -124,7 +113,7 @@ All colors MUST be HSL.
     --sidebar-border: 240 3.7% 15.9%;
     --sidebar-ring: 217.2 91.2% 59.8%;
 
-    --header-background: 0 0% 0%; /* Preto para o header no modo escuro também */
+    --header-background: 0 0% 0%;
   }
 }
 

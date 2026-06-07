@@ -40,7 +40,6 @@ export const AllNotesPanel = ({ userId, onClose }: AllNotesPanelProps) => {
   const loadNotes = async () => {
     setIsLoading(true);
     try {
-      // Load notes with lesson info
       const { data: notesData, error } = await supabase
         .from("lesson_notes")
         .select(`
@@ -59,7 +58,6 @@ export const AllNotesPanel = ({ userId, onClose }: AllNotesPanelProps) => {
         return;
       }
 
-      // Load lesson titles for each note
       const notesWithLessons = await Promise.all(
         (notesData || []).map(async (note) => {
           const { data: lessonData } = await supabase
@@ -127,7 +125,6 @@ export const AllNotesPanel = ({ userId, onClose }: AllNotesPanelProps) => {
         </Button>
       </div>
 
-      {/* Content */}
       <ScrollArea className="flex-1 p-4">
         {isLoading ? (
           <div className="space-y-4">
@@ -158,16 +155,16 @@ export const AllNotesPanel = ({ userId, onClose }: AllNotesPanelProps) => {
             <p className="text-sm text-muted-foreground mb-4">
               {notes.length} anotação{notes.length !== 1 ? 'ões' : ''} encontrada{notes.length !== 1 ? 's' : ''}
             </p>
-            
+
             {notes.map((note) => {
               const isExpanded = expandedNotes.has(note.id);
-              const previewText = note.content.length > 100 
+              const previewText = note.content.length > 100
                 ? note.content.substring(0, 100) + "..."
                 : note.content;
-              
+
               return (
-                <Card 
-                  key={note.id} 
+                <Card
+                  key={note.id}
                   className="border border-border hover:border-amber-500/30 transition-colors cursor-pointer"
                   onClick={() => toggleExpand(note.id)}
                 >

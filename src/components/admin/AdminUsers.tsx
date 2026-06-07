@@ -86,25 +86,23 @@ export const AdminUsers = () => {
           variant: "destructive",
         });
       } else {
-        // Get user roles
         const { data: rolesData } = await supabase
           .from("user_roles")
           .select("user_id, role");
-        
+
         const rolesMap = new Map(rolesData?.map(r => [r.user_id, r.role]) || []);
-        
+
         const userProfiles = (data || []).map(user => ({
           ...user,
           role: rolesMap.get(user.user_id) || 'user'
         }));
-        
+
         setUsers(userProfiles);
-        
-        // Calculate stats
+
         const total = userProfiles.length;
         const admins = userProfiles.filter(user => user.role === 'admin').length;
         const normalUsers = total - admins;
-        
+
         setStats({ total, normalUsers, admins });
       }
     } catch (error) {
@@ -119,10 +117,10 @@ export const AdminUsers = () => {
       const name = user.display_name?.toLowerCase() || "";
       const position = user.position?.toLowerCase() || "";
       const search = searchTerm.toLowerCase();
-      
+
       return name.includes(search) || position.includes(search);
     });
-    
+
     setFilteredUsers(filtered);
   };
 
@@ -211,7 +209,6 @@ export const AdminUsers = () => {
         </p>
       </div>
 
-      {/* Stats Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 md:gap-6">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
@@ -253,12 +250,11 @@ export const AdminUsers = () => {
         </Card>
       </div>
 
-      {/* Search and Table */}
       <Card>
         <CardHeader>
           <div className="flex flex-col gap-4 items-start">
             <CardTitle className="text-lg md:text-xl">Usuários ({filteredUsers.length})</CardTitle>
-            
+
             <div className="relative w-full">
               <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
               <Input
@@ -353,7 +349,6 @@ export const AdminUsers = () => {
         </CardContent>
       </Card>
 
-      {/* Edit User Dialog */}
       <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
         <DialogContent>
           <DialogHeader>
@@ -391,9 +386,9 @@ export const AdminUsers = () => {
               />
 
               <div className="flex justify-end gap-2">
-                <Button 
-                  type="button" 
-                  variant="outline" 
+                <Button
+                  type="button"
+                  variant="outline"
                   onClick={() => setIsEditDialogOpen(false)}
                 >
                   Cancelar

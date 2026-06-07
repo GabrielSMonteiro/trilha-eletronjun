@@ -33,7 +33,7 @@ export const KanbanBoard = ({ userId, embedded = false, onClose }: KanbanBoardPr
   const loadTasks = async () => {
     try {
       const { data, error } = await supabase
-        .from("kanban_tasks" as any)
+        .from("kanban_tasks")
         .select("*")
         .eq("user_id", userId)
         .order("created_at", { ascending: false });
@@ -41,7 +41,7 @@ export const KanbanBoard = ({ userId, embedded = false, onClose }: KanbanBoardPr
       if (error) {
         console.error("Error loading tasks:", error);
       } else {
-        setTasks((data as any) || []);
+        setTasks(data || []);
       }
     } catch (error) {
       console.error("Error loading tasks:", error);
@@ -52,7 +52,7 @@ export const KanbanBoard = ({ userId, embedded = false, onClose }: KanbanBoardPr
     if (!newTaskTitle.trim()) return;
 
     try {
-      const { error } = await supabase.from("kanban_tasks" as any).insert({
+      const { error } = await supabase.from("kanban_tasks").insert({
         user_id: userId,
         title: newTaskTitle,
         status: "todo",
@@ -77,14 +77,14 @@ export const KanbanBoard = ({ userId, embedded = false, onClose }: KanbanBoardPr
   const updateTaskStatus = async (taskId: string, newStatus: "todo" | "in_progress" | "done") => {
     try {
       const { error } = await supabase
-        .from("kanban_tasks" as any)
+        .from("kanban_tasks")
         .update({ status: newStatus })
         .eq("id", taskId);
 
       if (error) {
         console.error("Error updating task:", error);
       } else {
-        // Celebration animation when task is completed
+
         if (newStatus === "done") {
           confetti({
             particleCount: 100,
@@ -107,7 +107,7 @@ export const KanbanBoard = ({ userId, embedded = false, onClose }: KanbanBoardPr
   const deleteTask = async (taskId: string) => {
     try {
       const { error } = await supabase
-        .from("kanban_tasks" as any)
+        .from("kanban_tasks")
         .delete()
         .eq("id", taskId);
 
@@ -139,7 +139,6 @@ export const KanbanBoard = ({ userId, embedded = false, onClose }: KanbanBoardPr
     }
   };
 
-  // Embedded mode - render content directly
   if (embedded) {
     return (
       <div className="flex flex-col h-full">
@@ -158,7 +157,6 @@ export const KanbanBoard = ({ userId, embedded = false, onClose }: KanbanBoardPr
           </Button>
         </div>
         <div className="p-4 space-y-4 flex-1 overflow-y-auto">
-          {/* Add Task */}
           <div className="flex gap-2">
             <Input
               value={newTaskTitle}
@@ -170,7 +168,6 @@ export const KanbanBoard = ({ userId, embedded = false, onClose }: KanbanBoardPr
               <Plus className="h-4 w-4" />
             </Button>
           </div>
-          {/* Columns */}
           <div className="grid grid-cols-1 gap-4">
             {columns.map((column) => (
               <div key={column.id} className="space-y-2">
@@ -219,7 +216,6 @@ export const KanbanBoard = ({ userId, embedded = false, onClose }: KanbanBoardPr
 
   return (
     <>
-      {/* Floating Button */}
       <button
         onClick={() => setIsOpen(!isOpen)}
         className="fixed top-20 right-4 z-50 w-14 h-14 rounded-full bg-gradient-to-br from-purple-500 to-indigo-600 shadow-lg hover:shadow-xl transition-all duration-300 flex items-center justify-center group hover:scale-110"
@@ -231,7 +227,6 @@ export const KanbanBoard = ({ userId, embedded = false, onClose }: KanbanBoardPr
         </span>
       </button>
 
-      {/* Kanban Panel */}
       {isOpen && (
         <div className="fixed inset-4 z-50 bg-card border-2 border-border rounded-2xl shadow-strong overflow-hidden animate-scale-in flex flex-col">
           <div className="bg-gradient-to-br from-purple-500 to-indigo-600 p-4 flex items-center justify-between">
@@ -250,7 +245,6 @@ export const KanbanBoard = ({ userId, embedded = false, onClose }: KanbanBoardPr
           </div>
 
           <div className="p-4 space-y-4 flex-1 overflow-y-auto">
-            {/* Add Task */}
             <div className="flex gap-2">
               <Input
                 value={newTaskTitle}
@@ -266,7 +260,6 @@ export const KanbanBoard = ({ userId, embedded = false, onClose }: KanbanBoardPr
               </Button>
             </div>
 
-            {/* Kanban Columns */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               {columns.map((column) => (
                 <div
