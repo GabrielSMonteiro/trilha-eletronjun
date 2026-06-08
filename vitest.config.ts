@@ -10,9 +10,16 @@ export default defineConfig({
     environment: 'jsdom',
     setupFiles: './src/setupTests.ts',
     css: true,
+    pool: 'threads',
+    poolOptions: {
+      threads: {
+        singleThread: true,
+      },
+    },
     coverage: {
       provider: 'istanbul',
       reporter: ['text', 'json', 'html'],
+      reportsDirectory: './coverage',
       include: [
         'src/components/**/*.{ts,tsx}',
         'src/contexts/**/*.{ts,tsx}',
@@ -45,3 +52,4 @@ export default defineConfig({
     },
   },
 });
+
