@@ -138,6 +138,7 @@ export const AdminContent = () => {
   useEffect(() => {
     loadCategories();
     loadLessonsWithQuestionCount();
+    loadQuestions();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 

@@ -73,11 +73,13 @@ export const AdminProgress = () => {
   const { toast } = useToast();
 
   useEffect(() => {
-     
+    loadProgressData();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
-     
+    filterUserProgress();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [userProgress, searchTerm]);
 
   const loadProgressData = async () => {
