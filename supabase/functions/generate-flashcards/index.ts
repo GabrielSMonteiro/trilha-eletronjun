@@ -82,7 +82,7 @@ serve(async (req) => {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: 'gemini-2.5-flash',
+        model: 'gemini-2.0-flash',
         messages: [
           {
             role: 'system',
@@ -143,17 +143,51 @@ serve(async (req) => {
     }
 
     const data = await response.json();
-    const toolCall = data.choices[0].message.tool_calls?.[0];
-    
-    if (!toolCall) {
-      console.error('[generate-flashcards] No tool call in response');
+    let flashcards;
+
+    // Try to get from tool_calls first (preferred structured output)
+    const toolCall = data.choices?.[0]?.message?.tool_calls?.[0];
+    if (toolCall) {
+      const parsed = JSON.parse(toolCall.function.arguments);
+      flashcards = parsed.flashcards || parsed;
+    } else {
+      // Fallback: try to extract from message content
+      const rawText = data.choices?.[0]?.message?.content;
+      if (!rawText) {
+        console.error('[generate-flashcards] No content in response:', JSON.stringify(data));
+        return new Response(
+          JSON.stringify({ error: 'Failed to generate flashcards' }),
+          { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        );
+      }
+      // Try to parse as JSON (may contain markdown code fences)
+      const cleaned = rawText.replace(/```(?:json)?\s*/gi, '').replace(/```/g, '').trim();
+      try {
+        const parsed = JSON.parse(cleaned);
+        flashcards = Array.isArray(parsed) ? parsed : parsed.flashcards;
+      } catch {
+        // Try to find JSON array in the text
+        const arrayMatch = cleaned.match(/\[\s*\{[\s\S]*\}\s*\]/);
+        if (arrayMatch) {
+          flashcards = JSON.parse(arrayMatch[0]);
+        } else {
+          console.error('[generate-flashcards] Could not parse response:', cleaned);
+          return new Response(
+            JSON.stringify({ error: 'Failed to parse generated flashcards. Please try again.' }),
+            { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+          );
+        }
+      }
+    }
+
+    // Validate flashcards structure
+    if (!Array.isArray(flashcards) || flashcards.length === 0) {
+      console.error('[generate-flashcards] Invalid flashcards structure:', JSON.stringify(flashcards));
       return new Response(
-        JSON.stringify({ error: 'Failed to generate flashcards' }),
+        JSON.stringify({ error: 'Generated flashcards have invalid structure. Please try again.' }),
         { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
-
-    const flashcards = JSON.parse(toolCall.function.arguments).flashcards;
 
     console.log('[generate-flashcards] Generated for user:', user.id, 'count:', flashcards.length);
 

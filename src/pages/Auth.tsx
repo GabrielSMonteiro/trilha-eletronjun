@@ -76,7 +76,7 @@ const Auth = () => {
         data: { user },
       } = await supabase.auth.getUser();
       if (user) {
-        
+
         const { data: userRole } = await supabase
           .from("user_roles")
           .select("role")
@@ -156,7 +156,7 @@ const Auth = () => {
           variant: "destructive",
         });
       } else if (authData.user) {
-        
+
         const { data: userRole } = await supabase
           .from("user_roles")
           .select("role")
@@ -240,7 +240,7 @@ const Auth = () => {
       </div>
 
       <div className="flex-1 flex items-center justify-center p-4 relative z-10">
-        <Card className="w-full max-w-md">
+        <Card className="w-full max-w-md bg-black/5 backdrop-blur-md border-green/30">
           <CardHeader className="text-center">
             <div className="mx-auto mb-4 bg-gradient-primary rounded-xl p-4 w-fit">
               <span className="text-primary-foreground font-bold text-2xl">

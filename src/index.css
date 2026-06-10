@@ -890,6 +890,14 @@ body {
   color: var(--card-foreground);
 }
 
+.bg-popover {
+  background-color: var(--popover);
+}
+
+.text-popover-foreground {
+  color: var(--popover-foreground);
+}
+
 .bg-primary {
   background-color: var(--primary);
 }
