@@ -180,10 +180,12 @@ export const useGamification = (userId: string | undefined) => {
 
       
       await checkAndAwardBadges();
+       
     } catch (error) {
       console.error('Error awarding XP:', error);
     }
-  }, [userId, gamificationData, checkAndAwardBadges]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [userId, gamificationData]);
 
   const updateStreak = useCallback(async () => {
     if (!userId || !gamificationData) return;
@@ -246,7 +248,8 @@ export const useGamification = (userId: string | undefined) => {
     } catch (error) {
       console.error('Error updating streak:', error);
     }
-  }, [userId, gamificationData, awardXP, checkAndAwardBadges]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [userId, gamificationData, awardXP]);
 
   const checkAndAwardBadges = useCallback(async () => {
     if (!userId) return;

@@ -29,7 +29,7 @@ export const AdminBackgroundImages = () => {
   const { toast } = useToast();
 
   useEffect(() => {
-     
+    loadImages();
   }, []);
 
   const loadImages = async () => {

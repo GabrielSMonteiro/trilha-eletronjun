@@ -22,4 +22,21 @@ describe('CompletionRateChart', () => {
     expect(screen.getByText('Taxa de Conclusão')).toBeInTheDocument();
     expect(screen.getByTestId('pie-chart')).toBeInTheDocument();
   });
+
+  it('exibe a porcentagem corretamente', () => {
+    render(<CompletionRateChart completed={30} total={100} />);
+    expect(screen.getByText(/30 de 100 lições completadas/i)).toBeInTheDocument();
+    expect(screen.getByText(/30%/i)).toBeInTheDocument();
+  });
+
+  it('lida com total igual a 0', () => {
+    render(<CompletionRateChart completed={0} total={0} />);
+    // Não deve quebrar com divisão por zero
+    expect(screen.getByText('Taxa de Conclusão')).toBeInTheDocument();
+  });
+
+  it('exibe 100% quando tudo está completo', () => {
+    render(<CompletionRateChart completed={10} total={10} />);
+    expect(screen.getByText(/10 de 10 lições completadas \(100%\)/i)).toBeInTheDocument();
+  });
 });

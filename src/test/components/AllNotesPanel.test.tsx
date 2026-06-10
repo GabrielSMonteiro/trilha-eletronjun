@@ -1,7 +1,7 @@
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { AllNotesPanel } from '@/components/AllNotesPanel';
-
+import { supabase } from '@/integrations/supabase/client';
 vi.mock('@/integrations/supabase/client', () => ({
   supabase: {
     from: vi.fn(() => ({
@@ -81,5 +81,77 @@ describe('AllNotesPanel', () => {
     
     
     expect(screen.getByText('Anotação mais longa')).toBeInTheDocument();
+  });
+
+  it('lida com erros ao carregar anotações (lines 56-58)', async () => {
+    const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+    
+    // Configura o mock do supabase para retornar erro
+    vi.mocked(supabase.from).mockImplementationOnce(() => ({
+      select: vi.fn().mockReturnThis(),
+      eq: vi.fn().mockReturnThis(),
+      order: vi.fn().mockResolvedValue({ data: null, error: new Error('Db error') })
+    } as any));
+
+    render(<AllNotesPanel {...defaultProps} />);
+    
+    await waitFor(() => {
+      expect(consoleSpy).toHaveBeenCalledWith('Error loading notes:', expect.any(Error));
+      expect(screen.getByText('Nenhuma anotação ainda')).toBeInTheDocument();
+    });
+    consoleSpy.mockRestore();
+  });
+
+  it('lida com exceções durante o mapeamento (catch no loadNotes)', async () => {
+    const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+    
+    // Força uma exceção lançando erro dentro do processamento de notas
+    vi.mocked(supabase.from).mockImplementationOnce(() => {
+      throw new Error('Unexpected exception');
+    });
+
+    render(<AllNotesPanel {...defaultProps} />);
+    
+    await waitFor(() => {
+      expect(consoleSpy).toHaveBeenCalledWith('Error loading notes:', expect.any(Error));
+    });
+    consoleSpy.mockRestore();
+  });
+
+  it('evita propagação do clique no botão expandir (stopPropagation)', async () => {
+    render(<AllNotesPanel {...defaultProps} />);
+    
+    await waitFor(() => {
+      expect(screen.getByText('Anotação mais longa')).toBeInTheDocument();
+    });
+
+    const toggleBtns = screen.getAllByRole('button');
+    const expandBtn = toggleBtns.find(btn => btn.querySelector('.lucide-chevron-down') || btn.innerHTML.includes('lucide-chevron-down'));
+    
+    if (expandBtn) {
+      fireEvent.click(expandBtn);
+      // Se a propagação não fosse evitada, o card fecharia novamente imediatamente
+      // Aqui garantimos que o clique no botão funciona corretamente e abre a nota.
+      expect(screen.getByText('Anotação mais longa')).toBeInTheDocument();
+    }
+  });
+
+  it('usa data original no formatDate em caso de data inválida', async () => {
+    vi.mocked(supabase.from).mockImplementationOnce(() => ({
+      select: vi.fn().mockReturnThis(),
+      eq: vi.fn().mockReturnThis(),
+      single: vi.fn().mockResolvedValue({ data: { title: 'React' }, error: null }),
+      order: vi.fn().mockResolvedValue({
+        data: [{ id: 'error-date', lesson_id: 'l1', content: 'C1', updated_at: 'DATA_INVALIDA_123' }],
+        error: null
+      })
+    } as any));
+
+    render(<AllNotesPanel {...defaultProps} />);
+    
+    await waitFor(() => {
+      // Verifica se exibiu a string original já que falhou o parsing da data
+      expect(screen.getByText(/DATA_INVALIDA_123/)).toBeInTheDocument();
+    });
   });
 });

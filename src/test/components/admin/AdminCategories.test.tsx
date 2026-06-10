@@ -2,6 +2,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, waitFor, act } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { AdminCategories } from '@/components/admin/AdminCategories';
+import { supabase } from '@/integrations/supabase/client';
 
 const mockToast = vi.fn();
 vi.mock('@/hooks/use-toast', () => ({
@@ -172,10 +173,142 @@ describe('AdminCategories Component', () => {
     
     const confirmBtn = screen.getByRole('button', { name: 'Excluir' });
     expect(confirmBtn).toBeDisabled();
+  });
+
+  it('renderiza o estado vazio quando não há categorias', async () => {
+    vi.mocked(supabase.from).mockImplementationOnce(() => ({
+      select: vi.fn().mockReturnThis(),
+      order: vi.fn().mockResolvedValue({ data: [], error: null })
+    } as any));
+
+    await act(async () => renderComponent());
     
+    await waitFor(() => {
+      expect(screen.getByText('Nenhuma categoria encontrada')).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: /Criar Primeira Categoria/i })).toBeInTheDocument();
+    });
+  });
+
+  it('mostra erro se loadCategories falhar', async () => {
+    const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+    vi.mocked(supabase.from).mockImplementationOnce(() => ({
+      select: vi.fn().mockReturnThis(),
+      order: vi.fn().mockResolvedValue({ data: null, error: new Error('Db Error') })
+    } as any));
+
+    await act(async () => renderComponent());
     
+    await waitFor(() => {
+      expect(mockToast).toHaveBeenCalledWith(expect.objectContaining({ title: 'Erro' }));
+      expect(consoleSpy).toHaveBeenCalledWith('Error loading categories:', expect.any(Error));
+    });
+    consoleSpy.mockRestore();
+  });
+
+  it('mostra erro ao tentar criar categoria com nome (slug) já existente', async () => {
+    const user = userEvent.setup();
+    await act(async () => renderComponent());
+
+    const newBtn = screen.getByRole('button', { name: /Nova Categoria/i });
+    await user.click(newBtn);
+
+    const nameInput = screen.getByLabelText(/Nome \(slug\)/i);
+    const displayNameInput = screen.getByLabelText(/Nome de Exibição/i);
     
+    await user.type(nameInput, 'cat1'); // 'cat1' já existe no mock principal
+    await user.type(displayNameInput, 'Cat Existente');
+
+    // Mockar verificação de existência
+    vi.mocked(supabase.from).mockImplementationOnce(() => ({
+      select: vi.fn().mockReturnThis(),
+      eq: vi.fn().mockReturnThis(),
+      single: vi.fn().mockResolvedValue({ data: { name: 'cat1' }, error: null })
+    } as any));
+
+    const submitBtn = screen.getByRole('button', { name: 'Criar' });
+    await user.click(submitBtn);
+
+    await waitFor(() => {
+      expect(mockToast).toHaveBeenCalledWith(expect.objectContaining({ description: 'Já existe uma categoria com este nome' }));
+    });
+  });
+
+  it('mostra erro ao falhar na criação (db error)', async () => {
+    const user = userEvent.setup();
+    await act(async () => renderComponent());
+
+    const newBtn = screen.getByRole('button', { name: /Nova Categoria/i });
+    await user.click(newBtn);
+
+    await user.type(screen.getByLabelText(/Nome \(slug\)/i), 'new-cat');
+    await user.type(screen.getByLabelText(/Nome de Exibição/i), 'New');
+
+    vi.mocked(supabase.from).mockImplementationOnce(() => ({
+      select: vi.fn().mockReturnThis(),
+      eq: vi.fn().mockReturnThis(),
+      single: vi.fn().mockResolvedValue({ data: null, error: null }),
+    } as any)).mockImplementationOnce(() => ({
+      insert: vi.fn().mockResolvedValue({ error: new Error('Insert Error') })
+    } as any));
+
+    const submitBtn = screen.getByRole('button', { name: 'Criar' });
+    await user.click(submitBtn);
+
+    await waitFor(() => {
+      expect(mockToast).toHaveBeenCalledWith(expect.objectContaining({ description: 'Erro ao criar categoria' }));
+    });
+  });
+
+  it('mostra erro ao tentar atualizar categoria para um nome já existente', async () => {
+    const user = userEvent.setup();
+    await act(async () => renderComponent());
+
+    await waitFor(() => expect(screen.getByText('Categoria 1')).toBeInTheDocument());
+
+    const editButtons = screen.getAllByTestId('icon-Pencil');
+    await user.click(editButtons[0].closest('button')!);
+
+    const nameInput = screen.getByLabelText(/Nome \(slug\)/i);
+    await user.clear(nameInput);
+    await user.type(nameInput, 'cat2'); // tenta mudar para cat2 que já existe
+
+    // Mockar verificação de existência
+    vi.mocked(supabase.from).mockImplementationOnce(() => ({
+      select: vi.fn().mockReturnThis(),
+      eq: vi.fn().mockReturnThis(),
+      neq: vi.fn().mockReturnThis(),
+      single: vi.fn().mockResolvedValue({ data: { name: 'cat2' }, error: null })
+    } as any));
+
+    const submitBtn = screen.getByRole('button', { name: 'Atualizar' });
+    await user.click(submitBtn);
+
+    await waitFor(() => {
+      expect(mockToast).toHaveBeenCalledWith(expect.objectContaining({ description: 'Já existe uma categoria com este nome' }));
+    });
+  });
+
+  it('mostra erro se exclusão falhar no banco', async () => {
+    const user = userEvent.setup();
+    await act(async () => renderComponent());
+
+    await waitFor(() => expect(screen.getByText('Categoria 2')).toBeInTheDocument());
     
+    // Categoria 2 não tem lições no mock (id = cat-2)
+    const deleteButtons = screen.getAllByTestId('icon-Trash2');
+    await user.click(deleteButtons[1].closest('button')!); 
+
+    // Mockar falha no delete
+    vi.mocked(supabase.from).mockImplementationOnce(() => ({
+      delete: vi.fn().mockReturnThis(),
+      eq: vi.fn().mockResolvedValue({ error: new Error('Delete failed') })
+    } as any));
     
+    const confirmBtn = screen.getByRole('button', { name: 'Excluir' });
+    await user.click(confirmBtn);
+
+    await waitFor(() => {
+      expect(mockToast).toHaveBeenCalledWith(expect.objectContaining({ description: 'Erro ao excluir categoria' }));
+    });
   });
 });

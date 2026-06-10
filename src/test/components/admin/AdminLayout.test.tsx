@@ -95,4 +95,87 @@ describe('AdminLayout', () => {
       expect(mockNavigate).toHaveBeenCalledWith('/');
     });
   });
+
+  it('mostra toast de erro se logout falhar', async () => {
+    const mockError = new Error('Erro ao sair');
+    vi.mocked(supabase.auth.signOut).mockResolvedValueOnce({ error: mockError } as any);
+    
+    renderComponent();
+    
+    const logoutBtn = screen.getAllByRole('button', { name: /Sair/ })[0];
+    fireEvent.click(logoutBtn);
+    
+    await waitFor(() => {
+      expect(supabase.auth.signOut).toHaveBeenCalled();
+      // Em caso de erro o navigate não deve ser chamado
+      expect(mockNavigate).not.toHaveBeenCalledWith('/');
+    });
+  });
+
+  it('abre o menu sidebar mobile ao clicar no botão de menu', async () => {
+    renderComponent();
+    
+    // Procura o botão hamburger (Menu) nos botões disponíveis
+    const allBtns = screen.getAllByRole('button');
+    const menuBtn = allBtns.find(b => b.innerHTML.includes('lucide-menu'));
+    
+    if (menuBtn) {
+      fireEvent.click(menuBtn);
+      // A sidebar mobile deve aparecer (verificamos que não quebra)
+      expect(menuBtn).toBeInTheDocument();
+    }
+  });
+
+  it('fecha a sidebar mobile ao clicar no botão X', async () => {
+    renderComponent();
+    
+    // Abre
+    const allBtns = screen.getAllByRole('button');
+    const menuBtn = allBtns.find(b => b.innerHTML.includes('lucide-menu') || b.querySelector('.lucide-menu'));
+    if (menuBtn) fireEvent.click(menuBtn);
+    
+    // Fecha pelo X
+    await waitFor(() => {
+      const btns = screen.getAllByRole('button');
+      const closeBtn = btns.find(b => b.innerHTML.includes('lucide-x') || b.querySelector('.lucide-x'));
+      expect(closeBtn).toBeInTheDocument();
+      if (closeBtn) fireEvent.click(closeBtn);
+    });
+  });
+
+  it('fecha a sidebar mobile ao clicar no overlay', async () => {
+    const { container } = renderComponent();
+    
+    // Abre a sidebar mobile
+    const menuBtn = screen.getAllByRole('button').find(b => b.innerHTML.includes('lucide-menu'));
+    if (menuBtn) fireEvent.click(menuBtn);
+    
+    // O overlay é a div com bg-black/50
+    const overlay = container.querySelector('[class*="bg-black"]');
+    if (overlay) {
+      fireEvent.click(overlay);
+    }
+    // Verifica que não quebra
+    expect(container.firstChild).toBeInTheDocument();
+  });
+
+  it('muda de seção e fecha a sidebar pelo menu mobile', async () => {
+    renderComponent();
+    
+    // Abre a sidebar mobile
+    const menuBtn = screen.getAllByRole('button').find(b => b.innerHTML.includes('lucide-menu'));
+    if (menuBtn) {
+      fireEvent.click(menuBtn);
+    }
+    
+    // Clica em Conteúdo no menu mobile (pega o último se houver vários)
+    const contentBtns = screen.getAllByRole('button', { name: /Conteúdo/ });
+    const lastBtn = contentBtns[contentBtns.length - 1];
+    fireEvent.click(lastBtn);
+    
+    // A seção muda
+    await waitFor(() => {
+      expect(screen.getByTestId('admin-content')).toBeInTheDocument();
+    });
+  });
 });

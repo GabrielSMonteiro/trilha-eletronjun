@@ -1,6 +1,6 @@
-import { render, screen } from '@testing-library/react';
-import { describe, it, expect } from 'vitest';
-import { VideoPlayer } from '@/components/VideoPlayer';
+import { render, screen, fireEvent, act } from '@testing-library/react';
+import { describe, it, expect, vi } from 'vitest';
+import { VideoPlayer, isValidVideoUrl } from '@/components/VideoPlayer';
 
 describe('VideoPlayer', () => {
   it('renderiza o estado vazio quando nenhuma url é fornecida', () => {
@@ -51,8 +51,8 @@ describe('VideoPlayer', () => {
 
   it('renderiza video tag para MP4 direto', () => {
     render(<VideoPlayer url="https://example.com/video.mp4" />);
-    
-    
+
+
     const videoSource = document.querySelector('source[src="https://example.com/video.mp4"]');
     expect(videoSource).toBeInTheDocument();
   });
@@ -60,5 +60,64 @@ describe('VideoPlayer', () => {
   it('renderiza estado de erro para URL inválida que não encaixa em nenhum padrão', () => {
     render(<VideoPlayer url="not-a-url" />);
     expect(screen.getByText('URL de vídeo não reconhecida')).toBeInTheDocument();
+  });
+
+  describe('isValidVideoUrl', () => {
+    it('retorna true para urls suportadas', () => {
+      expect(isValidVideoUrl('https://youtube.com/watch?v=123')).toBe(true);
+      expect(isValidVideoUrl('https://vimeo.com/123')).toBe(true);
+      expect(isValidVideoUrl('https://example.com/video.mp4')).toBe(true);
+    });
+
+    it('retorna false para urls não suportadas ou inválidas', () => {
+      expect(isValidVideoUrl('')).toBe(false);
+      expect(isValidVideoUrl('not-a-url')).toBe(false);
+      expect(isValidVideoUrl('https://example.com/video.txt')).toBe(false);
+    });
+  });
+
+  it('renderiza iframe do YouTube com URL de embed direta', () => {
+    render(<VideoPlayer url="https://youtube.com/embed/dQw4w9WgXcQ" title="Video player" />);
+    const iframe = screen.getByTitle('Video player');
+    expect(iframe).toBeInTheDocument();
+    expect(iframe).toHaveAttribute('src', 'https://www.youtube.com/embed/dQw4w9WgXcQ?rel=0&modestbranding=1');
+  });
+
+  it('renderiza iframe do Vimeo com URL de player.vimeo direta', () => {
+    render(<VideoPlayer url="https://player.vimeo.com/video/123456789" title="Video player" />);
+    const iframe = screen.getByTitle('Video player');
+    expect(iframe).toBeInTheDocument();
+    expect(iframe).toHaveAttribute('src', 'https://player.vimeo.com/video/123456789?dnt=1');
+  });
+
+  it('renderiza video tag para URL https genérica (direct video)', () => {
+    render(<VideoPlayer url="https://example.com/video-stream" />);
+    const videoElement = document.querySelector('video');
+    expect(videoElement).toBeInTheDocument();
+  });
+
+  it('mostra loading inicial e remove após onLoad no iframe', () => {
+    render(<VideoPlayer url="https://www.youtube.com/watch?v=dQw4w9WgXcQ" />);
+
+    // Loading deve aparecer inicialmente
+    expect(screen.getByText('Carregando vídeo...')).toBeInTheDocument();
+
+    const iframe = screen.getByTitle('Video player');
+
+    // Dispara onLoad - loading deve sumir
+    fireEvent.load(iframe);
+    expect(screen.queryByText('Carregando vídeo...')).not.toBeInTheDocument();
+  });
+
+  it('manipula onError no elemento de video direto', () => {
+    render(<VideoPlayer url="https://example.com/video.mp4" />);
+    const videoElement = document.querySelector('video');
+
+    if (videoElement) {
+      act(() => {
+        fireEvent.error(videoElement);
+      });
+      expect(screen.getByText('Erro ao carregar vídeo')).toBeInTheDocument();
+    }
   });
 });
