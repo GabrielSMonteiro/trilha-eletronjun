@@ -12,7 +12,7 @@ function getCorsHeaders(req: Request) {
 
 serve(async (req) => {
   const corsHeaders = getCorsHeaders(req);
-  
+
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
   }
@@ -30,7 +30,7 @@ serve(async (req) => {
 
     const supabaseUrl = Deno.env.get('SUPABASE_URL');
     const supabaseAnonKey = Deno.env.get('SUPABASE_ANON_KEY');
-    
+
     if (!supabaseUrl || !supabaseAnonKey) {
       console.error('[generate-mindmap] Missing Supabase configuration');
       return new Response(
@@ -38,7 +38,7 @@ serve(async (req) => {
         { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
-    
+
     const supabaseClient = createClient(supabaseUrl, supabaseAnonKey, {
       global: { headers: { Authorization: authHeader } }
     });
@@ -84,7 +84,8 @@ serve(async (req) => {
           {
             role: 'system',
             content: `Você é um assistente especializado em criar mapas mentais educacionais estruturados.
-            Retorne um JSON com a estrutura de um mapa mental hierárquico:
+            Retorne APENAS um JSON válido, sem markdown, sem explicações, sem blocos de código.
+            A estrutura deve ser exatamente:
             {
               "title": "Título central",
               "children": [
@@ -103,56 +104,20 @@ serve(async (req) => {
             content: `Crie um mapa mental estruturado baseado no seguinte conteúdo:\n\n${content}`
           }
         ],
-        tools: [
-          {
-            type: "function",
-            function: {
-              name: "create_mindmap",
-              description: "Retorna a estrutura de um mapa mental hierárquico",
-              parameters: {
-                type: "object",
-                properties: {
-                  title: { type: "string", description: "Título central do mapa mental" },
-                  children: {
-                    type: "array",
-                    items: {
-                      type: "object",
-                      properties: {
-                        title: { type: "string" },
-                        children: {
-                          type: "array",
-                          items: {
-                            type: "object",
-                            properties: {
-                              title: { type: "string" }
-                            }
-                          }
-                        }
-                      },
-                      required: ["title"]
-                    }
-                  }
-                },
-                required: ["title", "children"]
-              }
-            }
-          }
-        ],
-        tool_choice: { type: "function", function: { name: "create_mindmap" } }
       }),
     });
 
     if (!response.ok) {
       const errorText = await response.text();
       console.error('[generate-mindmap] AI gateway error:', response.status, errorText);
-      
+
       if (response.status === 429) {
         return new Response(
           JSON.stringify({ error: 'Too many requests. Please try again later.' }),
           { status: 429, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
         );
       }
-      
+
       return new Response(
         JSON.stringify({ error: 'Service temporarily unavailable' }),
         { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
@@ -160,17 +125,18 @@ serve(async (req) => {
     }
 
     const data = await response.json();
-    const toolCall = data.choices[0].message.tool_calls?.[0];
-    
-    if (!toolCall) {
-      console.error('[generate-mindmap] No tool call in response');
+    const rawText = data.choices[0].message.content;
+
+    if (!rawText) {
+      console.error('[generate-mindmap] No content in response');
       return new Response(
         JSON.stringify({ error: 'Failed to generate mindmap' }),
         { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
 
-    const mindmap = JSON.parse(toolCall.function.arguments);
+    const clean = rawText.replace(/```json|```/g, '').trim();
+    const mindmap = JSON.parse(clean);
 
     console.log('[generate-mindmap] Generated for user:', user.id);
 

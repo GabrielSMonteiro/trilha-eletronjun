@@ -141,40 +141,29 @@ export const FlashcardsGenerator = () => {
           </CardHeader>
           <CardContent className="space-y-4">
             <div
-              className="relative h-64 cursor-pointer perspective-1000"
+              className="relative h-64 cursor-pointer"
               onClick={() => setIsFlipped(!isFlipped)}
             >
-              <div
-                className={`absolute inset-0 transition-transform duration-500 transform-style-3d ${
-                  isFlipped ? 'rotate-y-180' : ''
-                }`}
-              >
-                {}
-                <div className="absolute inset-0 backface-hidden">
-                  <Card className="h-full flex items-center justify-center bg-primary/5 border-2 border-primary">
-                    <CardContent className="text-center p-6">
-                      <p className="text-lg font-medium">{flashcards[currentCard].front}</p>
-                      <p className="text-sm text-muted-foreground mt-4">
-                        Clique para ver a resposta
-                      </p>
-                    </CardContent>
-                  </Card>
-                </div>
-
-                {}
-                <div className="absolute inset-0 backface-hidden rotate-y-180">
-                  <Card className="h-full flex items-center justify-center bg-secondary/5 border-2 border-secondary">
-                    <CardContent className="text-center p-6">
-                      <p className="text-lg">{flashcards[currentCard].back}</p>
-                      <p className="text-sm text-muted-foreground mt-4">
-                        Clique para ver a pergunta
-                      </p>
-                    </CardContent>
-                  </Card>
-                </div>
-              </div>
+              {!isFlipped ? (
+                <Card className="h-full flex items-center justify-center bg-primary/5 border-2 border-primary">
+                  <CardContent className="text-center p-6">
+                    <p className="text-lg font-medium">{flashcards[currentCard].front}</p>
+                    <p className="text-sm text-muted-foreground mt-4">
+                      Clique para ver a resposta
+                    </p>
+                  </CardContent>
+                </Card>
+              ) : (
+                <Card className="h-full flex items-center justify-center bg-secondary/5 border-2 border-secondary">
+                  <CardContent className="text-center p-6">
+                    <p className="text-lg">{flashcards[currentCard].back}</p>
+                    <p className="text-sm text-muted-foreground mt-4">
+                      Clique para ver a pergunta
+                    </p>
+                  </CardContent>
+                </Card>
+              )}
             </div>
-
             <div className="flex justify-between items-center">
               <Button
                 variant="outline"
