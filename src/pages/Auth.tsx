@@ -76,7 +76,7 @@ const Auth = () => {
         data: { user },
       } = await supabase.auth.getUser();
       if (user) {
-        // Verifica permissão de admin
+        
         const { data: userRole } = await supabase
           .from("user_roles")
           .select("role")
@@ -156,7 +156,7 @@ const Auth = () => {
           variant: "destructive",
         });
       } else if (authData.user) {
-        // Verifica permissão de admin
+        
         const { data: userRole } = await supabase
           .from("user_roles")
           .select("role")

@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import confetti from 'canvas-confetti';
 
-// We'll use a global notification callback that can be set by the component
+
 let notificationCallback: ((notification: {
   title: string;
   description: string;
@@ -55,17 +55,16 @@ export const useGamification = (userId: string | undefined) => {
     if (!userId) return;
 
     try {
-      // Load or create gamification data
-      let { data: gamData, error: gamError } = await supabase
+      
+      const { data: gamData, error: gamError } = await supabase
         .from('user_gamification')
         .select('*')
         .eq('user_id', userId)
         .maybeSingle();
 
-      if (gamError) throw gamError;
-
-      if (!gamData) {
-        // Create initial gamification data
+      let currentData = gamData;
+      if (!currentData) {
+        
         const { data: newGamData, error: createError } = await supabase
           .from('user_gamification')
           .insert({ user_id: userId })
@@ -73,12 +72,14 @@ export const useGamification = (userId: string | undefined) => {
           .single();
 
         if (createError) throw createError;
-        gamData = newGamData;
+        currentData = newGamData;
+      } else if (gamError) {
+        throw gamError;
       }
 
-      setGamificationData(gamData as GamificationData);
+      setGamificationData(currentData as GamificationData);
 
-      // Load user badges
+      
       const { data: badgesData, error: badgesError } = await supabase
         .from('user_badges')
         .select(`
@@ -98,7 +99,7 @@ export const useGamification = (userId: string | undefined) => {
       if (badgesError) throw badgesError;
 
       const badges = badgesData
-        .map((ub: any) => ub.badges)
+        .map((ub: { badges: Badge }) => ub.badges)
         .filter(Boolean) as Badge[];
       
       setUserBadges(badges);
@@ -125,7 +126,7 @@ export const useGamification = (userId: string | undefined) => {
       const newLevel = Math.floor(Math.sqrt(newTotalXP / 100)) + 1;
       const leveledUp = newLevel > gamificationData.current_level;
 
-      // Update gamification data
+      
       const { error: updateError } = await supabase
         .from('user_gamification')
         .update({
@@ -137,7 +138,7 @@ export const useGamification = (userId: string | undefined) => {
 
       if (updateError) throw updateError;
 
-      // Record transaction
+      
       await supabase.from('xp_transactions').insert({
         user_id: userId,
         amount,
@@ -152,7 +153,7 @@ export const useGamification = (userId: string | undefined) => {
         total_points: gamificationData.total_points + amount,
       });
 
-      // Show notification via notification center
+      
       notify({
         title: `+${amount} XP`,
         description: reason,
@@ -160,7 +161,7 @@ export const useGamification = (userId: string | undefined) => {
         icon: 'zap',
       });
 
-      // Level up celebration
+      
       if (leveledUp) {
         confetti({
           particleCount: 100,
@@ -177,12 +178,12 @@ export const useGamification = (userId: string | undefined) => {
         });
       }
 
-      // Check for new badges
+      
       await checkAndAwardBadges();
     } catch (error) {
       console.error('Error awarding XP:', error);
     }
-  }, [userId, gamificationData]);
+  }, [userId, gamificationData, checkAndAwardBadges]);
 
   const updateStreak = useCallback(async () => {
     if (!userId || !gamificationData) return;
@@ -195,7 +196,7 @@ export const useGamification = (userId: string | undefined) => {
       let newLongestStreak = gamificationData.longest_streak;
 
       if (!lastActivity) {
-        // First activity
+        
         newStreak = 1;
       } else {
         const lastDate = new Date(lastActivity);
@@ -203,13 +204,13 @@ export const useGamification = (userId: string | undefined) => {
         const daysDiff = Math.floor((todayDate.getTime() - lastDate.getTime()) / (1000 * 60 * 60 * 24));
 
         if (daysDiff === 0) {
-          // Same day, no change
+          
           return;
         } else if (daysDiff === 1) {
-          // Consecutive day
+          
           newStreak = gamificationData.current_streak + 1;
         } else {
-          // Streak broken
+          
           newStreak = 1;
         }
       }
@@ -236,7 +237,7 @@ export const useGamification = (userId: string | undefined) => {
         last_activity_date: today,
       });
 
-      // Award streak bonus XP
+      
       if (newStreak > 1 && newStreak % 7 === 0) {
         await awardXP(50, `Bônus de ${newStreak} dias de sequência!`);
       }
@@ -245,34 +246,34 @@ export const useGamification = (userId: string | undefined) => {
     } catch (error) {
       console.error('Error updating streak:', error);
     }
-  }, [userId, gamificationData, awardXP]);
+  }, [userId, gamificationData, awardXP, checkAndAwardBadges]);
 
   const checkAndAwardBadges = useCallback(async () => {
     if (!userId) return;
 
     try {
-      // Get all badges
+      
       const { data: allBadges, error: badgesError } = await supabase
         .from('badges')
         .select('*');
 
       if (badgesError) throw badgesError;
 
-      // Get user's completed lessons count
+      
       const { count: lessonsCompleted } = await supabase
         .from('user_progress')
         .select('*', { count: 'exact', head: true })
         .eq('user_id', userId)
         .not('completed_at', 'is', null);
 
-      // Get user's perfect scores count
+      
       const { count: perfectScores } = await supabase
         .from('user_progress')
         .select('*', { count: 'exact', head: true })
         .eq('user_id', userId)
         .eq('score', 100);
 
-      // Get current user badges
+      
       const { data: currentBadges } = await supabase
         .from('user_badges')
         .select('badge_id')
@@ -280,7 +281,7 @@ export const useGamification = (userId: string | undefined) => {
 
       const currentBadgeIds = new Set(currentBadges?.map(b => b.badge_id) || []);
 
-      // Check each badge requirement
+      
       for (const badge of allBadges || []) {
         if (currentBadgeIds.has(badge.id)) continue;
 
@@ -299,13 +300,13 @@ export const useGamification = (userId: string | undefined) => {
         }
 
         if (earned) {
-          // Award badge
+          
           await supabase.from('user_badges').insert({
             user_id: userId,
             badge_id: badge.id,
           });
 
-          // Celebration
+          
           confetti({
             particleCount: 150,
             spread: 100,
@@ -320,10 +321,10 @@ export const useGamification = (userId: string | undefined) => {
             icon: 'trophy',
           });
 
-          // Award XP for badge
+          
           await awardXP(25, `Conquista desbloqueada: ${badge.name}`);
 
-          // Reload badges
+          
           await loadGamificationData();
         }
       }

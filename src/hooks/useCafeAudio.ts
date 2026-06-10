@@ -17,7 +17,7 @@ export const useCafeAudio = () => {
     }
     
     try {
-      audioContextRef.current = new (window.AudioContext || (window as any).webkitAudioContext)();
+      audioContextRef.current = new (window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext)();
       masterGainRef.current = audioContextRef.current.createGain();
       masterGainRef.current.connect(audioContextRef.current.destination);
       masterGainRef.current.gain.value = masterVolume;
@@ -41,7 +41,7 @@ export const useCafeAudio = () => {
   }, []);
 
   const loadSound = useCallback(async (soundId: string) => {
-    // Evitar carregar o mesmo som múltiplas vezes
+    
     if (loadedSoundsRef.current.has(soundId)) {
       return;
     }
@@ -64,7 +64,7 @@ export const useCafeAudio = () => {
       audio.loop = true;
       audio.crossOrigin = 'anonymous';
       
-      // Esperar o áudio estar pronto para tocar
+      
       await new Promise<void>((resolve, reject) => {
         audio.oncanplaythrough = () => resolve();
         audio.onerror = () => reject(new Error(`Failed to load ${soundInfo.file}`));
@@ -104,7 +104,7 @@ export const useCafeAudio = () => {
   }, []);
 
   const playSound = useCallback(async (soundId: string) => {
-    // Primeiro, garantir que o AudioContext está ativo
+    
     await resumeAudioContext();
 
     setSounds(prev => {
@@ -224,7 +224,7 @@ export const useCafeAudio = () => {
     };
   }, [sounds]);
 
-  // Cleanup é feito via useEffect no componente pai se necessário
+  
   const cleanup = useCallback(() => {
     Object.values(sounds).forEach(sound => {
       sound.audioElement?.pause();

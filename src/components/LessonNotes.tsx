@@ -1,3 +1,5 @@
+/* eslint-disable react-hooks/exhaustive-deps */
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { useState, useEffect } from "react";
 import { Pencil, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -175,3 +177,5 @@ export const LessonNotes = ({ lessonId, userId, embedded = false, onClose }: Les
     </>
   );
 };
+
+

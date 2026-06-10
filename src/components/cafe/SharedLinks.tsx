@@ -35,6 +35,26 @@ export const SharedLinks = () => {
 
   useEffect(() => {
     loadLinks();
+
+    
+    const channel = supabase
+      .channel('shared-links-updates')
+      .on(
+        'postgres_changes',
+        {
+          event: '*', 
+          schema: 'public',
+          table: 'shared_links',
+        },
+        () => {
+          loadLinks();
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
   }, []);
 
   const loadLinks = async () => {

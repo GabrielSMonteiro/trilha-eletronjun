@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import { useState, useEffect } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -18,7 +19,7 @@ interface Certificate {
 
 export const PortfolioCertificates = ({ userId }: { userId: string }) => {
   const [certificates, setCertificates] = useState<Certificate[]>([]);
-  const [badges, setBadges] = useState<any[]>([]);
+  const [badges, setBadges] = useState<{ badge_id: string; earned_at: string; badges: { name: string; description: string; icon_name: string } }[]>([]);
   const [loading, setLoading] = useState(true);
   const { toast } = useToast();
 
@@ -28,7 +29,7 @@ export const PortfolioCertificates = ({ userId }: { userId: string }) => {
 
   const loadPortfolio = async () => {
     try {
-      // Load completed categories (certificates)
+      
       const { data: progress } = await supabase
         .from('user_progress')
         .select(`
@@ -46,9 +47,9 @@ export const PortfolioCertificates = ({ userId }: { userId: string }) => {
         .eq('user_id', userId)
         .not('completed_at', 'is', null);
 
-      // Group by category
+      
       const categoryMap = new Map();
-      progress?.forEach((item: any) => {
+      progress?.forEach((item: { score?: number; completed_at: string; lessons: { category_id: string; categories: { display_name: string } } }) => {
         const categoryId = item.lessons.category_id;
         const categoryName = item.lessons.categories.display_name;
         
@@ -68,18 +69,18 @@ export const PortfolioCertificates = ({ userId }: { userId: string }) => {
         cat.dates.push(item.completed_at);
       });
 
-      // Get total lessons per category
+      
       const { data: categories } = await supabase
         .from('lessons')
         .select('category_id, categories(id, display_name)');
 
       const categoryLessons = new Map();
-      categories?.forEach((item: any) => {
+      categories?.forEach((item: { category_id: string }) => {
         const catId = item.category_id;
         categoryLessons.set(catId, (categoryLessons.get(catId) || 0) + 1);
       });
 
-      // Build certificates for 100% completed categories
+      
       const certs: Certificate[] = [];
       categoryMap.forEach((value, key) => {
         const totalLessons = categoryLessons.get(key) || 0;
@@ -99,7 +100,7 @@ export const PortfolioCertificates = ({ userId }: { userId: string }) => {
 
       setCertificates(certs);
 
-      // Load badges
+      
       const { data: badgesData } = await supabase
         .from('user_badges')
         .select(`
@@ -148,7 +149,7 @@ export const PortfolioCertificates = ({ userId }: { userId: string }) => {
 
   return (
     <div className="space-y-6">
-      {/* Certificates Section */}
+      {}
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
@@ -217,7 +218,7 @@ export const PortfolioCertificates = ({ userId }: { userId: string }) => {
         </CardContent>
       </Card>
 
-      {/* Badges Section */}
+      {}
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
@@ -235,7 +236,7 @@ export const PortfolioCertificates = ({ userId }: { userId: string }) => {
             </div>
           ) : (
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
-              {badges.map((badge: any) => (
+              {badges.map((badge) => (
                 <Card key={badge.badge_id} className="text-center hover:shadow-lg transition-shadow">
                   <CardContent className="pt-6 pb-4 space-y-2">
                     <div className="text-4xl mb-2">🏆</div>

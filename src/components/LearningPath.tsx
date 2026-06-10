@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { LessonNode } from "./LessonNode";
 import { Badge } from "@/components/ui/badge";
 import { Trophy, Target } from "lucide-react";

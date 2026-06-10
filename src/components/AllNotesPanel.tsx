@@ -1,3 +1,5 @@
+/* eslint-disable react-hooks/exhaustive-deps */
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -109,7 +111,7 @@ export const AllNotesPanel = ({ userId, onClose }: AllNotesPanelProps) => {
 
   return (
     <div className="flex flex-col h-full">
-      {/* Header */}
+      {}
       <div className="bg-gradient-to-br from-amber-500 to-orange-600 p-4 flex items-center justify-between">
         <div className="flex items-center gap-2">
           <Pencil className="h-5 w-5 text-white" />
@@ -214,3 +216,5 @@ export const AllNotesPanel = ({ userId, onClose }: AllNotesPanelProps) => {
     </div>
   );
 };
+
+

@@ -28,8 +28,8 @@ interface UserProfile {
 export const AnalyticsDashboard = ({ userId }: AnalyticsDashboardProps) => {
   const { userAnalytics, categoryAnalytics, recentSessions, loading } = useAnalytics(userId);
   const { toast } = useToast();
-  const [progressData, setProgressData] = useState<any[]>([]);
-  const [studyTimeData, setStudyTimeData] = useState<any[]>([]);
+  const [progressData, setProgressData] = useState<{ name: string; completed: number; total: number }[]>([]);
+  const [studyTimeData, setStudyTimeData] = useState<{ date: string; minutes: number }[]>([]);
   const [isAdmin, setIsAdmin] = useState(false);
   const [allUsers, setAllUsers] = useState<UserProfile[]>([]);
   const [filteredUsers, setFilteredUsers] = useState<UserProfile[]>([]);
@@ -154,7 +154,7 @@ export const AnalyticsDashboard = ({ userId }: AnalyticsDashboardProps) => {
         </Button>
       </div>
 
-      {/* Stats Cards */}
+      {}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between pb-2">

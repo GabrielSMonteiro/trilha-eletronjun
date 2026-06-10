@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -34,6 +35,7 @@ const StudyGroupsList = ({ userId }: StudyGroupsListProps) => {
     fetchCategories();
     fetchGroups();
     fetchMyGroups();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [userId]);
 
   const fetchCategories = async () => {
@@ -89,7 +91,7 @@ const StudyGroupsList = ({ userId }: StudyGroupsListProps) => {
       return;
     }
 
-    // Add creator as admin member
+    
     await supabase
       .from("study_group_members")
       .insert({

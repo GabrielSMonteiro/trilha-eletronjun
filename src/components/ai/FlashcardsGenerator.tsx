@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -56,10 +57,11 @@ export const FlashcardsGenerator = () => {
         title: "Sucesso!",
         description: `${data.flashcards.length} flashcards gerados com sucesso.`,
       });
-    } catch (error: any) {
+    } catch (error) {
+      const err = error as any;
       toast({
         title: "Erro",
-        description: error.message || "Erro ao gerar flashcards.",
+        description: err.message || "Erro ao gerar flashcards.",
         variant: "destructive",
       });
     } finally {
@@ -147,7 +149,7 @@ export const FlashcardsGenerator = () => {
                   isFlipped ? 'rotate-y-180' : ''
                 }`}
               >
-                {/* Front */}
+                {}
                 <div className="absolute inset-0 backface-hidden">
                   <Card className="h-full flex items-center justify-center bg-primary/5 border-2 border-primary">
                     <CardContent className="text-center p-6">
@@ -159,7 +161,7 @@ export const FlashcardsGenerator = () => {
                   </Card>
                 </div>
 
-                {/* Back */}
+                {}
                 <div className="absolute inset-0 backface-hidden rotate-y-180">
                   <Card className="h-full flex items-center justify-center bg-secondary/5 border-2 border-secondary">
                     <CardContent className="text-center p-6">

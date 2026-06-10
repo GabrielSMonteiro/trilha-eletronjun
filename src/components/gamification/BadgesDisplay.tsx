@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import * as LucideIcons from "lucide-react";
@@ -87,3 +88,4 @@ export const BadgesDisplay = ({ badges, className = "" }: BadgesDisplayProps) =>
     </Card>
   );
 };
+

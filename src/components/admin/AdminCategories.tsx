@@ -81,7 +81,7 @@ export const AdminCategories = () => {
   });
 
   useEffect(() => {
-    loadCategories();
+     
   }, []);
 
   const loadCategories = async () => {
@@ -238,7 +238,7 @@ export const AdminCategories = () => {
     if (!deleteCategory) return;
 
     try {
-      if (deleteCategory.lessons_count! > 0) {
+      if ((deleteCategory.lessons_count ?? 0) > 0) {
         toast({
           title: "Erro",
           description: "Não é possível excluir categoria que possui lições",
@@ -310,7 +310,7 @@ export const AdminCategories = () => {
 
   return (
     <div className="space-y-6">
-      {/* Header */}
+      {}
       <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
         <div>
           <h1 className="text-2xl md:text-3xl font-bold text-foreground">Gerenciar Categorias</h1>
@@ -416,7 +416,7 @@ export const AdminCategories = () => {
         </Dialog>
       </div>
 
-      {/* Categories List */}
+      {}
       {isLoading ? (
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
           {[...Array(6)].map((_, i) => (
@@ -506,7 +506,7 @@ export const AdminCategories = () => {
             <AlertDialogDescription>
               Tem certeza que deseja excluir a categoria{" "}
               <strong>{deleteCategory?.display_name}</strong>?
-              {deleteCategory?.lessons_count! > 0 && (
+              {(deleteCategory?.lessons_count ?? 0) > 0 && (
                 <span className="block mt-2 text-destructive font-medium">
                   Esta categoria possui {deleteCategory?.lessons_count} lições e
                   não pode ser excluída.
@@ -519,7 +519,7 @@ export const AdminCategories = () => {
             <AlertDialogAction
               onClick={handleDeleteCategory}
               className="bg-destructive hover:bg-destructive/90"
-              disabled={deleteCategory?.lessons_count! > 0}
+              disabled={(deleteCategory?.lessons_count ?? 0) > 0}
             >
               Excluir
             </AlertDialogAction>

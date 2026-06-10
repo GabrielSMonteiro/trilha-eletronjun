@@ -36,7 +36,7 @@ export interface CafeSession {
   createdAt: string;
 }
 
-// Mapeamento dos sons disponíveis com seus arquivos reais
+
 export const AVAILABLE_SOUNDS = [
   { id: 'ambiente', name: 'Ambiente', description: 'Som ambiente de cafeteria', file: '/sounds/cafe/ambiente.mp3' },
   { id: 'chuva', name: 'Chuva', description: 'Chuva na janela', file: '/sounds/cafe/chuva_janela.mp3' },

@@ -45,7 +45,7 @@ const CafeAmbience = () => {
     const initializeSounds = async () => {
       initAudioContext();
 
-      // Carregar sons em sequência para evitar problemas
+      
       for (const sound of AVAILABLE_SOUNDS) {
         await loadSound(sound.id);
       }
@@ -64,6 +64,7 @@ const CafeAmbience = () => {
         cafeService.endSession(sessionId, durationMinutes);
       }
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const startSession = async () => {
@@ -132,7 +133,7 @@ const CafeAmbience = () => {
 
   return (
     <div className="cafe-page min-h-screen">
-      {/* Header */}
+      {}
       <header className="sticky top-0 z-10 backdrop-blur-sm bg-[var(--cafe-bg)]/80 border-b border-[var(--cafe-border)]">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 py-4 flex items-center justify-between">
           <Button

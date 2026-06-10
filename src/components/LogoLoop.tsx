@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import { useCallback, useEffect, useMemo, useRef, useState, memo, CSSProperties, ReactNode } from 'react';
 import './LogoLoop.css';
 
@@ -321,3 +322,4 @@ export const LogoLoop = memo<LogoLoopProps>(
 LogoLoop.displayName = 'LogoLoop';
 
 export default LogoLoop;
+

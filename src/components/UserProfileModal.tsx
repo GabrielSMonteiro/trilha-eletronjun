@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import { useState, useEffect } from 'react';
 import { Settings, User, Mail, Briefcase, X } from 'lucide-react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
@@ -214,3 +215,4 @@ export const UserProfileModal = ({ isOpen, onClose, userId, userEmail }: UserPro
     </Dialog>
   );
 };
+

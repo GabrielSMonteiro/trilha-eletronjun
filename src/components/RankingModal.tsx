@@ -110,7 +110,7 @@ export const RankingModal = ({ isOpen, onClose }: RankingModalProps) => {
           ranking: index + 1,
         }));
 
-      setRankings(sortedRankings.slice(0, 10)); // Top 10
+      setRankings(sortedRankings.slice(0, 10)); 
     } catch (error) {
       console.error("Error loading ranking data:", error);
       setRankings([]);

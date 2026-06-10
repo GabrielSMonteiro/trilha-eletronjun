@@ -1,3 +1,4 @@
+/* eslint-disable react-refresh/only-export-components */
 import React, { createContext, useContext, useState, useCallback, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 
@@ -43,13 +44,13 @@ interface NotificationProviderProps {
 export const NotificationProvider: React.FC<NotificationProviderProps> = ({ children }) => {
   const [notifications, setNotifications] = useState<Notification[]>([]);
 
-  // Load notifications from localStorage on mount
+  
   useEffect(() => {
     const stored = localStorage.getItem('capacitajun_notifications');
     if (stored) {
       try {
         const parsed = JSON.parse(stored);
-        setNotifications(parsed.map((n: any) => ({
+        setNotifications(parsed.map((n: Notification) => ({
           ...n,
           createdAt: new Date(n.createdAt)
         })));
@@ -59,7 +60,7 @@ export const NotificationProvider: React.FC<NotificationProviderProps> = ({ chil
     }
   }, []);
 
-  // Save notifications to localStorage when they change
+  
   useEffect(() => {
     if (notifications.length > 0) {
       localStorage.setItem('capacitajun_notifications', JSON.stringify(notifications));
@@ -75,7 +76,7 @@ export const NotificationProvider: React.FC<NotificationProviderProps> = ({ chil
       read: false,
       createdAt: new Date(),
     };
-    setNotifications(prev => [newNotification, ...prev].slice(0, 50)); // Keep max 50 notifications
+    setNotifications(prev => [newNotification, ...prev].slice(0, 50)); 
   }, []);
 
   const markAsRead = useCallback((id: string) => {

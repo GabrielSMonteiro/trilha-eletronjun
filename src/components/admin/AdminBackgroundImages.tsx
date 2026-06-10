@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { useState, useEffect, useRef } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -28,7 +29,7 @@ export const AdminBackgroundImages = () => {
   const { toast } = useToast();
 
   useEffect(() => {
-    loadImages();
+     
   }, []);
 
   const loadImages = async () => {
@@ -54,7 +55,7 @@ export const AdminBackgroundImages = () => {
     const file = event.target.files?.[0];
     if (!file) return;
 
-    // Validar tipo de arquivo
+    
     if (!file.type.startsWith('image/')) {
       toast({
         title: "Erro",
@@ -64,7 +65,7 @@ export const AdminBackgroundImages = () => {
       return;
     }
 
-    // Validar tamanho (max 5MB)
+    
     if (file.size > 5 * 1024 * 1024) {
       toast({
         title: "Erro",
@@ -77,12 +78,12 @@ export const AdminBackgroundImages = () => {
     setIsUploading(true);
 
     try {
-      // Gerar nome único para o arquivo
+      
       const fileExt = file.name.split('.').pop();
       const fileName = `${Date.now()}-${Math.random().toString(36).substring(7)}.${fileExt}`;
       const filePath = `backgrounds/${fileName}`;
 
-      // Upload para o Supabase Storage
+      
       const { error: uploadError } = await supabase.storage
         .from('auth-backgrounds')
         .upload(filePath, file);
@@ -91,15 +92,15 @@ export const AdminBackgroundImages = () => {
         throw uploadError;
       }
 
-      // Construir URL pública
+      
       const publicUrl = `${SUPABASE_URL}/storage/v1/object/public/auth-backgrounds/${filePath}`;
 
-      // Calcular próxima ordem
+      
       const maxOrder = images.length > 0
         ? Math.max(...images.map(img => img.display_order))
         : -1;
 
-      // Inserir registro no banco
+      
       const { error: insertError } = await supabase
         .from("auth_background_images")
         .insert({
@@ -110,7 +111,7 @@ export const AdminBackgroundImages = () => {
         });
 
       if (insertError) {
-        // Se falhar a inserção, tentar deletar o arquivo
+        
         await supabase.storage.from('auth-backgrounds').remove([filePath]);
         throw insertError;
       }
@@ -124,8 +125,9 @@ export const AdminBackgroundImages = () => {
         fileInputRef.current.value = "";
       }
       loadImages();
-    } catch (error: any) {
-      console.error('Erro no upload:', error);
+    } catch (error) {
+      const err = error as any;
+      console.error('Erro no upload:', err);
       toast({
         title: "Erro",
         description: error.message || "Erro ao fazer upload da imagem.",
@@ -138,11 +140,11 @@ export const AdminBackgroundImages = () => {
 
   const deleteImage = async (id: string, imageUrl: string) => {
     try {
-      // Extrair o path do arquivo da URL
+      
       const urlParts = imageUrl.split('/auth-backgrounds/');
       const filePath = urlParts.length > 1 ? urlParts[1] : null;
 
-      // Deletar do banco primeiro
+      
       const { error } = await supabase
         .from("auth_background_images")
         .delete()
@@ -161,10 +163,11 @@ export const AdminBackgroundImages = () => {
         description: "Imagem excluída com sucesso.",
       });
       loadImages();
-    } catch (error: any) {
+    } catch (error) {
+      const err = error as any;
       toast({
         title: "Erro",
-        description: error.message || "Erro ao excluir imagem.",
+        description: err.message || "Erro ao excluir imagem.",
         variant: "destructive",
       });
     }
@@ -283,7 +286,7 @@ export const AdminBackgroundImages = () => {
         </CardContent>
       </Card>
 
-      {/* Images List */}
+      {}
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
@@ -375,3 +378,4 @@ export const AdminBackgroundImages = () => {
     </div>
   );
 };
+

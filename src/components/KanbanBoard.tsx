@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import { useState, useEffect } from "react";
 import { KanbanSquare, X, Plus, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -331,3 +332,4 @@ export const KanbanBoard = ({ userId, embedded = false, onClose }: KanbanBoardPr
     </>
   );
 };
+

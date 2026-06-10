@@ -1,3 +1,4 @@
+/* eslint-disable react-refresh/only-export-components */
 import { useState, useEffect } from "react";
 import { Play, ExternalLink, AlertCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -63,7 +64,7 @@ const parseVideoUrl = (url?: string, externalLink?: string): VideoSource => {
 
   const videoUrl = url || '';
 
-  // YouTube
+  
   if (videoUrl.includes('youtube.com') || videoUrl.includes('youtu.be')) {
     const regExp = /^.*((youtu.be\/)|(v\/)|(\/u\/\w\/)|(embed\/)|(watch\?))\??v?=?([^#&?]*).*/;
     const match = videoUrl.match(regExp);
@@ -80,7 +81,7 @@ const parseVideoUrl = (url?: string, externalLink?: string): VideoSource => {
     }
   }
 
-  // Vimeo
+  
   if (videoUrl.includes('vimeo.com')) {
     const vimeoRegex = /vimeo\.com\/(?:video\/)?(\d+)/;
     const match = videoUrl.match(vimeoRegex);
@@ -97,7 +98,7 @@ const parseVideoUrl = (url?: string, externalLink?: string): VideoSource => {
     }
   }
 
-  // Google Drive
+  
   if (videoUrl.includes('drive.google.com') || videoUrl.includes('docs.google.com')) {
     const driveRegex = /\/d\/([a-zA-Z0-9_-]+)/;
     const match = videoUrl.match(driveRegex);
@@ -110,7 +111,7 @@ const parseVideoUrl = (url?: string, externalLink?: string): VideoSource => {
     }
   }
 
-  // Loom
+  
   if (videoUrl.includes('loom.com')) {
     const loomRegex = /loom\.com\/share\/([a-zA-Z0-9]+)/;
     const match = videoUrl.match(loomRegex);
@@ -261,3 +262,4 @@ export const VideoPlayer = ({ url, externalLink, title, className }: VideoPlayer
     </div>
   );
 };
+

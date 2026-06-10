@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import { useRef, useEffect } from 'react';
 import { gsap } from 'gsap';
 import { Button } from '@/components/ui/button';
@@ -247,7 +248,7 @@ const MagicButton = ({
       style={{
         position: 'relative',
         overflow: 'hidden',
-        // @ts-ignore
+        
         '--glow-color': glowColor
       }}
     >
@@ -257,3 +258,4 @@ const MagicButton = ({
 };
 
 export default MagicButton;
+

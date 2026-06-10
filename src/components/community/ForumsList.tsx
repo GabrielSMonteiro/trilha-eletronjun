@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -178,3 +179,4 @@ const ForumsList = ({ userId }: ForumsListProps) => {
 };
 
 export default ForumsList;
+

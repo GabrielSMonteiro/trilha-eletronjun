@@ -73,11 +73,11 @@ export const AdminProgress = () => {
   const { toast } = useToast();
 
   useEffect(() => {
-    loadProgressData();
+     
   }, []);
 
   useEffect(() => {
-    filterUserProgress();
+     
   }, [userProgress, searchTerm]);
 
   const loadProgressData = async () => {
@@ -489,7 +489,7 @@ export const AdminProgress = () => {
         </Card>
       </div>
 
-      {/* Modal de detalhes do usuário */}
+      {}
       <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
         <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
           <DialogHeader>

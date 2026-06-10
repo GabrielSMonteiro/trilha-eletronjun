@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -23,6 +24,28 @@ const ForumThread = ({ forum, userId, onBack }: ForumThreadProps) => {
 
   useEffect(() => {
     fetchPosts();
+
+    
+    const channel = supabase
+      .channel('forum-posts-updates')
+      .on(
+        'postgres_changes',
+        {
+          event: '*', 
+          schema: 'public',
+          table: 'forum_posts',
+          filter: `forum_id=eq.${forum.id}`,
+        },
+        () => {
+          fetchPosts();
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [forum.id]);
 
   const fetchPosts = async () => {

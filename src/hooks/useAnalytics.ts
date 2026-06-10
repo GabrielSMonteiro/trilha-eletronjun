@@ -38,7 +38,7 @@ export const useAnalytics = (userId: string | undefined) => {
     if (!userId) return;
 
     try {
-      // Load user analytics
+      
       const { data: userData, error: userError } = await supabase
         .from('user_analytics')
         .select('*')
@@ -51,7 +51,7 @@ export const useAnalytics = (userId: string | undefined) => {
         setUserAnalytics(userData);
       }
 
-      // Load category analytics
+      
       const { data: categoryData, error: categoryError } = await supabase
         .from('category_analytics')
         .select('*');
@@ -62,7 +62,7 @@ export const useAnalytics = (userId: string | undefined) => {
         setCategoryAnalytics(categoryData || []);
       }
 
-      // Load recent study sessions
+      
       const { data: sessionsData, error: sessionsError } = await supabase
         .from('study_sessions')
         .select('id, created_at, duration_minutes, completed')

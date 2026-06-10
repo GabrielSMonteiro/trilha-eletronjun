@@ -5,6 +5,8 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { NotificationProvider } from "@/contexts/NotificationContext";
 import { AuthProvider } from "@/contexts/AuthContext";
+import { ProtectedRoute } from "@/components/navigation/ProtectedRoute";
+import { AdminRoute } from "@/components/navigation/AdminRoute";
 import Index from "./pages/Index";
 import Landing from "./pages/Landing";
 import Auth from "./pages/Auth";
@@ -27,16 +29,65 @@ const App = () => (
           <Sonner />
           <BrowserRouter>
             <Routes>
+              {}
               <Route path="/" element={<Landing />} />
               <Route path="/auth" element={<Auth />} />
               <Route path="/reset-password" element={<ResetPassword />} />
-              <Route path="/app" element={<Index />} />
-              <Route path="/admin" element={<Admin />} />
-              <Route path="/analytics" element={<Analytics />} />
-              <Route path="/cafe" element={<CafeAmbience />} />
-              <Route path="/community" element={<Community />} />
-              <Route path="/ai" element={<AIAutomations />} />
-              { }
+
+              {}
+              <Route
+                path="/app"
+                element={
+                  <ProtectedRoute>
+                    <Index />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/analytics"
+                element={
+                  <ProtectedRoute>
+                    <Analytics />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/cafe"
+                element={
+                  <ProtectedRoute>
+                    <CafeAmbience />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/community"
+                element={
+                  <ProtectedRoute>
+                    <Community />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/ai"
+                element={
+                  <ProtectedRoute>
+                    <AIAutomations />
+                  </ProtectedRoute>
+                }
+              />
+
+              {}
+              <Route
+                path="/admin"
+                element={
+                  <ProtectedRoute>
+                    <AdminRoute>
+                      <Admin />
+                    </AdminRoute>
+                  </ProtectedRoute>
+                }
+              />
+
               <Route path="*" element={<NotFound />} />
             </Routes>
           </BrowserRouter>

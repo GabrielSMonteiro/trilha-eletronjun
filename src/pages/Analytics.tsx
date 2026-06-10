@@ -50,7 +50,7 @@ const Analytics = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      {/* Header */}
+      {}
       <div className="sticky top-0 z-40 bg-card/80 backdrop-blur-sm border-b border-border shadow-soft">
         <div className="max-w-7xl mx-auto px-4 py-4">
           <div className="flex items-center justify-between">

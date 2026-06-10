@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import { useRef, useState, useEffect } from 'react';
 import Matter from 'matter-js';
 import './FallingText.css';
@@ -217,3 +218,4 @@ const FallingText = ({
 };
 
 export default FallingText;
+

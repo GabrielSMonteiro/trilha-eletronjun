@@ -32,3 +32,6 @@ test-results
 test-results.txt
 vitest_out.txt
 
+# Ignore bun lockfile when using npm
+bun.lockb
+

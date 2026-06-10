@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { useEffect, useState } from "react";
 import * as LucideIcons from "lucide-react";
 import { LucideIcon } from "lucide-react";
@@ -83,3 +84,4 @@ export const AchievementNotification = ({
     </div>
   );
 };
+
