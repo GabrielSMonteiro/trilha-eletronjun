@@ -55,7 +55,7 @@ export const AdminBackgroundImages = () => {
     const file = event.target.files?.[0];
     if (!file) return;
 
-    
+
     if (!file.type.startsWith('image/')) {
       toast({
         title: "Erro",
@@ -65,7 +65,7 @@ export const AdminBackgroundImages = () => {
       return;
     }
 
-    
+
     if (file.size > 5 * 1024 * 1024) {
       toast({
         title: "Erro",
@@ -78,12 +78,12 @@ export const AdminBackgroundImages = () => {
     setIsUploading(true);
 
     try {
-      
+
       const fileExt = file.name.split('.').pop();
       const fileName = `${Date.now()}-${Math.random().toString(36).substring(7)}.${fileExt}`;
       const filePath = `backgrounds/${fileName}`;
 
-      
+
       const { error: uploadError } = await supabase.storage
         .from('auth-backgrounds')
         .upload(filePath, file);
@@ -92,15 +92,15 @@ export const AdminBackgroundImages = () => {
         throw uploadError;
       }
 
-      
+
       const publicUrl = `${SUPABASE_URL}/storage/v1/object/public/auth-backgrounds/${filePath}`;
 
-      
+
       const maxOrder = images.length > 0
         ? Math.max(...images.map(img => img.display_order))
         : -1;
 
-      
+
       const { error: insertError } = await supabase
         .from("auth_background_images")
         .insert({
@@ -111,7 +111,7 @@ export const AdminBackgroundImages = () => {
         });
 
       if (insertError) {
-        
+
         await supabase.storage.from('auth-backgrounds').remove([filePath]);
         throw insertError;
       }
@@ -140,11 +140,11 @@ export const AdminBackgroundImages = () => {
 
   const deleteImage = async (id: string, imageUrl: string) => {
     try {
-      
+
       const urlParts = imageUrl.split('/auth-backgrounds/');
       const filePath = urlParts.length > 1 ? urlParts[1] : null;
 
-      
+
       const { error } = await supabase
         .from("auth_background_images")
         .delete()
@@ -286,7 +286,7 @@ export const AdminBackgroundImages = () => {
         </CardContent>
       </Card>
 
-      {}
+      { }
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
